@@ -3,17 +3,17 @@ import type { MoodOption } from "../types";
 export const moodOptions: MoodOption[] = [
   {
     value: 7,
-    label: "Amazing / Buzzing / Euphoric",
+    label: "Amazing / Buzzing",
     color: "hsl(145, 45%, 72%)",
   },
   {
     value: 6,
-    label: "Happy / Good / Energetic",
+    label: "Happy Energetic",
     color: "hsl(135, 40%, 78%)",
   },
   {
     value: 5,
-    label: "Calm / Fine / Pleasant",
+    label: "Calm / Pleasant",
     color: "hsl(125, 30%, 84%)",
   },
   {
@@ -28,12 +28,12 @@ export const moodOptions: MoodOption[] = [
   },
   {
     value: 2,
-    label: "Bad / Low / Depressed",
+    label: "Bad / Low",
     color: "hsl(15, 40%, 78%)",
   },
   {
     value: 1,
-    label: "Very low / Severely depressed",
+    label: "Very low / Depressed",
     color: "hsl(10, 45%, 72%)",
   },
 ];
