@@ -6,9 +6,22 @@
 
   let currentView: View = $state('home');
 
+  //   const views = {
+  //     home: HomeView,
+  //     trend: TrendsView,
+  //     checkin: CheckInView
+  // };
+
+  // // Derived state for the component to render
+  // let ComponentToRender = $derived(views[currentView]);
+
   function navigate(view: View) {
+    // console.log(view)
+    // console.log(currentView)
     currentView = view;
+    console.log(`Current view: ${currentView}`)
   }
+
 </script>
 
 <div class="app-shell">
@@ -23,32 +36,32 @@
   </main>
 </div>
 
-{#if currentView !== 'checkin'}
-  <nav class="navbar">
-    <button
-      class="nav-item"
-      class:active={currentView === 'home'}
-      onclick={() => navigate('home')}
-    >
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 19V9l8-6 8 6v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/>
-        <path d="M9 19v-6h6v6"/>
-      </svg>
-      <span>Journal</span>
-    </button>
+  {#if currentView !== 'checkin'}
+    <nav class="navbar">
+      <button
+        class="nav-item"
+        class:active={currentView === 'home'}
+        onclick={()=> navigate('home')}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19V9l8-6 8 6v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/>
+          <path d="M9 19v-6h6v6"/>
+        </svg>
+        <span>Journal</span>
+      </button>
 
-    <button
-      class="nav-item"
-      class:active={currentView === 'trends'}
-      onclick={() => navigate('trends')}
-    >
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-      </svg>
-      <span>Trends</span>
-    </button>
-  </nav>
-{/if}
+      <button
+        class="nav-item"
+        class:active={currentView === 'trends'}
+        onclick={() => navigate('trends')}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <span>Trends</span>
+      </button>
+    </nav>
+  {/if}
 
 <style>
   .app-shell {

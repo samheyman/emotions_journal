@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { getEmotionsForPosition } from '../lib/data/emotions';
+  import { getEmotionsForMood, moodOptions } from "../lib/data/emotions";
+
+  // import { getEmotionsForPosition } from '../lib/data/emotions';
 
   let {
-    valence,
-    energy,
+   mood,
     selected = $bindable([]),
   }: {
-    valence: number;
-    energy: number;
+    mood: number;
     selected: string[];
   } = $props();
 
-  let availableEmotions = $derived(getEmotionsForPosition(valence, energy));
+  let availableEmotions = $derived(getEmotionsForMood(mood));
 
   function toggle(emotion: string) {
     if (selected.includes(emotion)) {
@@ -23,8 +23,10 @@
 </script>
 
 <div class="emotion-picker">
+  <!-- <console>You selected {mood}</console> -->
+
   <p class="hint">
-    Pick 1–3 emotions that fit
+    Can you identify a few emotions that fit how you feel? Don't worry if you can't.
     {#if selected.length > 0}
       <span class="count">({selected.length}/3)</span>
     {/if}
@@ -45,6 +47,14 @@
 </div>
 
 <style>
+  .mood {
+    width: 100%;
+    /* display: flex; */
+    padding: 2em 0;
+  }
+
+
+
   .emotion-picker {
     width: 100%;
   }

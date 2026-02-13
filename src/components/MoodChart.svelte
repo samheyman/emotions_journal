@@ -17,7 +17,7 @@
   );
 
   let chartData = $derived(() => {
-    const days: { key: string; label: string; valence: number | null; energy: number | null }[] = [];
+    const days: { key: string; label: string; mood: number | null; }[] = [];
 
     for (let i = rangeDays - 1; i >= 0; i--) {
       const date = daysAgo(i);
@@ -37,11 +37,12 @@
       }
 
       if (dayEntries.length > 0) {
-        const avgValence = dayEntries.reduce((sum, e) => sum + e.valence, 0) / dayEntries.length;
-        const avgEnergy = dayEntries.reduce((sum, e) => sum + e.energy, 0) / dayEntries.length;
-        days.push({ key, label, valence: Math.round(avgValence * 10) / 10, energy: Math.round(avgEnergy * 10) / 10 });
+        const avgMood = dayEntries.reduce((sum, e) => sum + e.mood, 0) / dayEntries.length;
+        // const avgValence = dayEntries.reduce((sum, e) => sum + e.valence, 0) / dayEntries.length;
+        // const avgEnergy = dayEntries.reduce((sum, e) => sum + e.energy, 0) / dayEntries.length;
+        days.push({ key, label, mood: Math.round(avgMood * 10) / 10});
       } else {
-        days.push({ key, label, valence: null, energy: null });
+        days.push({ key, label, mood: null});
       }
     }
 
@@ -57,28 +58,17 @@
     chart = new ChartClass(canvasEl, {
       type: 'line',
       data: {
-        labels: data.map((d) => d.label),
+        labels: data.map((d)=> d.label),
         datasets: [
           {
-            label: 'Valence',
-            data: data.map((d) => d.valence),
+            label: 'Mood',
+            data: data.map((d) => d.mood),
             borderColor: '#C4846C',
             backgroundColor: 'rgba(196, 132, 108, 0.1)',
             fill: true,
             tension: 0.3,
             pointRadius: data.length <= 7 ? 4 : 2,
             pointBackgroundColor: '#C4846C',
-            spanGaps: true,
-          },
-          {
-            label: 'Energy',
-            data: data.map((d) => d.energy),
-            borderColor: '#7CA5A0',
-            backgroundColor: 'rgba(124, 165, 160, 0.1)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: data.length <= 7 ? 4 : 2,
-            pointBackgroundColor: '#7CA5A0',
             spanGaps: true,
           },
         ],
@@ -113,16 +103,21 @@
         },
         scales: {
           y: {
-            min: -5,
-            max: 5,
+            min: 1,
+            max: 7,
             ticks: {
-              stepSize: 2.5,
+              stepSize: 1,
               font: { family: "'Inter', system-ui, sans-serif", size: 11 },
               color: '#B5AFAA',
               callback: (value: string | number) => {
                 const num = Number(value);
+                if (num === 7) return '+7';
+                if (num === 6) return '+6';
                 if (num === 5) return '+5';
-                if (num === -5) return '-5';
+                if (num === 4) return '+4';
+                if (num === 3) return '+3';
+                if (num === 2) return '+2';
+                if (num === 1) return '+1';
                 if (num === 0) return '0';
                 return '';
               },
@@ -146,20 +141,45 @@
     });
   }
 
-  onMount(async () => {
-    const { Chart, registerables } = await import('chart.js');
-    Chart.register(...registerables);
-    ChartClass = Chart;
-    loading = false;
-    buildChart();
-    return () => chart?.destroy();
+  onMount( () => {
+    let canceled = false;
+
+    async function init() {
+      const { Chart, registerables } = await import('chart.js');
+      Chart.register(...registerables);
+      ChartClass = Chart;
+      loading = false;
+      if (!canceled) buildChart();
+    }
+
+    init();
+
+    return () => {
+      canceled = true;
+      chart?.destroy();
+    };
   });
 
+  // $effect(() => {
+  //   const _data = chartData();
+  //   const _range = range;
+  //   if (ChartClass) buildChart();
+  // });
+
+  let lastChartKey = $state(''); // this holds the last snapshot
+
   $effect(() => {
-    const _data = chartData();
-    const _range = range;
-    if (ChartClass) buildChart();
-  });
+    if (!ChartClass || !canvasEl) return;
+
+    const data = chartData();   // reactive derived data
+    const key = JSON.stringify(data) + range; // compute a key for the data
+
+    if (key === lastChartKey) return; // no change → skip rebuild
+
+    lastChartKey = key; // assign to $state top-level variable
+
+    buildChart();
+  }); 
 </script>
 
 <div class="chart-container">

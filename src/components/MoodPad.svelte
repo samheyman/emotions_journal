@@ -1,12 +1,10 @@
 <script lang="ts">
-  import { getMoodDescription } from '../lib/data/emotions';
+  // import { getMoodDescription } from '../lib/data/emotions';
 
   let {
-    valence = $bindable(0),
-    energy = $bindable(0),
+    mood = $bindable(0),
   }: {
-    valence: number;
-    energy: number;
+    mood: number;
   } = $props();
 
   let padEl: HTMLDivElement | undefined = $state();
@@ -18,8 +16,6 @@
     const rect = padEl.getBoundingClientRect();
     const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-    valence = Math.round((x * 10 - 5) * 10) / 10;
-    energy = Math.round(((1 - y) * 10 - 5) * 10) / 10;
     hasInteracted = true;
   }
 
@@ -41,7 +37,7 @@
 
   let dotX = $derived(((valence + 5) / 10) * 100);
   let dotY = $derived(((5 - energy) / 10) * 100);
-  let description = $derived(getMoodDescription(valence, energy));
+  // let description = $derived(getMoodDescription(valence, energy));
 
   // Gradient colors based on position
   let bgGradient = $derived(() => {
@@ -95,7 +91,8 @@
   </div>
 
   <p class="mood-description" class:visible={hasInteracted}>
-    {description}
+    description from the emotions/valence diagram
+    <!-- {description} -->
   </p>
 </div>
 

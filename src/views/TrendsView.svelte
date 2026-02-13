@@ -12,14 +12,18 @@
   ];
 
   let totalEntries = $derived($entries.length);
-  let avgValence = $derived(() => {
+  let avgMood = $derived(() => {
     if ($entries.length === 0) return 0;
-    return Math.round(($entries.reduce((s, e) => s + e.valence, 0) / $entries.length) * 10) / 10;
+    return Math.round(($entries.reduce((s, e) => s + e.mood, 0) / $entries.length) * 10) / 10;
   });
-  let avgEnergy = $derived(() => {
-    if ($entries.length === 0) return 0;
-    return Math.round(($entries.reduce((s, e) => s + e.energy, 0) / $entries.length) * 10) / 10;
-  });
+  // let avgValence = $derived(() => {
+  //   if ($entries.length === 0) return 0;
+  //   return Math.round(($entries.reduce((s, e) => s + e.valence, 0) / $entries.length) * 10) / 10;
+  // });
+  // let avgEnergy = $derived(() => {
+  //   if ($entries.length === 0) return 0;
+  //   return Math.round(($entries.reduce((s, e) => s + e.energy, 0) / $entries.length) * 10) / 10;
+  // });
 </script>
 
 <div class="trends">
@@ -33,13 +37,17 @@
       <span class="stat-label">entries</span>
     </div>
     <div class="stat">
+      <span class="stat-value" style="color: var(--accent)">{avgMood() > 0 ? '+' : ''}{avgMood()}</span>
+      <span class="stat-label">avg mood</span>
+    </div>
+    <!-- <div class="stat">
       <span class="stat-value" style="color: var(--accent)">{avgValence() > 0 ? '+' : ''}{avgValence()}</span>
       <span class="stat-label">avg valence</span>
     </div>
     <div class="stat">
       <span class="stat-value" style="color: var(--accent-alt)">{avgEnergy() > 0 ? '+' : ''}{avgEnergy()}</span>
       <span class="stat-label">avg energy</span>
-    </div>
+    </div> -->
   </div>
 
   <div class="range-toggle">

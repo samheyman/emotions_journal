@@ -5,12 +5,12 @@
   import NoteInput from '../components/NoteInput.svelte';
   import { entries } from '../lib/stores/entries';
   import type { EmotionEntry } from '../lib/types';
+  import MoodSelect from '../components/MoodSelect.svelte';
 
   let { onComplete, onCancel }: { onComplete: () => void; onCancel: () => void } = $props();
 
   let step = $state(1);
-  let valence = $state(0);
-  let energy = $state(0);
+  let mood = $state(0);
   let selectedEmotions: string[] = $state([]);
   let selectedTags: string[] = $state([]);
   let note = $state('');
@@ -61,8 +61,7 @@
     const entry: EmotionEntry = {
       id: generateId(),
       timestamp: new Date().toISOString(),
-      valence,
-      energy,
+      mood,
       emotions: selectedEmotions,
       tags: selectedTags,
       note,
@@ -78,7 +77,7 @@
     'Add a note'
   );
 
-  let isOptionalStep = $derived(step === 3 || step === 4);
+  let isOptionalStep = $derived(step === 2 || step === 3 || step === 4);
 </script>
 
 <div class="checkin">
@@ -107,9 +106,10 @@
 
     <div class="step-body">
       {#if step === 1}
-        <MoodPad bind:valence bind:energy />
+      <!-- <MoodPad bind:mood /> -->
+       <MoodSelect bind:mood />
       {:else if step === 2}
-        <EmotionPicker {valence} {energy} bind:selected={selectedEmotions} />
+        <EmotionPicker {mood} bind:selected={selectedEmotions} />
       {:else if step === 3}
         <TagPicker bind:selected={selectedTags} />
       {:else}
