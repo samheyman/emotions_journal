@@ -1,11 +1,13 @@
 # Task Breakdown
 
 ## Step 0: Documentation
+
 **Status: done**
 
 Create masterplan.md, PRD.md, DESIGN.md, task.md, PROGRESS.md.
 
 ## Step 1: Project Scaffolding
+
 **Status: pending**
 
 - [ ] Initialize Svelte 5 + Vite + TypeScript project
@@ -17,6 +19,7 @@ Create masterplan.md, PRD.md, DESIGN.md, task.md, PROGRESS.md.
 - [ ] Verify dev server runs and app renders
 
 ## Step 2: Data Layer
+
 **Status: pending**
 
 - [ ] Define `EmotionEntry` interface in `src/lib/types.ts`
@@ -26,6 +29,7 @@ Create masterplan.md, PRD.md, DESIGN.md, task.md, PROGRESS.md.
 - [ ] Create `src/lib/export.ts` -- JSON export utility (triggers file download)
 
 ## Step 3: MoodPad Component
+
 **Status: pending**
 
 - [ ] Build `MoodPad.svelte` with pointer event handling
@@ -36,6 +40,7 @@ Create masterplan.md, PRD.md, DESIGN.md, task.md, PROGRESS.md.
 - [ ] Test on both mouse and touch
 
 ## Step 4: Check-in Flow
+
 **Status: pending**
 
 - [ ] Build `CheckInView.svelte` with step navigation (0-3)
@@ -46,6 +51,7 @@ Create masterplan.md, PRD.md, DESIGN.md, task.md, PROGRESS.md.
 - [ ] Navigate back to Home after save
 
 ## Step 5: Home View -- Timeline
+
 **Status: pending**
 
 - [ ] Build `HomeView.svelte` with toggle between Timeline and Calendar
@@ -54,6 +60,7 @@ Create masterplan.md, PRD.md, DESIGN.md, task.md, PROGRESS.md.
 - [ ] Handle empty state (no entries yet)
 
 ## Step 6: Home View -- Calendar
+
 **Status: pending**
 
 - [ ] Build `Calendar.svelte` -- month grid
@@ -62,6 +69,7 @@ Create masterplan.md, PRD.md, DESIGN.md, task.md, PROGRESS.md.
 - [ ] Tap day to filter timeline to that day
 
 ## Step 7: Trends View
+
 **Status: pending**
 
 - [ ] Build `TrendsView.svelte` with time range selector (7d / 30d / all)
@@ -70,6 +78,7 @@ Create masterplan.md, PRD.md, DESIGN.md, task.md, PROGRESS.md.
 - [ ] Handle empty/insufficient data state
 
 ## Step 8: Polish and PWA
+
 **Status: pending**
 
 - [ ] Finalize service worker with cache-first strategy

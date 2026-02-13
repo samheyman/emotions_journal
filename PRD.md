@@ -1,120 +1,339 @@
 # Product Requirements Document
 
-## Problem
+## Working Name: OpenMood (Local-First Mood Journal)
+
+---
+
+# 1. Vision
+
+Build a **fully user-owned, local-first mood tracking app** where:
+
+- All data lives locally on the user’s device
+- No cloud storage by default
+- No accounts
+- No emotional data monetization
+- Full customization of labels and tags
+- Open, portable data format (JSON / Markdown)
+
+Inspired by the philosophy of Obsidian (local-first, user sovereignty)
+
+---
+
+# 2. Problem
 
 Current mood tracking apps fall into two camps:
 
-1. **Too simplistic.** A 1-5 scale or emoji picker collapses all emotional nuance into a single dimension. "How are you feeling?" with 5 options cannot distinguish calm from bored, or excited from anxious.
-2. **Too tedious.** Apps that capture nuance require long questionnaires, making daily use unsustainable.
+### 1. Too simplistic
 
-## Target User
+A 1–5 scale or emoji picker collapses emotional nuance into a crude summary.
 
-Anyone who wants to understand their emotional patterns over time. Primary personas:
+### 2. Too tedious
+
+Long questionnaires reduce daily adherence.
+
+Additionally:
+
+### 3. Users do not own their emotional data
+
+Most apps:
+
+- Store emotional logs in proprietary cloud systems
+- Lock export behind paywalls
+- Monetize behavioral patterns
+
+Emotional data is deeply personal. Ownership should default to the user.
+
+---
+
+# 3. Product Principles
+
+1. **Local-first by default**
+2. **User owns 100% of their data**
+3. **Customizable emotional vocabulary**
+4. **Fast daily logging (<30 seconds)**
+5. **Simple first, depth optional**
+6. **No dark patterns**
+
+---
+
+# 4. Target User
+
+Anyone wanting to understand emotional patterns over time.
+
+Primary personas:
 
 - A person managing stress who wants to spot triggers
-- A therapy client who wants to bring concrete data to sessions
-- A self-improvement enthusiast building emotional awareness
+- A therapy client bringing concrete logs to sessions
+- A self-awareness enthusiast
+- A privacy-conscious user who refuses emotional surveillance
 
-## Emotion Model
+---
 
-We use **Russell's circumplex model of affect**, which maps emotions onto two axes:
+# 5. Core Interaction Model
 
-- **Valence** (x-axis): Unpleasant (-5) to Pleasant (+5)
-- **Energy / Arousal** (y-axis): Low energy (-5) to High energy (+5)
+## Step 1: Mood Score (1–7 Scale)
 
-This gives four quadrants:
+The first screen shows a **single vertical or horizontal 1–7 scale**.
 
-| Quadrant              | Valence | Energy | Example emotions          |
-| --------------------- | ------- | ------ | ------------------------- |
-| High energy, pleasant | +       | +      | Excited, joyful, elated   |
-| High energy, unpleasant | -     | +      | Anxious, angry, stressed  |
-| Low energy, pleasant  | +       | -      | Calm, serene, content     |
-| Low energy, unpleasant | -      | -      | Sad, tired, bored         |
+Default example (fully customizable):
 
-## User Stories
+```
+7 — Perfect
+6 — Excellent
+5 — Good
+4 — Passable
+3 — Bad
+2 — Atrocious
+1 — Rock bottom
+```
 
-1. **Quick check-in (<30s).** As a user, I can open the app, tap the Mood Pad, optionally pick labels/tags/notes, and save -- all in under 30 seconds.
-2. **Review timeline.** As a user, I can scroll through past entries in chronological order and see how I felt at a glance.
-3. **See trends.** As a user, I can view a chart of my valence and energy over time to spot patterns.
-4. **Calendar view.** As a user, I can see a month view with color-coded dots showing my emotional state each day.
-5. **Export data.** As a user, I can export all my entries as JSON so my data is never locked in.
+### Why 7?
 
-## Feature Specs
+- More granularity at the top (where nuance matters most)
+- Better resolution than 1–5
+- Avoids over-precision of 1–10
+- Psychologically lightweight
 
-### MoodPad (2D input)
+Users can:
 
-- A square touch/click area representing the valence x energy space
-- Pointer events (touch + mouse) for tap or drag positioning
-- Background gradient shifts to reflect the selected quadrant
-- Outputs valence (-5 to +5) and energy (-5 to +5) as floating point numbers
-- Shows crosshair or dot at selected position
+- Rename labels
+- Change wording
+- Use emojis instead
+- Reverse direction if desired
 
-### Emotion Label Picker
+Only the numeric score (1–7) is structurally fixed.
 
-- Predefined list of emotion words organized by quadrant
-- User selects 1-3 labels that best describe their feeling
-- Labels are contextual -- shown based on the quadrant selected on the MoodPad
+---
 
-### Context Tags
+## Step 2: Emotion Selection (Shown After Score)
 
-- Predefined tags: work, social, health, family, exercise, sleep, food, weather, travel, creative
-- Multi-select, optional
+After selecting a score, the app reveals emotion labels.
 
-### Free-text Note
+### Behavior
 
-- Optional text field for additional context
-- No character limit enforced in MVP
+- Emotion suggestions can vary depending on selected score range
+- Users can select multiple emotions
+- Entire list is customizable
+- Users can add/remove/edit emotions
 
-### Timeline View (Home)
+Example for low scores (1–3):
 
-- Reverse-chronological list of entries
-- Each entry card shows: timestamp, mood dot colored by quadrant, emotion labels, tags, truncated note
+- Sad
+- Angry
+- Anxious
+- Overwhelmed
+- Tired
 
-### Calendar View (Home)
+Example for high scores (5–7):
 
-- Month grid with colored dots per day
-- Dot color derived from average valence/energy for that day
-- Tap a day to see entries for that day
+- Calm
+- Energized
+- Excited
+- Content
+- Grateful
 
-### Trends Chart
+No fixed psychological model is enforced.
 
-- Line chart showing valence and energy over time (7d / 30d / all)
-- Built with Chart.js
+---
 
-### JSON Export
+## Step 3: Context Pills
 
-- Button in settings or trends view
-- Downloads all entries as a `.json` file
+User can optionally add contextual tags.
+
+Three customizable categories:
+
+### 1. Activities
+
+Examples:
+
+- Work
+- Exercise
+- Social
+- Family
+- Travel
+- Creative
+
+### 2. Environment
+
+Examples:
+
+- Home
+- Office
+- Outdoors
+- Café
+- Commute
+
+### 3. Weather
+
+Examples:
+
+- Sunny
+- Rainy
+- Snowy
+- Cold
+- Windy
+
+Each category:
+
+- Multi-select
+- Editable
+- Fully customizable
+- Presented as tappable "pills"
+
+Users can create new categories in future versions.
+
+---
+
+## Step 4: Optional Note
+
+- Free text field
+- No character limit
+- Markdown support (optional future enhancement)
+
+---
+
+# 6. User Stories
+
+1. **Quick Check-In**  
+   I can open the app and log a mood in under 30 seconds.
+
+2. **Custom Vocabulary**  
+   I can rename mood levels and emotion labels.
+
+3. **Ownership**
+   - I can export all my data as JSON or Markdown.
+   - I can access raw files directly.
+
+4. **Review Timeline**  
+   I can scroll through past entries chronologically.
+
+5. **See Patterns**  
+   I can view mood score trends over time.
+
+6. **No Account**  
+   I never need to create a login.
+
+---
+
+# 7. Feature Specifications
+
+## Home Screen (Check-In)
+
+1. 1–7 scale
+2. Emotion selection panel (revealed after score)
+3. Context pills
+4. Optional note
+5. Save button
+
+---
+
+## Timeline View
+
+- Reverse chronological
+- Entry card shows:
+  - Timestamp
+  - Mood score
+  - Emotion labels
+  - Context pills
+  - Truncated note
+
+---
+
+## Calendar View
+
+- Month grid
+- Each day shows:
+  - Color-coded average score
+  - Optional number overlay
+
+---
+
+## Trends View
+
+- Line chart showing mood score (1–7)
+- Range options:
+  - 7 days
+  - 30 days
+  - All time
+- Optional filtering by tag
+
+---
+
+## Settings
+
+- Edit mood labels
+- Edit emotion list
+- Edit context categories
+- Import data
+- Export data
+- Choose storage format
+
+---
+
+# 8. Data Ownership & Storage Model
+
+## Default: Local-First Storage
+
+Options:
+
+- Browser local storage (MVP web version)
+- File-based JSON vault (desktop)
+- Future: user-managed folder (Obsidian-style)
+
+No backend required for MVP.
+
+---
 
 ## Data Model
 
 ```typescript
 interface EmotionEntry {
-  id: string;              // crypto.randomUUID()
-  timestamp: string;       // ISO 8601
-  valence: number;         // -5 to +5
-  energy: number;          // -5 to +5
-  emotions: string[];      // 1-3 labels
-  tags: string[];          // context tags
-  note: string;            // optional free text
+  id: string; // crypto.randomUUID()
+  timestamp: string; // ISO 8601
+  score: number; // 1–7
+  emotions: string[]; // customizable labels
+  activities: string[]; // customizable
+  environment: string[]; // customizable
+  weather: string[]; // customizable
+  note: string; // optional
 }
 ```
 
-## MVP Scope
+All configuration (labels, categories) is also stored locally.
 
-Everything listed above ships in the web prototype. The following are explicitly **out of scope** for MVP:
+---
 
-- User accounts and authentication
-- Backend / cloud sync
-- Push notification reminders
-- Sharing or social features
-- AI-powered insights
+# 9. Explicitly Out of Scope (MVP)
 
-## Success Metrics
+- User accounts
+- Cloud sync
+- Social sharing
+- AI insights
+- Therapy recommendations
+- Ads
+- Emotional scoring algorithms
 
-| Metric                              | Target       |
-| ----------------------------------- | ------------ |
-| Complete check-in time              | < 30 seconds |
-| Data persists across browser sessions | 100%       |
-| PWA installable on mobile           | Yes          |
-| Works offline after first load      | Yes          |
+---
+
+# 10. Success Metrics
+
+| Metric             | Target       |
+| ------------------ | ------------ |
+| Check-in time      | < 30 seconds |
+| Works offline      | Yes          |
+| Installable as PWA | Yes          |
+| Data exportable    | 100%         |
+| No required login  | Yes          |
+
+---
+
+# 11. Positioning
+
+Unlike typical mood tracking apps:
+
+- No cloud dependency
+- No subscription lock-in
+- No fixed emotion model
+- No emotional data monetization
+
+This is **an emotional journaling tool, not a data platform**.
