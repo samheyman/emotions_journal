@@ -12,7 +12,7 @@
 
 <div class="home">
   <header class="home-header">
-    <h1 class="title">Emotions Log</h1>
+    <h1 class="title">Lumidian</h1>
     <button class="export-btn" onclick={() => exportToJSON($entries)} title="Export data">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>

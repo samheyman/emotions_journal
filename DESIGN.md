@@ -2,28 +2,28 @@
 
 ## Tech Stack
 
-| Layer         | Choice                          | Rationale                                    |
-| ------------- | ------------------------------- | -------------------------------------------- |
-| Framework     | Svelte 5                        | Lightweight, fast, great DX with runes       |
-| Build tool    | Vite                            | Fast HMR, native TS support                  |
-| Language      | TypeScript                      | Type safety for data model and stores         |
-| Styling       | Scoped CSS + design tokens      | No external CSS framework needed              |
-| Storage       | localStorage                    | Zero-config, works offline, good for MVP      |
-| Charts        | Chart.js                        | Well-maintained, canvas-based, small enough   |
-| Routing       | Simple component-based          | No router library -- a reactive `currentView` variable toggles views |
-| PWA           | manifest.json + service worker  | Installable, offline-capable                  |
+| Layer      | Choice                         | Rationale                                                            |
+| ---------- | ------------------------------ | -------------------------------------------------------------------- |
+| Framework  | Svelte 5                       | Lightweight, fast, great DX with runes                               |
+| Build tool | Vite                           | Fast HMR, native TS support                                          |
+| Language   | TypeScript                     | Type safety for data model and stores                                |
+| Styling    | Scoped CSS + design tokens     | No external CSS framework needed                                     |
+| Storage    | localStorage                   | Zero-config, works offline, good for MVP                             |
+| Charts     | Chart.js                       | Well-maintained, canvas-based, small enough                          |
+| Routing    | Simple component-based         | No router library -- a reactive `currentView` variable toggles views |
+| PWA        | manifest.json + service worker | Installable, offline-capable                                         |
 
 ## Data Model
 
 ```typescript
 interface EmotionEntry {
-  id: string;              // crypto.randomUUID()
-  timestamp: string;       // ISO 8601
-  valence: number;         // -5 to +5
-  energy: number;          // -5 to +5
-  emotions: string[];      // 1-3 labels
-  tags: string[];          // context tags
-  note: string;            // optional free text
+  id: string; // crypto.randomUUID()
+  timestamp: string; // ISO 8601
+  valence: number; // -5 to +5
+  energy: number; // -5 to +5
+  emotions: string[]; // 1-3 labels
+  tags: string[]; // context tags
+  note: string; // optional free text
 }
 ```
 
@@ -127,48 +127,48 @@ Warm neutral palette with terracotta and sage accents. See design tokens below.
 ```css
 :root {
   /* Warm neutrals */
-  --color-bg:           #FAF7F2;
-  --color-surface:      #FFFFFF;
-  --color-surface-alt:  #F0ECE3;
-  --color-border:       #E0D9CC;
-  --color-text:         #2C2825;
-  --color-text-muted:   #8A8078;
+  --color-bg: #faf7f2;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f0ece3;
+  --color-border: #e0d9cc;
+  --color-text: #2c2825;
+  --color-text-muted: #8a8078;
 
   /* Accent colors */
-  --color-terracotta:   #C17256;
-  --color-sage:         #7A9E7E;
-  --color-gold:         #D4A853;
-  --color-sky:          #6BA3BE;
+  --color-terracotta: #c17256;
+  --color-sage: #7a9e7e;
+  --color-gold: #d4a853;
+  --color-sky: #6ba3be;
 
   /* Quadrant colors (mood pad + entry dots) */
-  --color-q-hp-he:      #E8A838;   /* high energy, pleasant -- amber */
-  --color-q-hp-le:      #7AB87E;   /* low energy, pleasant -- sage green */
-  --color-q-up-he:      #D46A6A;   /* high energy, unpleasant -- coral red */
-  --color-q-up-le:      #7191A6;   /* low energy, unpleasant -- steel blue */
+  --color-q-hp-he: #e8a838; /* high energy, pleasant -- amber */
+  --color-q-hp-le: #7ab87e; /* low energy, pleasant -- sage green */
+  --color-q-up-he: #d46a6a; /* high energy, unpleasant -- coral red */
+  --color-q-up-le: #7191a6; /* low energy, unpleasant -- steel blue */
 
   /* Typography */
-  --font-sans:          'Inter', system-ui, -apple-system, sans-serif;
-  --font-size-sm:       0.875rem;
-  --font-size-base:     1rem;
-  --font-size-lg:       1.25rem;
-  --font-size-xl:       1.5rem;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
 
   /* Spacing */
-  --space-xs:           0.25rem;
-  --space-sm:           0.5rem;
-  --space-md:           1rem;
-  --space-lg:           1.5rem;
-  --space-xl:           2rem;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
 
   /* Borders */
-  --radius-sm:          0.5rem;
-  --radius-md:          0.75rem;
-  --radius-lg:          1rem;
-  --radius-full:        9999px;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-sm:          0 1px 2px rgba(44, 40, 37, 0.06);
-  --shadow-md:          0 2px 8px rgba(44, 40, 37, 0.10);
+  --shadow-sm: 0 1px 2px rgba(44, 40, 37, 0.06);
+  --shadow-md: 0 2px 8px rgba(44, 40, 37, 0.1);
 }
 ```
 
@@ -178,8 +178,8 @@ Warm neutral palette with terracotta and sage accents. See design tokens below.
 
 ```json
 {
-  "name": "Emotions Log",
-  "short_name": "Emotions",
+  "name": "Lumidian",
+  "short_name": "Lumidian",
   "start_url": "/",
   "display": "fullscreen",
   "background_color": "#FAF7F2",

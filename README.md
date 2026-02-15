@@ -1,4 +1,4 @@
-# Emotions Log
+# Lumidian
 
 [PRD](./PRD.md)
 [Design doc](./DESIGN.md)
