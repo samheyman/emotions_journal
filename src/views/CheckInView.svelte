@@ -14,6 +14,30 @@
   let selectedEmotions: string[] = $state([]);
   let selectedTags: string[] = $state([]);
   let note = $state('');
+  let selectedDate = $state(new Date());
+  let dateInputEl: HTMLInputElement | undefined = $state();
+
+  let todayStr = new Date().toISOString().slice(0, 10);
+
+  let isToday = $derived(
+    selectedDate.toISOString().slice(0, 10) === todayStr
+  );
+
+  let dateLabel = $derived(
+    isToday ? 'Today' : selectedDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
+  );
+
+  function openDatePicker() {
+    dateInputEl?.showPicker();
+  }
+
+  function onDateChange(e: Event) {
+    const val = (e.target as HTMLInputElement).value;
+    if (val) {
+      const [y, m, d] = val.split('-').map(Number);
+      selectedDate = new Date(y, m - 1, d, new Date().getHours(), new Date().getMinutes());
+    }
+  }
 
   const totalSteps = 4;
 
@@ -58,9 +82,10 @@
   }
 
   function save() {
+    const timestamp = isToday ? new Date().toISOString() : selectedDate.toISOString();
     const entry: EmotionEntry = {
       id: generateId(),
-      timestamp: new Date().toISOString(),
+      timestamp,
       mood,
       emotions: selectedEmotions,
       tags: selectedTags,
@@ -71,7 +96,7 @@
   }
 
   let stepTitle = $derived(
-    step === 1 ? 'How are you feeling?' :
+    step === 1 ? (isToday ? 'How are you feeling?' : 'How were you feeling?') :
     step === 2 ? 'Name your emotions' :
     step === 3 ? 'Add context' :
     'Add a note'
@@ -102,6 +127,22 @@
   </header>
 
   <div class="step-content">
+    <div class="date-row">
+      <button class="date-chip" class:past={!isToday} onclick={openDatePicker}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        {dateLabel}
+      </button>
+      <input
+        bind:this={dateInputEl}
+        type="date"
+        class="date-input-hidden"
+        max={todayStr}
+        value={selectedDate.toISOString().slice(0, 10)}
+        onchange={onDateChange}
+      />
+    </div>
     <h2 class="step-title">{stepTitle}</h2>
 
     <div class="step-body">
@@ -199,6 +240,45 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+  }
+
+  .date-row {
+    position: relative;
+    margin-bottom: var(--space-sm);
+  }
+
+  .date-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.15s ease;
+  }
+
+  .date-chip:active {
+    background: var(--bg-subtle);
+  }
+
+  .date-chip.past {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(196, 132, 108, 0.08);
+  }
+
+  .date-input-hidden {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
   }
 
   .step-title {
