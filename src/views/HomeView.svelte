@@ -41,9 +41,9 @@
 
   <div class="tab-content">
     {#if activeTab === 'timeline'}
-      <Timeline entries={$entries} />
+      <Timeline entries={$entries} onDelete={(id) => entries.remove(id)} />
     {:else}
-      <Calendar entries={$entries} />
+      <Calendar entries={$entries} onDelete={(id) => entries.remove(id)} />
     {/if}
   </div>
 

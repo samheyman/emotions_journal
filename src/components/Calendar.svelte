@@ -3,7 +3,7 @@
   import { getDaysInMonth, getFirstDayOfMonth, formatMonthYear, dateKey } from '../lib/utils/dates';
   import EntryCard from './EntryCard.svelte';
 
-  let { entries }: { entries: EmotionEntry[] } = $props();
+  let { entries, onDelete }: { entries: EmotionEntry[]; onDelete: (id: string) => void } = $props();
 
   let year = $state(new Date().getFullYear());
   let month = $state(new Date().getMonth());
@@ -55,11 +55,12 @@
     const dayEntries = entriesByDate().get(key);
     if (!dayEntries || dayEntries.length === 0) return 'transparent';
 
-    const avgValence = dayEntries.reduce((sum, e) => sum + e.valence, 0) / dayEntries.length;
-    const t = (avgValence + 5) / 10; // 0 to 1
-    const r = Math.round(155 + t * 77);
-    const g = Math.round(174 - t * 13);
-    const b = Math.round(194 - t * 34);
+    const avgMood = dayEntries.reduce((sum, e) => sum + e.mood, 0) / dayEntries.length;
+    const t = (avgMood - 1) / 6; // 0 to 1
+    // Warm (green-ish) for high mood, cool (blue-gray) for low mood
+    const r = Math.round(107 + t * 105);
+    const g = Math.round(129 + t * 40);
+    const b = Math.round(154 - t * 82);
     const alpha = Math.min(0.8, 0.3 + dayEntries.length * 0.15);
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
@@ -129,7 +130,7 @@
   {#if selectedDay && selectedEntries().length > 0}
     <div class="selected-entries">
       {#each selectedEntries() as entry (entry.id)}
-        <EntryCard {entry} />
+        <EntryCard {entry} {onDelete} />
       {/each}
     </div>
   {/if}

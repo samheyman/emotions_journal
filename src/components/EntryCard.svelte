@@ -1,49 +1,31 @@
 <script lang="ts">
   import type { EmotionEntry } from '../lib/types';
   import { formatTime } from '../lib/utils/dates';
+  import { getMoodLabel, getMoodColor } from '../lib/data/emotions';
 
-  let { entry }: { entry: EmotionEntry } = $props();
+  let { entry, onDelete }: { entry: EmotionEntry; onDelete: (id: string) => void } = $props();
 
   let expanded = $state(false);
-
-  let moodColor = $derived(() => {
-    const t = (entry.valence + 5) / 10; // 0 to 1
-    const r = Math.round(155 + t * 77);
-    const g = Math.round(174 - t * 13);
-    const b = Math.round(194 - t * 34);
-    return `rgb(${r}, ${g}, ${b})`;
-  });
-
-  let valenceLabel = $derived(
-    entry.valence > 2 ? 'Pleasant' :
-    entry.valence < -2 ? 'Unpleasant' :
-    'Neutral'
-  );
-
-  let energyLabel = $derived(
-    entry.energy > 2 ? 'High energy' :
-    entry.energy < -2 ? 'Low energy' :
-    'Moderate'
-  );
+  let confirmingDelete = $state(false);
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div class="entry-card" onclick={() => expanded = !expanded}>
   <div class="card-header">
-    <div class="mood-indicator" style="background: {moodColor()}"></div>
+    <div class="mood-indicator" style="background: {getMoodColor(entry.mood)}"></div>
     <div class="card-info">
       <div class="emotions-row">
-        {#each entry.emotions as emotion}
-          <span class="emotion-label">{emotion}</span>
-        {/each}
+        {#if entry.emotions.length > 0}
+          {#each entry.emotions as emotion}
+            <span class="emotion-label">{emotion}</span>
+          {/each}
+        {:else}
+          <span class="emotion-label">{getMoodLabel(entry.mood)}</span>
+        {/if}
       </div>
-      <span class="time">{formatTime(entry.timestamp)}</span>
     </div>
-    <div class="mood-values">
-      <span class="value-badge" title="Valence">{valenceLabel}</span>
-      <span class="value-badge alt" title="Energy">{energyLabel}</span>
-    </div>
+    <span class="mood-badge" style="background: {getMoodColor(entry.mood)}">{getMoodLabel(entry.mood)}</span>
   </div>
 
   {#if entry.tags.length > 0}
@@ -63,6 +45,26 @@
   {#if entry.note && !expanded}
     <div class="note-preview">
       <p>{entry.note.slice(0, 60)}{entry.note.length > 60 ? '...' : ''}</p>
+    </div>
+  {/if}
+
+  {#if expanded}
+    <div class="actions">
+      <span class="time">{formatTime(entry.timestamp)}</span>
+      {#if confirmingDelete}
+        <span class="confirm-text">Delete this entry?</span>
+        <button class="cancel-btn" onclick={(e) => { e.stopPropagation(); confirmingDelete = false; }}>Cancel</button>
+        <button class="confirm-delete-btn" onclick={(e) => { e.stopPropagation(); onDelete(entry.id); }}>Delete</button>
+      {:else}
+        <button class="delete-btn" onclick={(e) => { e.stopPropagation(); confirmingDelete = true; }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6"/><path d="M14 11v6"/>
+          </svg>
+          Delete
+        </button>
+      {/if}
     </div>
   {/if}
 </div>
@@ -119,32 +121,14 @@
     color: var(--text-muted);
   }
 
-  .time {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-  }
-
-  .mood-values {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex-shrink: 0;
-  }
-
-  .value-badge {
+  .mood-badge {
     font-size: 0.625rem;
-    padding: 2px 6px;
+    padding: 3px 8px;
     border-radius: var(--radius-full);
-    background: var(--accent-soft);
-    color: var(--accent);
+    color: white;
     font-weight: 500;
     white-space: nowrap;
-    text-align: center;
-  }
-
-  .value-badge.alt {
-    background: rgba(124, 165, 160, 0.15);
-    color: var(--accent-alt);
+    flex-shrink: 0;
   }
 
   .tags-row {
@@ -176,5 +160,70 @@
 
   .note-preview p {
     color: var(--text-muted);
+  }
+
+  .actions {
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-right: auto;
+  }
+
+  .delete-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--font);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .delete-btn:active {
+    background: rgba(200, 50, 50, 0.1);
+    color: #c44;
+  }
+
+  .confirm-text {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-right: auto;
+  }
+
+  .cancel-btn, .confirm-delete-btn {
+    border: none;
+    font-family: var(--font);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius-sm);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cancel-btn {
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+  }
+
+  .confirm-delete-btn {
+    background: #c44;
+    color: white;
+  }
+
+  .confirm-delete-btn:active {
+    background: #a33;
   }
 </style>
