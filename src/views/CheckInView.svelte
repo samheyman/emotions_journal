@@ -4,7 +4,7 @@
   import TagPicker from '../components/TagPicker.svelte';
   import NoteInput from '../components/NoteInput.svelte';
   import { entries } from '../lib/stores/entries';
-  import type { EmotionEntry } from '../lib/types';
+  import type { EmotionEntry, TimeOfDay } from '../lib/types';
   import MoodSelect from '../components/MoodSelect.svelte';
 
   let { onComplete, onCancel }: { onComplete: () => void; onCancel: () => void } = $props();
@@ -16,6 +16,18 @@
   let note = $state('');
   let selectedDate = $state(new Date());
   let dateInputEl: HTMLInputElement | undefined = $state();
+  let timeOfDay: TimeOfDay = $state('allday');
+  let timeDropdownOpen = $state(false);
+
+  const timeOptions: { value: TimeOfDay; label: string }[] = [
+    { value: 'morning', label: 'Morning' },
+    { value: 'afternoon', label: 'Afternoon' },
+    { value: 'evening', label: 'Evening' },
+    { value: 'night', label: 'Night' },
+    { value: 'allday', label: 'All day' },
+  ];
+
+  let timeLabel = $derived(timeOptions.find(o => o.value === timeOfDay)!.label);
 
   let todayStr = new Date().toISOString().slice(0, 10);
 
@@ -90,6 +102,7 @@
       emotions: selectedEmotions,
       tags: selectedTags,
       note,
+      timeOfDay,
     };
     entries.add(entry);
     onComplete();
@@ -142,6 +155,32 @@
         value={selectedDate.toISOString().slice(0, 10)}
         onchange={onDateChange}
       />
+      <div class="time-dropdown-wrapper">
+        <button class="time-chip" onclick={() => timeDropdownOpen = !timeDropdownOpen}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          {timeLabel}
+          <svg class="chevron" class:open={timeDropdownOpen} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        {#if timeDropdownOpen}
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <div class="time-dropdown" onclick={(e) => e.stopPropagation()}>
+            {#each timeOptions as option}
+              <button
+                class="time-option"
+                class:selected={timeOfDay === option.value}
+                onclick={() => { timeOfDay = option.value; timeDropdownOpen = false; }}
+              >
+                {option.label}
+              </button>
+            {/each}
+          </div>
+        {/if}
+      </div>
     </div>
     <h2 class="step-title">{stepTitle}</h2>
 
@@ -243,7 +282,13 @@
   }
 
   .date-row {
+    /* outline: 1px solid red; */
     position: relative;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-sm);
     margin-bottom: var(--space-sm);
   }
 
@@ -281,9 +326,79 @@
     pointer-events: none;
   }
 
+  .time-dropdown-wrapper {
+    position: relative;
+  }
+
+  .time-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.15s ease;
+  }
+
+  .time-chip:active {
+    background: var(--bg-subtle);
+  }
+
+  .chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .chevron.open {
+    transform: rotate(180deg);
+  }
+
+  .time-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    overflow: hidden;
+    min-width: 140px;
+  }
+
+  .time-option {
+    display: block;
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: var(--text-sm);
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.1s ease;
+  }
+
+  .time-option:active {
+    background: var(--bg-subtle);
+  }
+
+  .time-option.selected {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
   .step-title {
     font-size: var(--text-xl);
     font-weight: 600;
+    margin-top: var(--space-lg);
     margin-bottom: var(--space-lg);
     color: var(--text-primary);
   }

@@ -50,7 +50,7 @@
 
   {#if expanded}
     <div class="actions">
-      <span class="time">{formatTime(entry.timestamp)}</span>
+      <span class="time">{formatTime(entry.timestamp)}{#if entry.timeOfDay && entry.timeOfDay !== 'allday'}{' · '}{entry.timeOfDay === 'morning' ? 'Morning' : entry.timeOfDay === 'afternoon' ? 'Afternoon' : entry.timeOfDay === 'evening' ? 'Evening' : 'Night'}{/if}</span>
       {#if confirmingDelete}
         <span class="confirm-text">Delete this entry?</span>
         <button class="cancel-btn" onclick={(e) => { e.stopPropagation(); confirmingDelete = false; }}>Cancel</button>

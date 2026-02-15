@@ -19,7 +19,7 @@ export const moodOptions: MoodOption[] = [
   {
     value: 4,
     label: "So-so / Neutral",
-    color: "hsl(0, 0%, 88%)",
+    color: "hsl(0, 0%, 95w%)",
   },
   {
     value: 3,

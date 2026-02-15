@@ -1,25 +1,25 @@
 :root {
   /* Background */
-  --bg-primary: #FAF8F5;
-  --bg-card: #FFFFFF;
-  --bg-subtle: #F3EFEA;
+  --bg-primary: #faf8f5;
+  --bg-card: #ffffff;
+  --bg-subtle: #f3efea;
 
   /* Text */
-  --text-primary: #2C2825;
-  --text-secondary: #8A8380;
-  --text-muted: #B5AFAA;
+  --text-primary: #2c2825;
+  --text-secondary: #8a8380;
+  --text-muted: #b5afaa;
 
   /* Accent */
-  --accent: #C4846C;
-  --accent-soft: #E8CFC4;
-  --accent-alt: #7CA5A0;
+  --accent: #55187e;
+  --accent-soft: #936ed8;
+  --accent-alt: #7ca5a0;
 
   /* Mood gradient endpoints */
-  --mood-negative: #9BAEC2;
-  --mood-positive: #E8C9A0;
+  --mood-negative: #9baec2;
+  --mood-positive: #763594;
 
   /* Borders & shadows */
-  --border: #E8E4DF;
+  --border: #e8e4df;
   --shadow: 0 1px 3px rgba(44, 40, 37, 0.06);
 
   /* Spacing (8px grid) */
@@ -31,7 +31,7 @@
   --space-2xl: 48px;
 
   /* Typography */
-  --font: 'Inter', system-ui, sans-serif;
+  --font: "Inter", system-ui, sans-serif;
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-lg: 1.25rem;
@@ -50,7 +50,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   font-family: var(--font);
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -63,7 +64,8 @@ html, body {
 }
 
 body {
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 #app {

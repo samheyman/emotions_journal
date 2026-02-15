@@ -1,3 +1,5 @@
+export type TimeOfDay = 'morning' | 'afternoon' | 'evening' | 'night' | 'allday';
+
 export interface EmotionEntry {
   id: string;
   timestamp: string;
@@ -5,6 +7,7 @@ export interface EmotionEntry {
   emotions: string[];
   tags: string[];
   note: string;
+  timeOfDay?: TimeOfDay;
 }
 
 export type View = 'home' | 'checkin' | 'trends';
