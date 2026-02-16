@@ -16,7 +16,7 @@
   function toggle(emotion: string) {
     if (selected.includes(emotion)) {
       selected = selected.filter((e) => e !== emotion);
-    } else if (selected.length < 3) {
+    } else if (selected.length < 4) {
       selected = [...selected, emotion];
     }
   }
@@ -26,9 +26,9 @@
   <!-- <console>You selected {mood}</console> -->
 
   <p class="hint">
-    Can you identify a few emotions that fit how you feel? Don't worry if you can't.
+    Can you identify a few emotions that fit how you feel? <span class="optional">Don't worry if you can't.</span>
     {#if selected.length > 0}
-      <span class="count">({selected.length}/3)</span>
+      <span class="count">({selected.length}/4)</span>
     {/if}
   </p>
 
@@ -37,7 +37,7 @@
       <button
         class="chip"
         class:selected={selected.includes(emotion)}
-        class:disabled={selected.length >= 3 && !selected.includes(emotion)}
+        class:disabled={selected.length >= 4 && !selected.includes(emotion)}
         onclick={() => toggle(emotion)}
       >
         {emotion}
