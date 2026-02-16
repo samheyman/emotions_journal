@@ -1,17 +1,14 @@
 <script lang="ts">
-  import MoodPad from '../components/MoodPad.svelte';
-  import EmotionPicker from '../components/EmotionPicker.svelte';
   import TagPicker from '../components/TagPicker.svelte';
-  import NoteInput from '../components/NoteInput.svelte';
   import { entries } from '../lib/stores/entries';
   import type { EmotionEntry, TimeOfDay } from '../lib/types';
   import MoodSelect from '../components/MoodSelect.svelte';
+  import { extractEmotions, getMoodColor, getAllEmotionWords } from '../lib/data/emotions';
 
   let { onComplete, onCancel }: { onComplete: () => void; onCancel: () => void } = $props();
 
   let step = $state(1);
-  let mood = $state(0);
-  let selectedEmotions: string[] = $state([]);
+  let mood = $state(4);
   let selectedTags: string[] = $state([]);
   let note = $state('');
   let selectedDate = $state(new Date());
@@ -51,11 +48,10 @@
     }
   }
 
-  const totalSteps = 4;
+  const totalSteps = 3;
 
   let canProceed = $derived(
-    step === 1 ? true :
-    step === 2 ? selectedEmotions.length >= 1 :
+    step === 1 ? note.trim().length > 0 :
     true
   );
 
@@ -99,7 +95,7 @@
       id: generateId(),
       timestamp,
       mood,
-      emotions: selectedEmotions,
+      emotions: allEmotions,
       tags: selectedTags,
       note,
       timeOfDay,
@@ -109,13 +105,62 @@
   }
 
   let stepTitle = $derived(
-    step === 1 ? (isToday ? 'How are you feeling?' : 'How were you feeling?') :
-    step === 2 ? 'Name your emotions' :
-    step === 3 ? 'Add context' :
-    'Add a note'
+    step === 1 ? (isToday ? "What's present right now?" : "What was present?") :
+    step === 2 ? 'Behaviour / Context' :
+    ''
   );
 
-  let isOptionalStep = $derived(step === 2 || step === 3 || step === 4);
+  let rawInferredEmotions = $derived(extractEmotions(note, mood));
+  let dismissedEmotions: string[] = $state([]);
+  let manualEmotions: string[] = $state([]);
+  let emotionInput = $state('');
+  let showSuggestions = $state(false);
+
+  let inferredEmotions = $derived(
+    rawInferredEmotions.filter(e => !dismissedEmotions.includes(e))
+  );
+
+  let allEmotions = $derived(
+    [...new Set([...inferredEmotions, ...manualEmotions])]
+  );
+
+  let suggestions = $derived(() => {
+    if (emotionInput.trim().length === 0) return [];
+    const q = emotionInput.toLowerCase();
+    return getAllEmotionWords()
+      .filter(e => e.startsWith(q) && !allEmotions.includes(e))
+      .slice(0, 5);
+  });
+
+  function addEmotion(emotion: string) {
+    const trimmed = emotion.trim().toLowerCase();
+    if (trimmed && !allEmotions.includes(trimmed)) {
+      manualEmotions = [...manualEmotions, trimmed];
+    }
+    emotionInput = '';
+    showSuggestions = false;
+  }
+
+  function removeEmotion(emotion: string) {
+    manualEmotions = manualEmotions.filter(e => e !== emotion);
+    if (rawInferredEmotions.includes(emotion)) {
+      dismissedEmotions = [...dismissedEmotions, emotion];
+    }
+  }
+
+  function onEmotionKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const suggs = suggestions();
+      if (suggs.length > 0) {
+        addEmotion(suggs[0]);
+      } else if (emotionInput.trim()) {
+        addEmotion(emotionInput);
+      }
+    }
+  }
+
+  let isOptionalStep = $derived(step === 2);
 </script>
 
 <div class="checkin">
@@ -186,19 +231,85 @@
 
     <div class="step-body">
       {#if step === 1}
-      <!-- <MoodPad bind:mood /> -->
-       <MoodSelect bind:mood />
+        <div class="discharge-step">
+          <textarea
+            bind:value={note}
+            placeholder="I am tired and am snapping at everyone..."
+            rows="3"
+            maxlength="500"
+          ></textarea>
+          {#if note.length > 0}
+            <span class="char-count">{note.length}/500</span>
+          {/if}
+
+          <div class="intensity-section">
+            <p class="intensity-label">Intensity</p>
+            <MoodSelect bind:mood />
+          </div>
+
+          <div class="emotions-section">
+            <p class="intensity-label">Emotions</p>
+            {#if allEmotions.length > 0}
+              <div class="emotion-tags">
+                {#each inferredEmotions as emotion}
+                  <button class="emotion-tag manual" style="border-color: var(--border)" onclick={() => removeEmotion(emotion)}>
+                    {emotion}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                {/each}
+                {#each manualEmotions as emotion}
+                  <button class="emotion-tag manual" style="border-color: var(--border)" onclick={() => removeEmotion(emotion)}>
+                    {emotion}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                {/each}
+              </div>
+
+            {:else}
+              <span class="empty-emotions">No emotions detected</span>
+            {/if}
+            <div class="emotion-input-wrapper">
+              
+              {#if showSuggestions && suggestions().length > 0}
+                <div class="suggestions">
+                  {#each suggestions() as suggestion}
+                    <button class="suggestion" onmousedown={() => addEmotion(suggestion)}>
+                      {suggestion}
+                    </button>
+                  {/each}
+                </div>
+              {/if}
+
+              <input
+                type="text"
+                class="emotion-input"
+                placeholder="+ add emotion"
+                bind:value={emotionInput}
+                onfocus={() => showSuggestions = true}
+                onblur={() => setTimeout(() => showSuggestions = false, 150)}
+                onkeydown={onEmotionKeydown}
+              />
+            </div>
+          </div>
+        </div>
       {:else if step === 2}
-        <EmotionPicker {mood} bind:selected={selectedEmotions} />
-      {:else if step === 3}
         <TagPicker bind:selected={selectedTags} />
       {:else}
-        <NoteInput bind:note />
+        <div class="summary">
+          <p class="summary-text">Ready to save</p>
+        </div>
       {/if}
     </div>
   </div>
 
   <footer class="checkin-footer">
+    {#if isOptionalStep}
+      <button class="btn btn-secondary" onclick={skip}>Skip</button>
+    {/if}
     <button
       class="btn btn-primary"
       class:full-width={!isOptionalStep}
@@ -279,7 +390,6 @@
   }
 
   .date-row {
-    /* outline: 1px solid red; */
     position: relative;
     display: flex;
     width: 100%;
@@ -404,7 +514,162 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+  }
+
+  .discharge-step {
+    width: 100%;
+    position: relative;
+  }
+
+  .discharge-step textarea {
+    width: 100%;
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-family: var(--font);
+    font-size: var(--text-base);
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s ease;
+  }
+
+  .discharge-step textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .discharge-step textarea::placeholder {
+    color: var(--text-muted);
+  }
+
+  .char-count {
+    display: block;
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: var(--space-xs);
+  }
+
+  .intensity-section {
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-xl);
+  }
+
+  .intensity-label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+  }
+
+  .emotions-section {
+    margin-top: var(--space-lg);
+  }
+
+  .empty-emotions {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+  }
+
+  .emotion-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-sm);
+  }
+
+  .emotion-tag {
+    font-size: var(--text-sm);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    border: 1px solid;
+    color: var(--text-secondary);
+    background: var(--bg-card);
+  }
+
+  .emotion-tag.manual {
+    display: inline-flex;
     align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-family: var(--font);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .emotion-tag.manual:active {
+    opacity: 0.7;
+  }
+
+  .emotion-input-wrapper {
+    margin-top: var(--space-xl);
+    position: relative;
+  }
+
+  .emotion-input {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-family: var(--font);
+    font-size: var(--text-sm);
+    transition: border-color 0.2s ease;
+  }
+
+  .emotion-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .emotion-input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .suggestions {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    overflow: hidden;
+  }
+
+  .suggestion {
+    display: block;
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: var(--text-sm);
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .suggestion:active {
+    background: var(--bg-subtle);
+  }
+
+  .summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+  }
+
+  .summary-text {
+    color: var(--text-muted);
+    font-size: var(--text-base);
   }
 
   .checkin-footer {

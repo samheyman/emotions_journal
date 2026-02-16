@@ -1,68 +1,85 @@
 <script lang="ts">
-  import { moodOptions } from "../lib/data/emotions";
+  import { getMoodColor } from '../lib/data/emotions';
 
-  export let mood: number | null = null;
+  let {
+    mood = $bindable(4),
+  }: {
+    mood: number;
+  } = $props();
 
-//   const options = [
-//     { value: 7, label: moodOptions.label },
-//     { value: 6, label: moodOptions.label },
-//     { value: 5, label: moodOptions.label},
-//     { value: 4, label: moodOptions.label },
-//     { value: 3, label: moodOptions.label },
-//     { value: 2, label: moodOptions.label },
-//     { value: 1, label: moodOptions.label }
-//   ];
-
-  function select(value: number) {
-    mood = value;
+  function onInput(e: Event) {
+    mood = Number((e.target as HTMLInputElement).value);
   }
+
+  let trackColor = $derived(getMoodColor(mood));
 </script>
 
+<div class="slider-wrapper">
+  <input
+    type="range"
+    min="1"
+    max="7"
+    step="1"
+    value={mood}
+    oninput={onInput}
+    class="mood-slider"
+    style="--track-color: {trackColor}"
+  />
+  <div class="labels">
+    <span class="label">Bad</span>
+    <span class="label">Neutral</span>
+    <span class="label">Good</span>
+  </div>
+</div>
+
 <style>
-  .container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  .slider-wrapper {
     width: 100%;
-    /* max-width: 300px; */
   }
 
-  .option {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
+  .mood-slider {
+    -webkit-appearance: none;
+    appearance: none;
     width: 100%;
-    padding: 0.75rem 3rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--bg-subtle);
+    outline: none;
+  }
+
+  .mood-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--track-color);
     cursor: pointer;
-    user-select: none;
-    transition: "background 0.15s ease, transform 0.05s ease";
+    border: 3px solid white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: background 0.15s ease;
   }
 
-  .option:hover {
-    background: #f5f5f5;
+  .mood-slider::-moz-range-thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--track-color);
+    cursor: pointer;
+    border: 3px solid white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: background 0.15s ease;
   }
 
-  .option.selected {
-    background: #333;
-    color: white;
-    border-color: #333;
+  .labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-sm);
+    padding: 0 2px;
   }
 
-  .option:active {
-    transform: scale(0.98);
+  .label {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
   }
 </style>
-
-<div class="container">
-  {#each moodOptions as option}
-    <div
-    style="background-color: {option.color ? option.color : "#ffffff"}"
-      class="option {mood === option.value ? 'selected' : ''}"
-      on:click={() => select(option.value)}
-    >
-      {option.label}
-    </div>
-  {/each}
-</div>

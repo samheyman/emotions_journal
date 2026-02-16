@@ -17,7 +17,7 @@
 </script>
 
 <div class="tag-picker">
-  <p class="hint">What's the context? <span class="optional">(optional)</span></p>
+  <p class="hint">Any relevant events, behaviour or context? <span class="optional">(optional)</span></p>
 
   <div class="chips">
     {#each contextTags as tag}

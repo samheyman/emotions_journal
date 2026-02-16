@@ -79,6 +79,8 @@ const emotionsByMood: Record<string, string[]> = {
     "warm",
     "friendly",
     "loving",
+    "relieved",
+    "connected",
   ],
   neutral: [
     "calm",
@@ -124,6 +126,231 @@ const emotionsByMood: Record<string, string[]> = {
     "lost",
   ],
 };
+
+// Maps common words/phrases to our emotion labels
+const synonyms: Record<string, string> = {
+  // high/good
+  "amazing": "elated",
+  "buzzing": "excited",
+  "great": "happy",
+  "wonderful": "joyful",
+  "fantastic": "elated",
+  "thrilled": "excited",
+  "pumped": "energized",
+  "motivated": "inspired",
+  "creative": "inspired",
+  "funny": "amused",
+  "laughing": "amused",
+  "laugh": "amused",
+  "love": "loving",
+  "loved": "loving",
+  "thankful": "grateful",
+  "blessed": "grateful",
+  "chill": "relaxed",
+  "chilled": "relaxed",
+  "good": "content",
+  "fine": "okay",
+  "alright": "okay",
+  "nice": "pleased",
+  "safe": "comfortable",
+  "cozy": "comfortable",
+  "serene": "peaceful",
+  "better": "relieved",
+  "relief": "relieved",
+  "released": "relieved",
+  "lighter": "relieved",
+  "free": "relieved",
+  "connected": "connected",
+  "connection": "connected",
+  "close": "connected",
+  "closeness": "connected",
+  "together": "connected",
+  "bonding": "connected",
+  "supported": "comfortable",
+  "secure": "comfortable",
+  "settled": "content",
+  "at ease": "relaxed",
+  "rested": "relaxed",
+  "refreshed": "energized",
+  "alive": "energized",
+  "strong": "confident",
+  "capable": "confident",
+  "accomplished": "proud",
+  "achieved": "proud",
+  "joyful": "joyful",
+  "joy": "joyful",
+  "delighted": "pleased",
+  "enjoyed": "pleased",
+  "enjoying": "pleased",
+  "fun": "amused",
+  // neutral
+  "bored": "flat",
+  "thinking": "pensive",
+  "thoughtful": "reflective",
+  "unfocused": "distracted",
+  "fidgety": "restless",
+  "unsure": "uncertain",
+  "confused": "uncertain",
+  "meh": "indifferent",
+  // low
+  "unhappy": "sad",
+  "crying": "sad",
+  "cry": "sad",
+  "cried": "sad",
+  "tearful": "sad",
+  "tears": "sad",
+  "upset": "sad",
+  "down": "sad",
+  "low": "sad",
+  "blue": "sad",
+  "weary": "tired",
+  "sleepy": "tired",
+  "fatigued": "tired",
+  "knackered": "tired",
+  "worn out": "tired",
+  "run down": "tired",
+  "shattered": "exhausted",
+  "burnt out": "exhausted",
+  "burnout": "exhausted",
+  "wiped": "drained",
+  "depleted": "drained",
+  "spent": "drained",
+  "alone": "lonely",
+  "isolated": "lonely",
+  "withdrawn": "lonely",
+  "let down": "disappointed",
+  "letdown": "disappointed",
+  "gutted": "disappointed",
+  "annoyed": "irritated",
+  "snapping": "irritated",
+  "snapped": "irritated",
+  "snappy": "irritated",
+  "agitated": "irritated",
+  "grumpy": "irritated",
+  "grouchy": "irritated",
+  "moody": "irritated",
+  "cranky": "irritated",
+  "angry": "angry",
+  "anger": "angry",
+  "rage": "angry",
+  "raging": "angry",
+  "furious": "angry",
+  "mad": "angry",
+  "pissed": "angry",
+  "argument": "angry",
+  "argued": "angry",
+  "arguing": "angry",
+  "fight": "angry",
+  "fighting": "angry",
+  "fought": "angry",
+  "yelling": "angry",
+  "yelled": "angry",
+  "shouting": "angry",
+  "shouted": "angry",
+  "screaming": "angry",
+  "screamed": "angry",
+  "hostile": "angry",
+  "resentful": "frustrated",
+  "resentment": "frustrated",
+  "worried": "anxious",
+  "nervous": "anxious",
+  "worry": "anxious",
+  "worrying": "anxious",
+  "tense": "stressed",
+  "pressure": "stressed",
+  "pressured": "stressed",
+  "swamped": "overwhelmed",
+  "drowning": "overwhelmed",
+  "too much": "overwhelmed",
+  "envious": "jealous",
+  // bad
+  "terrible": "miserable",
+  "awful": "miserable",
+  "horrible": "miserable",
+  "wretched": "miserable",
+  "scared": "terrified",
+  "fear": "terrified",
+  "frightened": "terrified",
+  "panic": "panicked",
+  "panicking": "panicked",
+  "shame": "ashamed",
+  "guilty": "ashamed",
+  "guilt": "ashamed",
+  "gross": "disgusted",
+  "sick": "disgusted",
+  "nothing": "empty",
+  "void": "empty",
+  "hollow": "empty",
+  "hopeless": "hopeless",
+  "despair": "despairing",
+  "destroyed": "crushed",
+  "devastated": "crushed",
+  "numb": "numb",
+  "shut down": "numb",
+  "shutdown": "numb",
+  "disconnected": "numb",
+  "broken": "broken",
+  "lost": "lost",
+  "stuck": "lost",
+};
+
+// All emotion words from all mood groups
+const allEmotions: string[] = Object.values(emotionsByMood).flat();
+
+export function getAllEmotionWords(): string[] {
+  return allEmotions;
+}
+
+// Map each emotion to its category for filtering
+const emotionCategory: Record<string, string> = {};
+for (const [category, emotions] of Object.entries(emotionsByMood)) {
+  for (const emotion of emotions) {
+    emotionCategory[emotion] = category;
+  }
+}
+
+// Which categories are allowed for each mood range
+function getAllowedCategories(mood: number): Set<string> {
+  if (mood >= 6) return new Set(['high', 'good']);
+  if (mood >= 5) return new Set(['high', 'good', 'neutral']);
+  if (mood >= 4) return new Set(['good', 'neutral', 'low']);
+  if (mood >= 3) return new Set(['neutral', 'low', 'bad']);
+  return new Set(['low', 'bad']);
+}
+
+/**
+ * Extract emotions from free text by matching against known emotion words
+ * and common synonyms. Filters results to match the mood intensity.
+ * Falls back to the top emotion for the given mood level.
+ */
+export function extractEmotions(text: string, mood: number): string[] {
+  const lower = text.toLowerCase();
+  const found = new Set<string>();
+  const allowed = getAllowedCategories(mood);
+
+  // Direct matches against our emotion labels
+  for (const emotion of allEmotions) {
+    const regex = new RegExp(`\\b${emotion}\\b`, 'i');
+    if (regex.test(lower)) {
+      found.add(emotion);
+    }
+  }
+
+  // Synonym/phrase matches
+  for (const [phrase, emotion] of Object.entries(synonyms)) {
+    if (lower.includes(phrase)) {
+      found.add(emotion);
+    }
+  }
+
+  // Filter to only emotions compatible with the mood level
+  const filtered = [...found].filter(e => {
+    const cat = emotionCategory[e];
+    return cat ? allowed.has(cat) : true;
+  });
+
+  return filtered.slice(0, 5);
+}
 
 export function getEmotionsForMood(mood: number): string[] {
   if (mood >= 7)
