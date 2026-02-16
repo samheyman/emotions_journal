@@ -96,8 +96,6 @@ const emotionsByMood: Record<string, string[]> = {
   ],
   low: [
     "sad",
-    "empty",
-
     "tired",
     "drained",
     "lonely",
@@ -124,7 +122,6 @@ const emotionsByMood: Record<string, string[]> = {
     "crushed",
     "broken",
     "lost",
-    "jealous",
   ],
 };
 
