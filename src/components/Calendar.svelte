@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { EmotionEntry } from '../lib/types';
-  import { getDaysInMonth, getFirstDayOfMonth, formatMonthYear, dateKey } from '../lib/utils/dates';
+  import { getDaysInMonth, getFirstDayOfMonth, formatMonthYear, dateKey, formatDate } from '../lib/utils/dates';
   import { getMoodColor } from '../lib/data/emotions';
   import EntryCard from './EntryCard.svelte';
 
@@ -56,7 +56,7 @@
     const dayEntries = entriesByDate().get(key);
     if (!dayEntries || dayEntries.length === 0) return [];
 
-    const sorted = [...dayEntries].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    const sorted = [...dayEntries].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     const limited = sorted.slice(0, 4);
     return limited.map(e => getMoodColor(e.mood));
   }
@@ -129,6 +129,7 @@
 
   {#if selectedDay && selectedEntries().length > 0}
     <div class="selected-entries">
+      <h3 class="selected-date-label">{formatDate(selectedDay + 'T00:00:00')}</h3>
       {#each selectedEntries() as entry (entry.id)}
         <EntryCard {entry} {onDelete} />
       {/each}
@@ -247,5 +248,11 @@
     margin-top: var(--space-lg);
     padding-top: var(--space-lg);
     border-top: 1px solid var(--border);
+  }
+
+  .selected-date-label {
+    font-size: var(--text-base);
+    font-weight: 500;
+    color: var(--text-secondary);
   }
 </style>
