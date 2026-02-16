@@ -199,9 +199,6 @@
   </div>
 
   <footer class="checkin-footer">
-    {#if isOptionalStep}
-      <button class="btn btn-secondary" onclick={skip}>Skip</button>
-    {/if}
     <button
       class="btn btn-primary"
       class:full-width={!isOptionalStep}
