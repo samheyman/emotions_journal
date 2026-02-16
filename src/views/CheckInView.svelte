@@ -1,5 +1,6 @@
 <script lang="ts">
   import TagPicker from '../components/TagPicker.svelte';
+  import EntryCard from '../components/EntryCard.svelte';
   import { entries } from '../lib/stores/entries';
   import type { EmotionEntry, TimeOfDay } from '../lib/types';
   import MoodSelect from '../components/MoodSelect.svelte';
@@ -9,6 +10,7 @@
 
   let step = $state(1);
   let mood = $state(4);
+  let moodManuallySet = $state(false);
   let selectedTags: string[] = $state([]);
   let note = $state('');
   let selectedDate = $state(new Date());
@@ -50,10 +52,7 @@
 
   const totalSteps = 3;
 
-  let canProceed = $derived(
-    step === 1 ? note.trim().length > 0 :
-    true
-  );
+  let canProceed = $derived(true);
 
   function next() {
     if (step < totalSteps) {
@@ -105,16 +104,45 @@
   }
 
   let stepTitle = $derived(
-    step === 1 ? (isToday ? "What's present right now?" : "What was present?") :
+    step === 1 ? (isToday ? "What's on your mind?" : "What was on your mind?") :
     step === 2 ? 'Behaviour / Context' :
-    ''
+    'Preview'
   );
+
+  let previewEntry = $derived<EmotionEntry>({
+    id: 'preview',
+    timestamp: isToday ? new Date().toISOString() : selectedDate.toISOString(),
+    mood,
+    emotions: allEmotions,
+    tags: selectedTags,
+    note,
+    timeOfDay,
+  });
 
   let rawInferredEmotions = $derived(extractEmotions(note, mood));
   let dismissedEmotions: string[] = $state([]);
   let manualEmotions: string[] = $state([]);
   let emotionInput = $state('');
   let showSuggestions = $state(false);
+
+  // Auto-adjust intensity if no emotions detected at neutral and user hasn't moved slider
+  $effect(() => {
+    // Read note to trigger on text changes
+    const currentNote = note;
+    if (moodManuallySet || currentNote.trim().length === 0) return;
+
+    const atNeutral = extractEmotions(currentNote, 4);
+    if (atNeutral.length > 0) return;
+
+    // Try moods outward from neutral: 3, 5, 2, 6, 1, 7
+    const tryOrder = [3, 5, 2, 6, 1, 7];
+    for (const tryMood of tryOrder) {
+      if (extractEmotions(currentNote, tryMood).length > 0) {
+        mood = tryMood;
+        return;
+      }
+    }
+  });
 
   let inferredEmotions = $derived(
     rawInferredEmotions.filter(e => !dismissedEmotions.includes(e))
@@ -160,7 +188,7 @@
     }
   }
 
-  let isOptionalStep = $derived(step === 2);
+  let isOptionalStep = $derived(false);
 </script>
 
 <div class="checkin">
@@ -244,7 +272,7 @@
 
           <div class="intensity-section">
             <p class="intensity-label">Intensity</p>
-            <MoodSelect bind:mood />
+            <MoodSelect bind:mood onuserinput={() => moodManuallySet = true} />
           </div>
 
           <div class="emotions-section">
@@ -299,24 +327,19 @@
       {:else if step === 2}
         <TagPicker bind:selected={selectedTags} />
       {:else}
-        <div class="summary">
-          <p class="summary-text">Ready to save</p>
+        <div class="preview">
+          <EntryCard entry={previewEntry} onDelete={() => {}} />
         </div>
       {/if}
     </div>
   </div>
 
   <footer class="checkin-footer">
-    {#if isOptionalStep}
-      <button class="btn btn-secondary" onclick={skip}>Skip</button>
-    {/if}
     <button
-      class="btn btn-primary"
-      class:full-width={!isOptionalStep}
-      disabled={!canProceed}
+      class="btn btn-primary full-width"
       onclick={next}
     >
-      {step === totalSteps ? 'Save' : 'Next'}
+      {step === totalSteps ? 'Save entry' : 'Next'}
     </button>
   </footer>
 </div>
@@ -561,7 +584,7 @@
   .intensity-label {
     font-size: var(--text-sm);
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     margin-bottom: var(--space-md);
   }
 
@@ -660,16 +683,8 @@
     background: var(--bg-subtle);
   }
 
-  .summary {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-  }
-
-  .summary-text {
-    color: var(--text-muted);
-    font-size: var(--text-base);
+  .preview {
+    width: 100%;
   }
 
   .checkin-footer {

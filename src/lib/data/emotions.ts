@@ -262,6 +262,13 @@ const synonyms: Record<string, string> = {
   "swamped": "overwhelmed",
   "drowning": "overwhelmed",
   "too much": "overwhelmed",
+  "behind": "stressed",
+  "late": "stressed",
+  "deadline": "stressed",
+  "overdue": "stressed",
+  "falling behind": "overwhelmed",
+  "catching up": "stressed",
+  "procrastinat": "stressed",
   "envious": "jealous",
   // bad
   "terrible": "miserable",
