@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { EmotionEntry } from '../lib/types';
   import { getDaysInMonth, getFirstDayOfMonth, formatMonthYear, dateKey } from '../lib/utils/dates';
+  import { getMoodColor } from '../lib/data/emotions';
   import EntryCard from './EntryCard.svelte';
 
   let { entries, onDelete }: { entries: EmotionEntry[]; onDelete: (id: string) => void } = $props();
@@ -50,19 +51,14 @@
     selectedDay = null;
   }
 
-  function getDayColor(day: number): string {
+  function getDayColors(day: number): string[] {
     const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const dayEntries = entriesByDate().get(key);
-    if (!dayEntries || dayEntries.length === 0) return 'transparent';
+    if (!dayEntries || dayEntries.length === 0) return [];
 
-    const avgMood = dayEntries.reduce((sum, e) => sum + e.mood, 0) / dayEntries.length;
-    const t = (avgMood - 1) / 6; // 0 to 1
-    // Warm (green-ish) for high mood, cool (blue-gray) for low mood
-    const r = Math.round(107 + t * 105);
-    const g = Math.round(129 + t * 40);
-    const b = Math.round(154 - t * 82);
-    const alpha = Math.min(0.8, 0.3 + dayEntries.length * 0.15);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    const sorted = [...dayEntries].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    const limited = sorted.slice(0, 4);
+    return limited.map(e => getMoodColor(e.mood));
   }
 
   function getDayKey(day: number): string {
@@ -110,6 +106,7 @@
       {#if day === null}
         <div class="cell empty-cell"></div>
       {:else}
+        {@const colors = getDayColors(day)}
         <button
           class="cell day-cell"
           class:today={isToday(day)}
@@ -117,11 +114,14 @@
           class:selected={selectedDay === getDayKey(day)}
           onclick={() => selectDay(day)}
         >
-          <div class="day-bg" style="background: {getDayColor(day)}"></div>
-          <span class="day-num">{day}</span>
-          {#if getEntryCount(day) > 0}
-            <span class="entry-dot"></span>
+          {#if colors.length > 0}
+            <div class="day-strips">
+              {#each colors as color}
+                <div class="day-strip" style="background: {color}"></div>
+              {/each}
+            </div>
           {/if}
+          <span class="day-num">{day}</span>
         </button>
       {/if}
     {/each}
@@ -209,11 +209,17 @@
     overflow: hidden;
   }
 
-  .day-bg {
+  .day-strips {
     position: absolute;
     inset: 2px;
     border-radius: var(--radius-sm);
-    transition: background 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .day-strip {
+    flex: 1;
   }
 
   .day-num {
@@ -233,15 +239,6 @@
     outline-offset: -2px;
   }
 
-  .entry-dot {
-    position: relative;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--accent);
-    z-index: 1;
-    margin-top: 1px;
-  }
 
   .selected-entries {
     display: flex;
