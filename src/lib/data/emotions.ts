@@ -68,7 +68,7 @@ const synonyms: Record<string, string> = {
   wonderful: "Joyful",
   fantastic: "Elated",
   thrilled: "Excited",
-  pumped: "Energized",
+  pumped: "Energised",
   creative: "Inspired",
   funny: "Amused",
   laughing: "Amused",
@@ -86,13 +86,37 @@ const synonyms: Record<string, string> = {
   achieved: "Proud",
   strong: "Confident",
   capable: "Confident",
-  refreshed: "Energized",
-  alive: "Energized",
+  refreshed: "Energised",
+  alive: "Energised",
+  "in the flow": "Inspired",
+  "in flow": "Inspired",
+  flow: "Inspired",
+  productive: "Motivated",
+  "good day": "Happy",
+  "great day": "Joyful",
+  "nice day": "Happy",
+  "lovely day": "Joyful",
+  lovely: "Happy",
+  "flew past": "Inspired",
+  "time flew": "Inspired",
+  absorbed: "Inspired",
+  focused: "Motivated",
+  engaged: "Enthusiastic",
+  energetic: "Energised",
+  bright: "Cheerful",
+  upbeat: "Cheerful",
+  cheerful: "Cheerful",
+  positive: "Optimistic",
+  "looking forward": "Hopeful",
+  excited: "Excited",
+  smiling: "Happy",
+  smiled: "Happy",
+  laughed: "Amused",
 
   // positive low energy
   chill: "Relaxed",
   chilled: "Relaxed",
-  good: "Content",
+  good: "Happy",
   fine: "Okay",
   alright: "Okay",
   nice: "Pleased",
@@ -272,8 +296,22 @@ export function extractEmotions(
   const results = [...textMatched].slice(0, maxTotal);
 
   if (results.length < maxTotal && (valence !== 0 || energy !== 0)) {
+    // Determine sentiment from text matches to filter proximity suggestions
+    const matchedEmotions = [...textMatched]
+      .map((name) => emotionByName.get(name.toLowerCase()))
+      .filter(Boolean);
+    const avgMatchedValence = matchedEmotions.length > 0
+      ? matchedEmotions.reduce((s, e) => s + e!.valence, 0) / matchedEmotions.length
+      : 0;
+
     const ranked = EMOTIONS
-      .filter((e) => !textMatched.has(e.name))
+      .filter((e) => {
+        if (textMatched.has(e.name)) return false;
+        // If text matches are clearly positive/negative, don't suggest contradicting emotions
+        if (avgMatchedValence >= 1 && e.valence < 0) return false;
+        if (avgMatchedValence <= -1 && e.valence > 0) return false;
+        return true;
+      })
       .map((e) => ({
         name: e.name,
         dist: distance(valence, energy, e.valence, e.energy),
