@@ -4,13 +4,15 @@ export const contextTags = [
   "alcohol",
   "conflict",
   "period",
-  "sex/intimicy",
+  "sex/intimacy",
   "social",
   "work",
   "family",
   "alone time",
   "outdoors",
   "rest",
+  "fainting",
+  "IBS",
 ] as const;
 
 export type ContextTag = (typeof contextTags)[number];

@@ -11,7 +11,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
-<div class="entry-card" style="background: {getMoodColor(entry.mood)}" onclick={() => expanded = !expanded}>
+<div class="entry-card" style="background: {getMoodColor(entry.valence)}" onclick={() => expanded = !expanded}>
   {#if entry.note}
     {#if expanded}
       <p class="note-text">{entry.note}</p>

@@ -2,38 +2,38 @@
   import { getMoodColor } from '../lib/data/emotions';
 
   let {
-    mood = $bindable(4),
+    energy = $bindable(0),
     onuserinput,
   }: {
-    mood: number;
+    energy: number;
     onuserinput?: () => void;
   } = $props();
 
   function onInput(e: Event) {
-    mood = Number((e.target as HTMLInputElement).value);
+    energy = Number((e.target as HTMLInputElement).value);
     onuserinput?.();
   }
 
-  let thumbColor = $derived(getMoodColor(mood));
+  let thumbColor = $derived(getMoodColor(energy));
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="slider-wrapper" onmousedown={(e) => { (e.target as HTMLElement).closest('.slider-wrapper')?.querySelector('input')?.focus(); }}>
   <input
     type="range"
-    min="1"
-    max="7"
+    min="-3"
+    max="3"
     step="1"
-    value={mood}
+    value={energy}
     oninput={onInput}
     inputmode="none"
-    class="mood-slider"
+    class="energy-slider"
     style="--thumb-color: {thumbColor}"
   />
   <div class="labels">
-    <span class="label">Bad</span>
+    <span class="label">Low</span>
     <span class="label">Neutral</span>
-    <span class="label">Good</span>
+    <span class="label">High</span>
   </div>
 </div>
 
@@ -42,7 +42,7 @@
     width: 100%;
   }
 
-  .mood-slider {
+  .energy-slider {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;

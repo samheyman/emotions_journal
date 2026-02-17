@@ -3,14 +3,17 @@
   import EntryCard from '../components/EntryCard.svelte';
   import { entries } from '../lib/stores/entries';
   import type { EmotionEntry, TimeOfDay } from '../lib/types';
-  import MoodSelect from '../components/MoodSelect.svelte';
-  import { extractEmotions, getMoodColor, getAllEmotionWords } from '../lib/data/emotions';
+  import ValenceSelect from '../components/ValenceSelect.svelte';
+  import EnergySelect from '../components/EnergySelect.svelte';
+  import { extractEmotions, getAllEmotionWords } from '../lib/data/emotions';
 
   let { onComplete, onCancel }: { onComplete: () => void; onCancel: () => void } = $props();
 
   let step = $state(1);
-  let mood = $state(4);
-  let moodManuallySet = $state(false);
+  let valence = $state(0);
+  let valenceManuallySet = $state(false);
+  let energy = $state(0);
+  let energyManuallySet = $state(false);
   let selectedTags: string[] = $state([]);
   let note = $state('');
   let selectedDate = $state(new Date());
@@ -93,7 +96,8 @@
     const entry: EmotionEntry = {
       id: generateId(),
       timestamp,
-      mood,
+      valence,
+      energy,
       emotions: allEmotions,
       tags: selectedTags,
       note,
@@ -105,44 +109,15 @@
 
   let stepTitle = $derived(
     step === 1 ? (isToday ? "What's on your mind?" : "What was on your mind?") :
-    step === 2 ? 'Behaviour / Context' :
+    step === 2 ? 'Triggers / Context' :
     'Preview'
   );
 
-  let previewEntry = $derived<EmotionEntry>({
-    id: 'preview',
-    timestamp: isToday ? new Date().toISOString() : selectedDate.toISOString(),
-    mood,
-    emotions: allEmotions,
-    tags: selectedTags,
-    note,
-    timeOfDay,
-  });
-
-  let rawInferredEmotions = $derived(extractEmotions(note, mood));
+  let rawInferredEmotions = $derived(extractEmotions(note, valence, energy));
   let dismissedEmotions: string[] = $state([]);
   let manualEmotions: string[] = $state([]);
   let emotionInput = $state('');
   let showSuggestions = $state(false);
-
-  // Auto-adjust intensity if no emotions detected at neutral and user hasn't moved slider
-  $effect(() => {
-    // Read note to trigger on text changes
-    const currentNote = note;
-    if (moodManuallySet || currentNote.trim().length === 0) return;
-
-    const atNeutral = extractEmotions(currentNote, 4);
-    if (atNeutral.length > 0) return;
-
-    // Try moods outward from neutral: 3, 5, 2, 6, 1, 7
-    const tryOrder = [3, 5, 2, 6, 1, 7];
-    for (const tryMood of tryOrder) {
-      if (extractEmotions(currentNote, tryMood).length > 0) {
-        mood = tryMood;
-        return;
-      }
-    }
-  });
 
   let inferredEmotions = $derived(
     rawInferredEmotions.filter(e => !dismissedEmotions.includes(e))
@@ -151,6 +126,40 @@
   let allEmotions = $derived(
     [...new Set([...inferredEmotions, ...manualEmotions])]
   );
+
+  let previewEntry = $derived<EmotionEntry>({
+    id: 'preview',
+    timestamp: isToday ? new Date().toISOString() : selectedDate.toISOString(),
+    valence,
+    energy,
+    emotions: allEmotions,
+    tags: selectedTags,
+    note,
+    timeOfDay,
+  });
+
+  // Auto-adjust intensity if no emotions detected at neutral and user hasn't moved slider
+  $effect(() => {
+    // Read note to trigger on text changes
+    const currentNote = note;
+    if (valenceManuallySet || energyManuallySet || currentNote.trim().length === 0) return;
+
+    const atNeutral = extractEmotions(currentNote, 4);
+    if (atNeutral.length > 0) return;
+
+    // Try moods outward from neutral: 3, 5, 2, 6, 1, 7
+    const tryOrder = [0, 1, -2, 2, -3, 3];
+    for (const tryValence of tryOrder) {
+      if (extractEmotions(currentNote, tryValence).length > 0) {
+        valence = tryValence;
+        return;
+      }
+    }
+  });
+
+
+
+
 
   let suggestions = $derived(() => {
     if (emotionInput.trim().length === 0) return [];
@@ -271,8 +280,12 @@
           {/if}
 
           <div class="intensity-section">
-            <p class="intensity-label">Intensity</p>
-            <MoodSelect bind:mood onuserinput={() => moodManuallySet = true} />
+            <p class="intensity-label">Mood (valence)</p>
+            <ValenceSelect bind:valence onuserinput={() => valenceManuallySet = true} />
+          </div>
+          <div class="intensity-section">
+            <p class="intensity-label">Energy</p>
+            <EnergySelect bind:energy onuserinput={() => energyManuallySet = true} />
           </div>
 
           <div class="emotions-section">
