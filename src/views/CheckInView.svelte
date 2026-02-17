@@ -222,7 +222,7 @@
 
   function removeEmotion(emotion: string) {
     manualEmotions = manualEmotions.filter(e => e !== emotion);
-    if (rawInferredEmotions.includes(emotion)) {
+    if (!dismissedEmotions.includes(emotion)) {
       dismissedEmotions = [...dismissedEmotions, emotion];
     }
   }
