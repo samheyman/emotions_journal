@@ -17,7 +17,7 @@
   );
 
   let chartData = $derived(() => {
-    const days: { key: string; label: string; mood: number | null; }[] = [];
+    const days: { key: string; label: string; valence: number | null; }[] = [];
 
     for (let i = rangeDays - 1; i >= 0; i--) {
       const date = daysAgo(i);
@@ -37,22 +37,19 @@
       }
 
       if (dayEntries.length > 0) {
-        const avgMood = dayEntries.reduce((sum, e:any) => {
-          let valence = 0;
-          // check for any old formatting of "mood"
-          try {
-            valence = e["mood"] - 4;
-          } catch {
-            valence = e.valence;
+        const avgValence = dayEntries.reduce((sum, e: any) => {
+          // Support old entries with "mood" (1-7) and new entries with "valence" (-3 to +3)
+          if (typeof e.mood === 'number' && !isNaN(e.mood)) {
+            return sum + (e.mood - 4); // convert 1-7 to -3 to +3
           }
-          const total = sum + valence;
-          return total;
+          if (typeof e.valence === 'number' && !isNaN(e.valence)) {
+            return sum + e.valence;
+          }
+          return sum;
         }, 0) / dayEntries.length;
-        // const avgValence = dayEntries.reduce((sum, e) => sum + e.valence, 0) / dayEntries.length;
-        // const avgEnergy = dayEntries.reduce((sum, e) => sum + e.energy, 0) / dayEntries.length;
-        days.push({ key, label, mood: Math.round(avgMood * 10) / 10});
+        days.push({ key, label, valence: Math.round(avgValence * 10) / 10 });
       } else {
-        days.push({ key, label, mood: null});
+        days.push({ key, label, valence: null});
       }
     }
 
@@ -71,8 +68,8 @@
         labels: data.map((d)=> d.label),
         datasets: [
           {
-            label: 'Mood',
-            data: data.map((d) => d.mood),
+            label: '',
+            data: data.map((d) => d.valence),
             borderColor: '#55187e',
             backgroundColor: 'rgba(196, 132, 108, 0.1)',
             fill: true,

@@ -14,19 +14,12 @@
   let totalEntries = $derived($entries.length);
   let avgMood = $derived(() => {
     if ($entries.length === 0) return 0;
-    return Math.round(($entries.reduce((s, e:any) => {
-      let valence = 0;
-
-      // check for any old formatting of "mood"
-      try {
-        valence = e.mood -4;
-      } catch {
-        valence = e.valence;
-      }
-      return s + valence;
+    return Math.round(($entries.reduce((s, e: any) => {
+      if (typeof e.valence === 'number' && !isNaN(e.valence)) return s + e.valence;
+      if (typeof e.mood === 'number' && !isNaN(e.mood)) return s + (e.mood - 4);
+      return s;
     }, 0) / $entries.length) * 10) / 10;
   });
-  console.log(avgMood)
   // let avgValence = $derived(() => {
   //   if ($entries.length === 0) return 0;
   //   return Math.round(($entries.reduce((s, e) => s + e.valence, 0) / $entries.length) * 10) / 10;
@@ -48,7 +41,7 @@
       <span class="stat-label">entries</span>
     </div>
     <div class="stat">
-      <span class="stat-value" style="color: var(--accent)">{avgMood() > 0 ? '+' : '-'}{avgMood()}</span>
+      <span class="stat-value" style="color: var(--accent)">{avgMood() > 0 ? '+' : ''}{avgMood()}</span>
       <span class="stat-label">avg mood</span>
     </div>
     <!-- <div class="stat">

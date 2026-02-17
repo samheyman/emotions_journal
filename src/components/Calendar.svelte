@@ -58,7 +58,7 @@
 
     const sorted = [...dayEntries].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     const limited = sorted.slice(0, 4);
-    return limited.map(e => getMoodColor(e.mood));
+    return limited.map(e => getMoodColor((e as any).valence ?? ((e as any).mood !== undefined ? (e as any).mood - 4 : 0)));
   }
 
   function getDayKey(day: number): string {

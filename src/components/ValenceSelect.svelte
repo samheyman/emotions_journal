@@ -9,27 +9,27 @@
     onuserinput?: () => void;
   } = $props();
 
-  function onInput(e: Event) {
-    valence = Number((e.target as HTMLInputElement).value);
+  const options = [-3, -2, -1, 0, 1, 2, 3];
+
+  function select(value: number) {
+    valence = value;
     onuserinput?.();
   }
-
-  let thumbColor = $derived(getMoodColor(valence));
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="slider-wrapper" onmousedown={(e) => { (e.target as HTMLElement).closest('.slider-wrapper')?.querySelector('input')?.focus(); }}>
-  <input
-    type="range"
-    min="-3"
-    max="3"
-    step="1"
-    value={valence}
-    oninput={onInput}
-    inputmode="none"
-    class="mood-slider"
-    style="--thumb-color: {thumbColor}"
-  />
+<div class="radio-select">
+  <div class="options">
+    {#each options as value}
+      <button
+        class="option"
+        class:selected={valence === value}
+        style="--option-color: {getMoodColor(value)}"
+        onclick={() => select(value)}
+      >
+        <span class="dot"></span>
+      </button>
+    {/each}
+  </div>
   <div class="labels">
     <span class="label">Negative</span>
     <span class="label">Neutral</span>
@@ -38,76 +38,51 @@
 </div>
 
 <style>
-  .slider-wrapper {
+  .radio-select {
     width: 100%;
   }
 
-  .mood-slider {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 12px;
-    border-radius: 6px;
-    background: linear-gradient(
-      to right,
-      hsl(10, 45%, 72%),
-      hsl(15, 40%, 78%),
-      hsl(20, 35%, 84%),
-      hsl(0, 0%, 88%),
-      hsl(125, 30%, 84%),
-      hsl(135, 40%, 78%),
-      hsl(145, 45%, 72%)
-    );
-    outline: none;
+  .options {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
   }
 
-  .mood-slider:focus {
-    outline: none;
-  }
-
-  .mood-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--thumb-color);
+  .option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+    border: none;
+    background: none;
     cursor: pointer;
-    border: 4px solid white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .mood-slider::-moz-range-thumb {
-    width: 36px;
-    height: 36px;
+  .dot {
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: var(--thumb-color);
-    cursor: pointer;
-    border: 4px solid white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: background 0.15s ease;
+    border: 2px solid var(--border);
+    background: var(--bg-card);
+    transition: all 0.15s ease;
   }
 
-  .mood-slider::-moz-range-track {
-    height: 12px;
-    border-radius: 6px;
-    background: linear-gradient(
-      to right,
-      hsl(10, 45%, 72%),
-      hsl(15, 40%, 78%),
-      hsl(20, 35%, 84%),
-      hsl(0, 0%, 88%),
-      hsl(125, 30%, 84%),
-      hsl(135, 40%, 78%),
-      hsl(145, 45%, 72%)
-    );
+  .option:active .dot {
+    transform: scale(0.9);
+  }
+
+  .option.selected .dot {
+    background: var(--option-color);
+    border-color: var(--option-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 
   .labels {
     display: flex;
     justify-content: space-between;
-    margin-top: var(--space-sm);
+    margin-top: var(--space-xs);
     padding: 0 2px;
   }
 
