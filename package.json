@@ -16,6 +16,7 @@
     "vite": "^6.0.0"
   },
   "dependencies": {
+    "@huggingface/transformers": "^3.8.1",
     "chart.js": "^4.4.0"
   }
 }

@@ -5,7 +5,14 @@
   import type { EmotionEntry, TimeOfDay } from '../lib/types';
   import ValenceSelect from '../components/ValenceSelect.svelte';
   import EnergySelect from '../components/EnergySelect.svelte';
-  import { extractEmotions, getAllEmotionWords } from '../lib/data/emotions';
+  import { extractEmotions, extractEmotionsSemantic, getAllEmotionWords } from '../lib/data/emotions';
+  import { EMOTIONS } from '../lib/data/emotionsWithValenceAndEnergy';
+  import { warmup, isReady, onReady } from '../lib/services/embeddingService';
+
+  const emotionTypeMap = new Map(EMOTIONS.map(e => [e.name, e.type]));
+  function isPrimary(name: string): boolean {
+    return emotionTypeMap.get(name) === 'primary';
+  }
 
   let { onComplete, onCancel }: { onComplete: () => void; onCancel: () => void } = $props();
 
@@ -53,7 +60,7 @@
     }
   }
 
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   let canProceed = $derived(true);
 
@@ -109,23 +116,56 @@
 
   let stepTitle = $derived(
     step === 1 ? (isToday ? "What's on your mind?" : "What was on your mind?") :
-    step === 2 ? 'Triggers / Context' :
+    step === 2 ? 'Emotional landscape' :
+    step === 3 ? 'Triggers / Context' :
     'Preview'
   );
 
+  // Start loading embedding model in background
+  warmup();
+  let embeddingReady = $state(isReady());
+  onReady(() => embeddingReady = true);
+
   let rawInferredEmotions = $derived(extractEmotions(note, valence, energy));
+  let semanticEmotions: string[] = $state([]);
   let dismissedEmotions: string[] = $state([]);
   let manualEmotions: string[] = $state([]);
+
+  // Run semantic extraction when model is ready or inputs change
+  $effect(() => {
+    if (!embeddingReady || note.trim().length < 3) {
+      semanticEmotions = [];
+      return;
+    }
+    // Read reactive deps
+    const currentNote = note;
+    const currentValence = valence;
+    const currentEnergy = energy;
+    extractEmotionsSemantic(currentNote, currentValence, currentEnergy).then((results) => {
+      semanticEmotions = results;
+    });
+  });
   let emotionInput = $state('');
   let showSuggestions = $state(false);
 
+  let mergedInferred = $derived(() => {
+    const merged = [...rawInferredEmotions];
+    for (const e of semanticEmotions) {
+      if (!merged.includes(e)) merged.push(e);
+    }
+    return merged.slice(0, 7);
+  });
+
   let inferredEmotions = $derived(
-    rawInferredEmotions.filter(e => !dismissedEmotions.includes(e))
+    mergedInferred().filter(e => !dismissedEmotions.includes(e))
   );
 
   let allEmotions = $derived(
     [...new Set([...inferredEmotions, ...manualEmotions])]
   );
+
+  let primaryEmotions = $derived(allEmotions.filter(e => isPrimary(e)));
+  let secondaryEmotions = $derived(allEmotions.filter(e => !isPrimary(e)));
 
   let previewEntry = $derived<EmotionEntry>({
     id: 'preview',
@@ -138,19 +178,21 @@
     timeOfDay,
   });
 
-  // Auto-adjust intensity if no emotions detected at neutral and user hasn't moved slider
+  // Auto-adjust valence if user hasn't manually set sliders, based on text matches
   $effect(() => {
-    // Read note to trigger on text changes
     const currentNote = note;
-    if (valenceManuallySet || energyManuallySet || currentNote.trim().length === 0) return;
+    if (valenceManuallySet || currentNote.trim().length === 0) return;
 
-    const atNeutral = extractEmotions(currentNote, 4);
+    // Check if text alone produces matches at current neutral position
+    const atNeutral = extractEmotions(currentNote, 0, 0);
+    // Only text-matched emotions count (proximity fill always returns results)
+    // If we got matches at neutral, keep it
     if (atNeutral.length > 0) return;
 
-    // Try moods outward from neutral: 3, 5, 2, 6, 1, 7
-    const tryOrder = [0, 1, -2, 2, -3, 3];
+    // Try valence values outward from neutral to find text matches
+    const tryOrder = [1, -1, 2, -2, 3, -3];
     for (const tryValence of tryOrder) {
-      if (extractEmotions(currentNote, tryValence).length > 0) {
+      if (extractEmotions(currentNote, tryValence, 0).length > 0) {
         valence = tryValence;
         return;
       }
@@ -165,12 +207,12 @@
     if (emotionInput.trim().length === 0) return [];
     const q = emotionInput.toLowerCase();
     return getAllEmotionWords()
-      .filter(e => e.startsWith(q) && !allEmotions.includes(e))
+      .filter(e => e.toLowerCase().startsWith(q) && !allEmotions.includes(e))
       .slice(0, 5);
   });
 
   function addEmotion(emotion: string) {
-    const trimmed = emotion.trim().toLowerCase();
+    const trimmed = emotion.trim();
     if (trimmed && !allEmotions.includes(trimmed)) {
       manualEmotions = [...manualEmotions, trimmed];
     }
@@ -288,56 +330,61 @@
             <EnergySelect bind:energy onuserinput={() => energyManuallySet = true} />
           </div>
 
-          <div class="emotions-section">
-            <p class="intensity-label">Emotions</p>
-            {#if allEmotions.length > 0}
-              <div class="emotion-tags">
-                {#each inferredEmotions as emotion}
-                  <button class="emotion-tag manual" style="border-color: var(--border)" onclick={() => removeEmotion(emotion)}>
-                    {emotion}
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                  </button>
-                {/each}
-                {#each manualEmotions as emotion}
-                  <button class="emotion-tag manual" style="border-color: var(--border)" onclick={() => removeEmotion(emotion)}>
-                    {emotion}
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
+        </div>
+      {:else if step === 2}
+        <div class="emotions-section">
+          <p class="intensity-label">Primary emotions</p>
+          {#if primaryEmotions.length > 0}
+            <div class="emotion-tags">
+              {#each primaryEmotions as emotion}
+                <button class="emotion-tag manual primary" onclick={() => removeEmotion(emotion)}>
+                  {emotion}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              {/each}
+            </div>
+          {:else}
+            <span class="empty-emotions">No primary emotions</span>
+          {/if}
+          <p class="intensity-label" style="margin-top: var(--space-md)">Secondary emotions</p>
+          {#if secondaryEmotions.length > 0}
+            <div class="emotion-tags">
+              {#each secondaryEmotions as emotion}
+                <button class="emotion-tag manual" onclick={() => removeEmotion(emotion)}>
+                  {emotion}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              {/each}
+            </div>
+          {:else}
+            <span class="empty-emotions">No secondary emotions</span>
+          {/if}
+          <div class="emotion-input-wrapper">
+            {#if showSuggestions && suggestions().length > 0}
+              <div class="suggestions">
+                {#each suggestions() as suggestion}
+                  <button class="suggestion" onmousedown={() => addEmotion(suggestion)}>
+                    {suggestion}
                   </button>
                 {/each}
               </div>
-
-            {:else}
-              <span class="empty-emotions">No emotions detected</span>
             {/if}
-            <div class="emotion-input-wrapper">
-              
-              {#if showSuggestions && suggestions().length > 0}
-                <div class="suggestions">
-                  {#each suggestions() as suggestion}
-                    <button class="suggestion" onmousedown={() => addEmotion(suggestion)}>
-                      {suggestion}
-                    </button>
-                  {/each}
-                </div>
-              {/if}
-
-              <input
-                type="text"
-                class="emotion-input"
-                placeholder="+ add emotion"
-                bind:value={emotionInput}
-                onfocus={() => showSuggestions = true}
-                onblur={() => setTimeout(() => showSuggestions = false, 150)}
-                onkeydown={onEmotionKeydown}
-              />
-            </div>
+            <input
+              type="text"
+              class="emotion-input"
+              placeholder="+ add emotion"
+              bind:value={emotionInput}
+              onfocus={() => showSuggestions = true}
+              onblur={() => setTimeout(() => showSuggestions = false, 150)}
+              onkeydown={onEmotionKeydown}
+            />
           </div>
         </div>
-      {:else if step === 2}
+      {:else if step === 3}
         <TagPicker bind:selected={selectedTags} />
       {:else}
         <div class="preview">
@@ -599,10 +646,19 @@
     font-weight: 500;
     color: var(--text-primary);
     margin-bottom: var(--space-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .intensity-value {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-muted);
   }
 
   .emotions-section {
-    margin-top: var(--space-lg);
+    margin-top: var(--space-sm);
   }
 
   .empty-emotions {
@@ -621,9 +677,15 @@
     font-size: var(--text-sm);
     padding: 4px 12px;
     border-radius: var(--radius-full);
-    border: 1px solid;
+    border: 1px solid var(--border);
     color: var(--text-secondary);
     background: var(--bg-card);
+  }
+
+  .emotion-tag.primary {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+    font-weight: 500;
   }
 
   .emotion-tag.manual {

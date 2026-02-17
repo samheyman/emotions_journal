@@ -1,4 +1,6 @@
 import type { MoodOption } from "../types";
+import { EMOTIONS } from "./emotionsWithValenceAndEnergy";
+import { findSimilarEmotions, isReady } from "../services/embeddingService";
 
 export const moodOptions: MoodOption[] = [
   {
@@ -19,7 +21,7 @@ export const moodOptions: MoodOption[] = [
   {
     value: 0,
     label: "So-so / Neutral",
-    color: "hsl(0, 0%, 95w%)",
+    color: "hsl(0, 0%, 95%)",
   },
   {
     value: -1,
@@ -50,285 +52,197 @@ export function getMoodColor(value: number): string {
   return getMoodOption(value).color;
 }
 
-// Emotions grouped by mood range
-const emotionsByMood: Record<string, string[]> = {
-  high: [
-    "excited",
-    "joyful",
-    "enthusiastic",
-    "energized",
-    "inspired",
-    "amused",
-    "proud",
-    "confident",
-    "playful",
-    "passionate",
-    "grateful",
-    "elated",
-  ],
-  good: [
-    "happy",
-    "hopeful",
-    "content",
-    "cheerful",
-    "optimistic",
-    "relaxed",
-    "peaceful",
-    "pleased",
-    "comfortable",
-    "warm",
-    "friendly",
-    "loving",
-    "relieved",
-    "connected",
-  ],
-  neutral: [
-    "calm",
-    "okay",
-    "steady",
-    "indifferent",
-    "mellow",
-    "quiet",
-    "pensive",
-    "reflective",
-    "distracted",
-    "restless",
-    "uncertain",
-    "flat",
-  ],
-  low: [
-    "sad",
-    "tired",
-    "drained",
-    "lonely",
-    "disappointed",
-    "frustrated",
-    "anxious",
-    "stressed",
-    "irritated",
-    "overwhelmed",
-    "hopeless",
-    "numb",
-    "jealous",
-  ],
-  bad: [
-    "angry",
-    "miserable",
-    "exhausted",
-    "panicked",
-    "despairing",
-    "empty",
-    "ashamed",
-    "disgusted",
-    "terrified",
-    "crushed",
-    "broken",
-    "lost",
-  ],
-};
-
-// Maps common words/phrases to our emotion labels
-const synonyms: Record<string, string> = {
-  // high/good
-  amazing: "elated",
-  buzzing: "excited",
-  great: "happy",
-  wonderful: "joyful",
-  fantastic: "elated",
-  thrilled: "excited",
-  pumped: "energized",
-  motivated: "inspired",
-  creative: "inspired",
-  funny: "amused",
-  laughing: "amused",
-  laugh: "amused",
-  love: "loving",
-  loved: "loving",
-  thankful: "grateful",
-  blessed: "grateful",
-  chill: "relaxed",
-  chilled: "relaxed",
-  good: "content",
-  fine: "okay",
-  alright: "okay",
-  nice: "pleased",
-  safe: "comfortable",
-  cozy: "comfortable",
-  serene: "peaceful",
-  better: "relieved",
-  relief: "relieved",
-  released: "relieved",
-  lighter: "relieved",
-  free: "relieved",
-  connected: "connected",
-  connection: "connected",
-  close: "connected",
-  closeness: "connected",
-  together: "connected",
-  bonding: "connected",
-  supported: "comfortable",
-  secure: "comfortable",
-  settled: "content",
-  "at ease": "relaxed",
-  rested: "relaxed",
-  refreshed: "energized",
-  alive: "energized",
-  strong: "confident",
-  capable: "confident",
-  accomplished: "proud",
-  achieved: "proud",
-  joyful: "joyful",
-  joy: "joyful",
-  delighted: "pleased",
-  enjoyed: "pleased",
-  enjoying: "pleased",
-  fun: "amused",
-  // neutral
-  bored: "flat",
-  thinking: "pensive",
-  thoughtful: "reflective",
-  unfocused: "distracted",
-  fidgety: "restless",
-  unsure: "uncertain",
-  confused: "uncertain",
-  meh: "indifferent",
-  // low
-  unhappy: "sad",
-  crying: "sad",
-  cry: "sad",
-  cried: "sad",
-  tearful: "sad",
-  tears: "sad",
-  upset: "sad",
-  down: "sad",
-  low: "sad",
-  blue: "sad",
-  weary: "tired",
-  sleepy: "tired",
-  fatigued: "tired",
-  knackered: "tired",
-  "worn out": "tired",
-  "run down": "tired",
-  shattered: "exhausted",
-  "burnt out": "exhausted",
-  burnout: "exhausted",
-  wiped: "drained",
-  depleted: "drained",
-  spent: "drained",
-  alone: "lonely",
-  isolated: "lonely",
-  withdrawn: "lonely",
-  "let down": "disappointed",
-  letdown: "disappointed",
-  gutted: "disappointed",
-  annoyed: "irritated",
-  snapping: "irritated",
-  snapped: "irritated",
-  snappy: "irritated",
-  agitated: "irritated",
-  grumpy: "irritated",
-  grouchy: "irritated",
-  moody: "irritated",
-  cranky: "irritated",
-  angry: "angry",
-  anger: "angry",
-  rage: "angry",
-  raging: "angry",
-  furious: "angry",
-  mad: "angry",
-  pissed: "angry",
-  argument: "angry",
-  argued: "angry",
-  arguing: "angry",
-  fight: "angry",
-  fighting: "angry",
-  fought: "angry",
-  yelling: "angry",
-  yelled: "angry",
-  shouting: "angry",
-  shouted: "angry",
-  screaming: "angry",
-  screamed: "angry",
-  hostile: "angry",
-  resentful: "frustrated",
-  resentment: "frustrated",
-  worried: "anxious",
-  nervous: "anxious",
-  worry: "anxious",
-  worrying: "anxious",
-  tense: "stressed",
-  pressure: "stressed",
-  pressured: "stressed",
-  swamped: "overwhelmed",
-  drowning: "overwhelmed",
-  "too much": "overwhelmed",
-  behind: "stressed",
-  late: "stressed",
-  deadline: "stressed",
-  overdue: "stressed",
-  "falling behind": "overwhelmed",
-  "catching up": "stressed",
-  procrastinat: "stressed",
-  envious: "jealous",
-  // bad
-  terrible: "miserable",
-  awful: "miserable",
-  horrible: "miserable",
-  wretched: "miserable",
-  scared: "terrified",
-  fear: "terrified",
-  frightened: "terrified",
-  panic: "panicked",
-  panicking: "panicked",
-  shame: "ashamed",
-  guilty: "ashamed",
-  guilt: "ashamed",
-  gross: "disgusted",
-  sick: "disgusted",
-  nothing: "empty",
-  void: "empty",
-  hollow: "empty",
-  hopeless: "hopeless",
-  despair: "despairing",
-  destroyed: "crushed",
-  devastated: "crushed",
-  numb: "numb",
-  "shut down": "numb",
-  shutdown: "numb",
-  disconnected: "numb",
-  broken: "broken",
-  lost: "lost",
-  stuck: "lost",
-};
-
-// All emotion words from all mood groups
-const allEmotions: string[] = Object.values(emotionsByMood).flat();
+// All emotion names from the EMOTIONS list (for autocomplete)
+const allEmotionNames: string[] = EMOTIONS.map((e) => e.name);
 
 export function getAllEmotionWords(): string[] {
-  return allEmotions;
+  return allEmotionNames;
 }
 
-// Map each emotion to its category for filtering
-const emotionCategory: Record<string, string> = {};
-for (const [category, emotions] of Object.entries(emotionsByMood)) {
-  for (const emotion of emotions) {
-    emotionCategory[emotion] = category;
-  }
-}
+// Maps common words/phrases to emotion names in EMOTIONS list
+const synonyms: Record<string, string> = {
+  // positive high energy
+  amazing: "Elated",
+  buzzing: "Excited",
+  great: "Happy",
+  wonderful: "Joyful",
+  fantastic: "Elated",
+  thrilled: "Excited",
+  pumped: "Energized",
+  creative: "Inspired",
+  funny: "Amused",
+  laughing: "Amused",
+  laugh: "Amused",
+  love: "Warm",
+  loved: "Warm",
+  thankful: "Grateful",
+  blessed: "Grateful",
+  joy: "Joyful",
+  delighted: "Pleased",
+  enjoyed: "Pleased",
+  enjoying: "Pleased",
+  fun: "Amused",
+  accomplished: "Proud",
+  achieved: "Proud",
+  strong: "Confident",
+  capable: "Confident",
+  refreshed: "Energized",
+  alive: "Energized",
 
-// Which categories are allowed for each mood range
-function getAllowedCategories(valence: number, energy: number): Set<string> {
-  if (valence >= 2) return new Set(["high", "good"]);
-  if (valence >= 1) return new Set(["high", "good", "neutral"]);
-  if (valence >= 0) return new Set(["good", "neutral", "low"]);
-  if (valence >= -1) return new Set(["neutral", "low", "bad"]);
-  return new Set(["low", "bad"]);
+  // positive low energy
+  chill: "Relaxed",
+  chilled: "Relaxed",
+  good: "Content",
+  fine: "Okay",
+  alright: "Okay",
+  nice: "Pleased",
+  safe: "Warm",
+  cozy: "Warm",
+  better: "Relieved",
+  relief: "Relieved",
+  released: "Relieved",
+  lighter: "Relieved",
+  free: "Relieved",
+  connection: "Connected",
+  close: "Connected",
+  closeness: "Connected",
+  together: "Connected",
+  bonding: "Connected",
+  supported: "Warm",
+  secure: "Warm",
+  settled: "Content",
+  "at ease": "Relaxed",
+  rested: "Relaxed",
+
+  // neutral
+  bored: "Mellow",
+  thinking: "Reflective",
+  thoughtful: "Reflective",
+  unfocused: "Distracted",
+  fidgety: "Restless",
+  unsure: "Uncertain",
+  confused: "Uncertain",
+  meh: "Okay",
+
+  // negative low energy
+  unhappy: "Upset",
+  crying: "Tearful",
+  cry: "Tearful",
+  cried: "Tearful",
+  tears: "Tearful",
+  down: "Upset",
+  low: "Upset",
+  blue: "Upset",
+  weary: "Tired",
+  sleepy: "Tired",
+  fatigued: "Tired",
+  knackered: "Tired",
+  "worn out": "Tired",
+  "run down": "Tired",
+  shattered: "Exhausted",
+  "burnt out": "Exhausted",
+  burnout: "Exhausted",
+  wiped: "Drained",
+  depleted: "Drained",
+  spent: "Drained",
+  alone: "Lonely",
+  isolated: "Lonely",
+  withdrawn: "Lonely",
+  "let down": "Disappointed",
+  letdown: "Disappointed",
+  gutted: "Disappointed",
+  despair: "Hopeless",
+  destroyed: "Crushed",
+  devastated: "Crushed",
+  "shut down": "Numb",
+  shutdown: "Numb",
+  disconnected: "Numb",
+  stuck: "Lost",
+
+  // negative high energy
+  annoyed: "Irritated",
+  snapping: "Irritated",
+  snapped: "Irritated",
+  snappy: "Irritated",
+  agitated: "Irritated",
+  grumpy: "Irritated",
+  grouchy: "Irritated",
+  moody: "Irritated",
+  cranky: "Irritated",
+  anger: "Angry",
+  rage: "Furious",
+  raging: "Furious",
+  mad: "Angry",
+  pissed: "Angry",
+  argument: "Angry",
+  argued: "Angry",
+  arguing: "Angry",
+  fight: "Angry",
+  fighting: "Angry",
+  fought: "Angry",
+  yelling: "Angry",
+  yelled: "Angry",
+  shouting: "Angry",
+  shouted: "Angry",
+  screaming: "Angry",
+  screamed: "Angry",
+  hostile: "Angry",
+  resentful: "Frustrated",
+  resentment: "Frustrated",
+  worried: "Anxious",
+  nervous: "Anxious",
+  worry: "Anxious",
+  worrying: "Anxious",
+  tense: "Stressed",
+  pressure: "Stressed",
+  pressured: "Stressed",
+  behind: "Stressed",
+  late: "Stressed",
+  deadline: "Stressed",
+  overdue: "Stressed",
+  "catching up": "Stressed",
+  procrastinat: "Stressed",
+  envious: "Jealous",
+  terrible: "Depressed",
+  awful: "Depressed",
+  horrible: "Depressed",
+  scared: "Terrified",
+  fear: "Terrified",
+  frightened: "Terrified",
+  panic: "Panicked",
+  panicking: "Panicked",
+  shame: "Ashamed",
+  guilty: "Ashamed",
+  guilt: "Ashamed",
+  gross: "Disgusted",
+  sick: "Disgusted",
+  nothing: "Empty",
+  void: "Empty",
+  hollow: "Empty",
+};
+
+// Build a lookup from lowercase name to EMOTIONS entry for fast matching
+const emotionByName = new Map(
+  EMOTIONS.map((e) => [e.name.toLowerCase(), e])
+);
+
+/**
+ * Calculate Euclidean distance between two points
+ */
+function distance(
+  v1: number,
+  e1: number,
+  v2: number,
+  e2: number,
+): number {
+  return Math.sqrt((v1 - v2) ** 2 + (e1 - e2) ** 2);
 }
 
 /**
- * Extract emotions from free text by matching against known emotion words
- * and common synonyms. Filters results to match the mood intensity.
- * Falls back to the top emotion for the given mood level.
+ * Extract emotions from free text + valence/energy position (sync, instant).
+ *
+ * 1. Text match: scan for emotion names and synonyms
+ * 2. Proximity fill: suggest closest emotions to (valence, energy) that weren't text-matched
  */
 export function extractEmotions(
   text: string,
@@ -336,45 +250,72 @@ export function extractEmotions(
   energy: number = 0,
 ): string[] {
   const lower = text.toLowerCase();
-  const found = new Set<string>();
-  const allowed = getAllowedCategories(valence, energy);
+  const textMatched = new Set<string>();
 
-  // Direct matches against our emotion labels
-  for (const emotion of allEmotions) {
-    const regex = new RegExp(`\\b${emotion}\\b`, "i");
+  // Step 1a: Direct matches against EMOTIONS names
+  for (const emotion of EMOTIONS) {
+    const regex = new RegExp(`\\b${emotion.name}\\b`, "i");
     if (regex.test(lower)) {
-      found.add(emotion);
+      textMatched.add(emotion.name);
     }
   }
 
-  // Synonym/phrase matches
-  for (const [phrase, emotion] of Object.entries(synonyms)) {
+  // Step 1b: Synonym/phrase matches
+  for (const [phrase, emotionName] of Object.entries(synonyms)) {
     if (lower.includes(phrase)) {
-      found.add(emotion);
+      textMatched.add(emotionName);
     }
   }
 
-  // Filter to only emotions compatible with the mood level
-  const filtered = [...found].filter((e) => {
-    const cat = emotionCategory[e];
-    return cat ? allowed.has(cat) : true;
-  });
+  // Step 2: Proximity suggestions — fill remaining slots with closest emotions
+  const maxTotal = 5;
+  const results = [...textMatched].slice(0, maxTotal);
 
-  return filtered.slice(0, 5);
+  if (results.length < maxTotal && (valence !== 0 || energy !== 0)) {
+    const ranked = EMOTIONS
+      .filter((e) => !textMatched.has(e.name))
+      .map((e) => ({
+        name: e.name,
+        dist: distance(valence, energy, e.valence, e.energy),
+      }))
+      .sort((a, b) => a.dist - b.dist);
+
+    for (const r of ranked) {
+      if (results.length >= maxTotal) break;
+      results.push(r.name);
+    }
+  }
+
+  return results;
 }
 
-export function getEmotionsForMood(mood: number): string[] {
-  if (mood >= 7)
-    return [...emotionsByMood.high, ...emotionsByMood.good.slice(0, 4)];
-  if (mood >= 6)
-    return [...emotionsByMood.good, ...emotionsByMood.high.slice(0, 4)];
-  if (mood >= 5)
-    return [...emotionsByMood.good, ...emotionsByMood.neutral.slice(0, 4)];
-  if (mood >= 4)
-    return [...emotionsByMood.neutral, ...emotionsByMood.low.slice(0, 4)];
-  if (mood >= 3)
-    return [...emotionsByMood.low, ...emotionsByMood.neutral.slice(0, 4)];
-  if (mood >= 2)
-    return [...emotionsByMood.low, ...emotionsByMood.bad.slice(0, 4)];
-  return [...emotionsByMood.bad, ...emotionsByMood.low.slice(0, 4)];
+/**
+ * Extract emotions using semantic similarity (async).
+ * Uses the embedding model if loaded, falls back to keyword + proximity.
+ */
+export async function extractEmotionsSemantic(
+  text: string,
+  valence: number,
+  energy: number = 0,
+): Promise<string[]> {
+  // Always start with keyword matches
+  const keywordResults = extractEmotions(text, valence, energy);
+
+  // If model isn't ready or text is too short, return keyword results
+  if (!isReady() || text.trim().length < 3) {
+    return keywordResults;
+  }
+
+  // Get semantic matches
+  const semanticResults = await findSimilarEmotions(text, 5);
+
+  // Merge: keyword matches first (trusted), then semantic matches that aren't duplicates
+  const merged = [...keywordResults];
+  for (const emotion of semanticResults) {
+    if (!merged.includes(emotion)) {
+      merged.push(emotion);
+    }
+  }
+
+  return merged.slice(0, 7);
 }

@@ -26,6 +26,7 @@
         style="--option-color: {getMoodColor(value)}"
         onclick={() => select(value)}
       >
+        <span class="value-label">{value > 0 ? '+' : ''}{value}</span>
         <span class="dot"></span>
       </button>
     {/each}
@@ -48,12 +49,19 @@
     gap: 4px;
   }
 
+  .value-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+
   .option {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 10px 0;
+    padding: 4px 0 10px;
     border: none;
     background: none;
     cursor: pointer;
@@ -74,9 +82,9 @@
   }
 
   .option.selected .dot {
-    background: var(--option-color);
     border-color: var(--option-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    background: var(--bg-card);
+    box-shadow: inset 0 0 0 8px var(--option-color);
   }
 
   .labels {

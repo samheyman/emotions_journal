@@ -27,3 +27,41 @@ export interface MoodOption {
   label: string;
   color: string;
 }
+
+/**
+In emotion theory (especially Emotion-Focused Therapy and parts of affective science):
+
+Primary emotions
+Immediate, automatic, fundamental,
+Biologically rooted
+Direct responses to events
+e.g. fear, anger, sadness, joy
+
+Secondary emotions
+Reactions to primary emotions, derived, blended
+More cognitive / socially shaped
+Often layered
+e.g. shame (anger turned inward), jealousy (fear + anger), frustration (blocked anger)
+
+Future coaching prompts like:
+“It looks like you selected several secondary emotions. Would you like help identifying what might be underneath?”
+
+Is this emotion fundamental, or layered/cognitive?
+
+Example:
+Angry → Primary
+Frustrated → Secondary
+Jealous → Secondary
+Sad → Primary
+Miserable → Secondary
+This is about structure of the emotion, not its theme.
+
+*/
+
+export type Emotion = {
+  name: string;
+  valence: number; // -3 to +3
+  energy: number; // -3 to +3
+  type: "primary" | "secondary";
+  embedding: number[]; // 384-dim all-MiniLM-L6-v2
+};
