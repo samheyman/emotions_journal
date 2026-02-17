@@ -12,22 +12,34 @@
 | Charts     | Chart.js                       | Well-maintained, canvas-based, small enough                          |
 | Routing    | Simple component-based         | No router library -- a reactive `currentView` variable toggles views |
 | PWA        | manifest.json + service worker | Installable, offline-capable                                         |
+| Embeddings | @huggingface/transformers      | Runs ONNX models via WebAssembly in-browser, no server needed        |
 
 ## Data Model
 
 ```typescript
 interface EmotionEntry {
-  id: string; // crypto.randomUUID()
-  timestamp: string; // ISO 8601
-  valence: number; // -5 to +5
-  energy: number; // -5 to +5
-  emotions: string[]; // 1-3 labels
-  tags: string[]; // context tags
-  note: string; // optional free text
+  id: string;          // crypto.randomUUID()
+  timestamp: string;   // ISO 8601
+  valence: number;     // -3 to +3
+  energy: number;      // -3 to +3
+  emotions: string[];  // selected emotion labels
+  tags: string[];      // context tags
+  note: string;        // free text
+  timeOfDay?: TimeOfDay;
 }
+
+type Emotion = {
+  name: string;
+  valence: number;     // -3 to +3
+  energy: number;      // -3 to +3
+  type: "primary" | "secondary";
+  embedding: number[]; // 384-dim all-MiniLM-L6-v2 q8
+};
 ```
 
 Storage key: `"emotion-entries"`. Serialized as a JSON array in localStorage.
+
+The `Emotion` type represents the 70-emotion vocabulary. Each emotion has pre-computed q8 embeddings (384 dimensions) generated from the sentence `"Feeling {emotion}"` using `Xenova/all-MiniLM-L6-v2`.
 
 ## Component Architecture
 
@@ -43,13 +55,16 @@ App.svelte (root -- manages current view, renders NavBar)
 |   |   +-- Calendar.svelte
 |   |
 |   +-- CheckInView.svelte
-|   |   +-- MoodPad.svelte
-|   |   +-- EmotionPicker.svelte
-|   |   +-- TagPicker.svelte
-|   |   +-- NoteInput.svelte
+|   |   +-- Step 1: NoteInput + ValenceSelect + EnergySelect
+|   |   +-- Step 2: EmotionPicker (primary/secondary groups)
+|   |   +-- Step 3: TagPicker
+|   |   +-- Step 4: EntryCard (preview) + Save
 |   |
 |   +-- TrendsView.svelte
 |       +-- MoodChart.svelte
+|
++-- Services
+    +-- embeddingService.ts (model loading, warmup, embedText, findSimilarEmotions)
 ```
 
 ## File Structure
@@ -66,19 +81,26 @@ emotions-log/
 |   +-- icons/
 |       +-- icon-192.png
 |       +-- icon-512.png
++-- scripts/
+|   +-- generate-embeddings.mjs  (Node.js script to regenerate emotion embeddings)
 +-- src/
     +-- main.ts
     +-- app.css                  (design tokens + global resets)
     +-- App.svelte
     +-- lib/
-    |   +-- types.ts             (EmotionEntry interface)
+    |   +-- types.ts             (EmotionEntry, Emotion interfaces)
     |   +-- store.ts             (localStorage CRUD + reactive state)
-    |   +-- emotions.ts          (emotion labels by quadrant)
+    |   +-- data/
+    |   |   +-- emotionsWithValenceAndEnergy.ts  (70 emotions with pre-computed q8 embeddings)
+    |   +-- emotions.ts          (extractEmotions sync keyword+proximity, extractEmotionsSemantic async)
     |   +-- tags.ts              (predefined tag list)
     |   +-- export.ts            (JSON export utility)
+    |   +-- services/
+    |       +-- embeddingService.ts  (model loading, warmup, embedText, findSimilarEmotions, cosineSimilarity)
     +-- components/
     |   +-- NavBar.svelte
-    |   +-- MoodPad.svelte
+    |   +-- ValenceSelect.svelte
+    |   +-- EnergySelect.svelte
     |   +-- EmotionPicker.svelte
     |   +-- TagPicker.svelte
     |   +-- NoteInput.svelte
@@ -94,31 +116,81 @@ emotions-log/
 
 ## UI/UX Specs
 
-### MoodPad Interaction
-
-- Renders as a square `<div>` with `touch-action: none`
-- Listens to `pointerdown` and `pointermove` events
-- Converts pointer position to valence (x: -5 to +5) and energy (y: -5 to +5, inverted so top = high energy)
-- Background uses a CSS gradient that shifts based on the selected quadrant:
-  - Top-right (high energy, pleasant): warm yellow/orange
-  - Top-left (high energy, unpleasant): red/pink
-  - Bottom-right (low energy, pleasant): green/teal
-  - Bottom-left (low energy, unpleasant): blue/grey
-- A dot/crosshair follows the pointer to show the current selection
-- Axis labels at the edges: "Pleasant" / "Unpleasant" / "High Energy" / "Low Energy"
-
 ### Check-in Flow
 
 Four steps, navigated with Next/Back buttons:
 
-1. **MoodPad** -- tap or drag to set valence + energy
-2. **Emotion labels** -- pick 1-3 words (filtered by quadrant)
-3. **Tags** -- pick 0+ context tags
-4. **Note** -- optional free text, then Save
+1. **Free text + Valence + Energy** -- write how you feel, select valence (-3 to +3) and energy (-3 to +3) via discrete selectors
+2. **Emotions** -- view AI-suggested emotions split into Primary and Secondary groups; remove suggestions or manually add via autocomplete (up to 7 total)
+3. **Triggers / Context** -- pick 0+ context tags
+4. **Preview** -- see full entry card, then Save
 
 Each step is a section within `CheckInView.svelte`. The view manages a `step` variable (0-3) and renders the appropriate component.
 
-### Color System
+## Embedding / Semantic Matching Architecture
+
+### Model
+
+- **Model:** `Xenova/all-MiniLM-L6-v2` (sentence-transformers, ONNX format)
+- **Precision:** q8 (int8 quantized) for both pre-computed emotion embeddings and runtime inference
+- **Dimensions:** 384, normalized
+- **Runtime:** `@huggingface/transformers` executes the ONNX model via WebAssembly in-browser
+- **Size:** ~6-12MB on first download, cached in IndexedDB thereafter
+
+### Pre-computed Embeddings
+
+Each of the 70 emotions has a pre-computed embedding stored in `src/lib/data/emotionsWithValenceAndEnergy.ts`. These were generated using the `scripts/generate-embeddings.mjs` Node.js script with the input format `"Feeling {emotion}"` (e.g. `"Feeling angry"`).
+
+To regenerate embeddings (e.g. after adding new emotions), run:
+
+```bash
+node scripts/generate-embeddings.mjs
+```
+
+### Hybrid Suggestion Pipeline
+
+```
+User types text + selects valence/energy
+           |
+           v
+  +------------------+     +---------------------+     +----------------------+
+  | Tier 1: Keyword  |     | Tier 2: Proximity   |     | Tier 3: Semantic     |
+  | (sync, instant)  |     | (sync, instant)     |     | (async, after load)  |
+  +------------------+     +---------------------+     +----------------------+
+  | Regex match on   |     | Euclidean distance  |     | Cosine similarity    |
+  | emotion names +  |     | from user's (v, e)  |     | between user text    |
+  | ~160 synonyms    |     | to emotion coords   |     | embedding and pre-   |
+  +------------------+     +---------------------+     | computed emotion     |
+           |                        |                   | embeddings (384-dim) |
+           v                        v                   +----------------------+
+      keyword matches         proximity matches                  |
+           |                        |                            v
+           +------------------------+------- semantic matches ---+
+                                    |
+                                    v
+                        Merged results (up to 7)
+                   keyword matches first (trusted),
+                   then semantic, then proximity fill
+```
+
+### Key Service: `embeddingService.ts`
+
+- `warmup()` -- begins lazy-loading the quantized model in background when check-in view opens
+- `embedText(text)` -- computes a 384-dim embedding for arbitrary text
+- `findSimilarEmotions(text, emotions, topK)` -- returns the top-K emotions by cosine similarity to the input text
+- `cosineSimilarity(a, b)` -- dot product of two normalized vectors
+- `embeddingReady` -- reactive state that indicates when the model is loaded and semantic matching is available
+
+### Key Data Module: `emotions.ts`
+
+- `extractEmotions(text, valence, energy)` -- synchronous keyword + proximity matching (Tier 1 + 2)
+- `extractEmotionsSemantic(text, valence, energy)` -- async wrapper that includes semantic matching (Tier 3) when the model is ready
+
+### Privacy
+
+All inference runs on-device via WebAssembly. No data is transmitted to any server. The model is downloaded once and cached locally in the browser's IndexedDB.
+
+## Color System
 
 Warm neutral palette with terracotta and sage accents. See design tokens below.
 

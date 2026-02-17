@@ -71,124 +71,113 @@ Primary personas:
 
 # 5. Core Interaction Model
 
-## Step 1: Mood Score (1–7 Scale)
+## Step 1: Free Text + Valence/Energy
 
-The first screen shows a **single vertical or horizontal 1–7 scale**.
+The first screen captures three things at once:
 
-Default example (fully customizable):
+- **Free-text note** -- open text field for the user to describe how they feel in their own words
+- **Valence select** -- a -3 to +3 scale (unpleasant to pleasant)
+- **Energy select** -- a -3 to +3 scale (low energy to high energy)
 
-```
-7 — Perfect
-6 — Excellent
-5 — Good
-4 — Passable
-3 — Bad
-2 — Atrocious
-1 — Rock bottom
-```
+The two-axis model (valence + energy) captures emotional state as a position in affect space rather than collapsing it to a single score. This is grounded in the circumplex model of affect.
 
-### Why 7?
+### Why -3 to +3?
 
-- More granularity at the top (where nuance matters most)
-- Better resolution than 1–5
-- Avoids over-precision of 1–10
-- Psychologically lightweight
-
-Users can:
-
-- Rename labels
-- Change wording
-- Use emojis instead
-- Reverse direction if desired
-
-Only the numeric score (1–7) is structurally fixed.
+- Zero-centered: neutral is the default, not a midpoint on a positive-only scale
+- 7 discrete levels per axis (enough granularity, not overwhelming)
+- Compact integer range that maps cleanly to visual selectors
 
 ---
 
-## Step 2: Emotion Selection (Shown After Score)
+## Step 2: Emotion Selection
 
-After selecting a score, the app reveals emotion labels.
+After setting valence/energy, the app presents emotion labels. Emotions are organized into two groups:
+
+- **Primary emotions** -- fundamental, biologically rooted (e.g. Angry, Sad, Joyful)
+- **Secondary emotions** -- layered/cognitive (e.g. Frustrated, Jealous, Ashamed)
+
+### Emotion Inference
+
+The app uses a **hybrid three-tier system** to suggest relevant emotions (see Section 5b):
+
+1. Keyword matching against the user's free text (instant)
+2. Proximity fill based on the user's valence/energy position (instant)
+3. Semantic matching via text embeddings (async, after model loads)
 
 ### Behavior
 
-- Emotion suggestions can vary depending on selected score range
-- Users can select multiple emotions
-- Entire list is customizable
-- Users can add/remove/edit emotions
-
-Example for low scores (1–3):
-
-- Sad
-- Angry
-- Anxious
-- Overwhelmed
-- Tired
-
-Example for high scores (5–7):
-
-- Calm
-- Energized
-- Excited
-- Content
-- Grateful
-
-No fixed psychological model is enforced.
+- Up to 7 emotions are suggested automatically
+- Users can remove suggested emotions
+- Users can manually add any emotion via autocomplete
+- The full emotion vocabulary is 70 emotions, each with valence/energy coordinates and a type (primary/secondary)
 
 ---
 
-## Step 3: Context Pills
+## Step 3: Triggers / Context
 
-User can optionally add contextual tags.
-
-Three customizable categories:
-
-### 1. Activities
-
-Examples:
-
-- Work
-- Exercise
-- Social
-- Family
-- Travel
-- Creative
-
-### 2. Environment
-
-Examples:
-
-- Home
-- Office
-- Outdoors
-- Café
-- Commute
-
-### 3. Weather
-
-Examples:
-
-- Sunny
-- Rainy
-- Snowy
-- Cold
-- Windy
-
-Each category:
+User can optionally add contextual tags presented as tappable pills.
 
 - Multi-select
 - Editable
 - Fully customizable
-- Presented as tappable "pills"
-
-Users can create new categories in future versions.
 
 ---
 
-## Step 4: Optional Note
+## Step 4: Preview + Save
 
-- Free text field
-- No character limit
-- Markdown support (optional future enhancement)
+A preview step shows the full entry card before saving:
+
+- Valence and energy values
+- Selected emotions
+- Context tags
+- Free-text note
+
+The user confirms and saves, or navigates back to edit.
+
+---
+
+# 5b. Emotion Inference System
+
+The app uses a **hybrid three-tier architecture** to suggest emotions from the user's free-text input and valence/energy position. All processing happens on-device -- no data leaves the browser.
+
+## Tier 1: Keyword Matching (instant, synchronous)
+
+- Direct regex matches against the 70 emotion names
+- A synonym/phrase lookup table (~160 entries) maps common expressions to emotions (e.g. "pissed off" -> Angry, "on edge" -> Anxious)
+- This tier runs immediately on every text change with zero latency
+
+## Tier 2: Proximity Fill (instant, synchronous)
+
+- Computes Euclidean distance from the user's selected (valence, energy) position to each emotion's coordinates
+- Fills remaining suggestion slots with the nearest emotions in affect space
+- Provides meaningful suggestions even when the user writes very little or nothing
+
+## Tier 3: Semantic Matching (async, after model loads)
+
+- Uses `Xenova/all-MiniLM-L6-v2` (sentence-transformers) with q8 (int8 quantized) precision
+- Computes a 384-dimensional embedding of the user's text at runtime
+- Compares via cosine similarity against pre-computed embeddings for all 70 emotions
+- Pre-computed embeddings were generated using the input format `"Feeling {emotion}"`
+
+### Model Loading
+
+- On check-in view open, `warmup()` begins lazy-loading the quantized ONNX model in the background (~6-12MB)
+- Model runs via WebAssembly through the `@huggingface/transformers` library
+- After first download, the model is cached in browser IndexedDB (subsequent loads are near-instant)
+- A reactive `embeddingReady` state indicates when semantic matching is available
+
+### Result Merging
+
+- Keyword matches are ranked first (highest trust -- the user explicitly mentioned the emotion)
+- Semantic matches fill remaining slots
+- Total suggestions capped at 7
+
+## Privacy Guarantees
+
+- The ONNX model runs locally via WebAssembly -- no server calls
+- No API calls for embedding computation
+- Model cached in browser IndexedDB after first download
+- Zero data transmission for emotion inference
 
 ---
 
@@ -219,11 +208,10 @@ Users can create new categories in future versions.
 
 ## Home Screen (Check-In)
 
-1. 1–7 scale
-2. Emotion selection panel (revealed after score)
-3. Context pills
-4. Optional note
-5. Save button
+1. Free text + Valence select + Energy select
+2. Emotion picker (primary/secondary groups, with AI-powered suggestions)
+3. Triggers / Context tag picker
+4. Preview entry card + Save
 
 ---
 
@@ -288,16 +276,26 @@ No backend required for MVP.
 
 ```typescript
 interface EmotionEntry {
-  id: string; // crypto.randomUUID()
-  timestamp: string; // ISO 8601
-  score: number; // 1–7
-  emotions: string[]; // customizable labels
-  activities: string[]; // customizable
-  environment: string[]; // customizable
-  weather: string[]; // customizable
-  note: string; // optional
+  id: string;          // crypto.randomUUID()
+  timestamp: string;   // ISO 8601
+  valence: number;     // -3 to +3
+  energy: number;      // -3 to +3
+  emotions: string[];  // selected emotion labels
+  tags: string[];      // context tags
+  note: string;        // free text (entered in step 1)
+  timeOfDay?: TimeOfDay;
 }
+
+type Emotion = {
+  name: string;
+  valence: number;     // -3 to +3
+  energy: number;      // -3 to +3
+  type: "primary" | "secondary";
+  embedding: number[]; // 384-dim all-MiniLM-L6-v2 q8
+};
 ```
+
+The `Emotion` type defines the vocabulary of 70 emotions used for inference and suggestion. Each emotion carries a pre-computed 384-dimensional embedding vector for semantic matching.
 
 All configuration (labels, categories) is also stored locally.
 
@@ -308,7 +306,7 @@ All configuration (labels, categories) is also stored locally.
 - User accounts
 - Cloud sync
 - Social sharing
-- AI insights
+- Cloud-based AI / LLM calls (emotion inference runs entirely on-device)
 - Therapy recommendations
 - Ads
 - Emotional scoring algorithms

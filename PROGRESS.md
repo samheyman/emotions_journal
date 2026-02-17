@@ -1,5 +1,43 @@
 # Progress Log
 
+## 2026-02-13 (Update: Semantic Emotion Matching)
+
+**Status:** On-device semantic emotion matching fully implemented.
+
+**Completed:**
+- Built hybrid three-tier emotion suggestion system (keyword + proximity + semantic matching)
+- Integrated `Xenova/all-MiniLM-L6-v2` sentence-transformer model (q8 quantized, 384-dim embeddings)
+- Model runs entirely in-browser via ONNX + WebAssembly through `@huggingface/transformers`
+- Defined 70 emotions with valence (-3 to +3), energy (-3 to +3), type (primary/secondary), and pre-computed 384-dim embeddings
+- Created `embeddingService.ts` with lazy model loading, warmup, embedText, findSimilarEmotions, cosineSimilarity
+- Created `scripts/generate-embeddings.mjs` to regenerate emotion embeddings using input format "Feeling {emotion}"
+- Built synonym/phrase lookup table (~160 entries) for keyword matching tier
+- Implemented proximity fill using Euclidean distance from user's valence/energy position to emotion coordinates
+- Result merging: keyword matches first (trusted), semantic matches fill remaining slots, up to 7 total
+- Replaced MoodPad with discrete ValenceSelect (-3 to +3) and EnergySelect (-3 to +3) components
+- Updated check-in flow: Step 1 now includes free text + valence/energy; Step 2 shows emotions split into Primary/Secondary groups; Step 4 is now a preview
+- Updated data model: EmotionEntry uses valence/energy (-3 to +3), Emotion type includes `embedding: number[]`
+- All processing on-device -- zero data transmission for emotion inference
+- Model cached in IndexedDB after first download (~6-12MB)
+
+**Key files:**
+- `src/lib/services/embeddingService.ts` -- model loading, embedding, similarity
+- `src/lib/data/emotionsWithValenceAndEnergy.ts` -- 70 emotions with pre-computed q8 embeddings
+- `src/lib/emotions.ts` -- extractEmotions (sync), extractEmotionsSemantic (async)
+- `src/lib/types.ts` -- Emotion type with embedding field
+- `scripts/generate-embeddings.mjs` -- embedding generation script
+
+**Decisions:**
+- q8 precision chosen for both pre-computed and runtime embeddings (good balance of accuracy vs size)
+- "Feeling {emotion}" template for embedding generation (captures emotional context better than bare emotion names)
+- Three-tier approach ensures instant suggestions while semantic matching loads asynchronously
+- 70 emotions split into primary (biologically rooted) and secondary (layered/cognitive) types
+- Cap suggestions at 7 to avoid overwhelming the user
+
+**Next:** Testing and refinement of suggestion quality. Explore threshold tuning for semantic match relevance.
+
+---
+
 ## 2026-02-13
 
 **Status:** Project documentation created. Starting implementation.
