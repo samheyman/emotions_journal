@@ -115,7 +115,7 @@
   }
 
   let stepTitle = $derived(
-    step === 1 ? (isToday ? "What's on your mind?" : "What was on your mind?") :
+    step === 1 ? (isToday ? "How are you?" : "What was on your mind?") :
     step === 2 ? 'Emotional landscape' :
     step === 3 ? 'Triggers / Context' :
     'Preview'
@@ -323,6 +323,15 @@
     <div class="step-body">
       {#if step === 1}
         <div class="discharge-step">
+<div class="intensity-section">
+            <p class="intensity-label">How activated or calm do you feel?</p>
+            <EnergySelect bind:energy onuserinput={() => energyManuallySet = true} />
+          </div>
+<div class="intensity-section">
+            <p class="intensity-label">What's your mood?</p>
+            <ValenceSelect bind:valence onuserinput={() => valenceManuallySet = true} />
+          </div>
+<p class="intensity-label">What's on your mind?</p>
           <textarea
             bind:value={note}
             placeholder="I am tired and am snapping at everyone..."
@@ -331,14 +340,8 @@
           ></textarea>
           <span class="char-count" class:visible={note.length > 0}>{note.length}/500</span>
 
-          <div class="intensity-section">
-            <p class="intensity-label">What's your mood?</p>
-            <ValenceSelect bind:valence onuserinput={() => valenceManuallySet = true} />
-          </div>
-          <div class="intensity-section">
-            <p class="intensity-label">How activated do you feel?</p>
-            <EnergySelect bind:energy onuserinput={() => energyManuallySet = true} />
-          </div>
+          
+          
 
         </div>
       {:else if step === 2}
