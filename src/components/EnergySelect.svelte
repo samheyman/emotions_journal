@@ -32,9 +32,9 @@
     {/each}
   </div>
   <div class="labels">
-    <span class="label">Heavy/Sluggish/Flat</span>
-    <span class="label">Steady/Balanced</span>
-    <span class="label">Tense/Wired/Agitated</span>
+    <span class="label">Heavy<br>Sluggish<br>Flat</span>
+    <span class="label">Steady<br>Balanced</span>
+    <span class="label">Tense<br>Wired<br>Agitated</span>
   </div>
 </div>
 
