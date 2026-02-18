@@ -32,7 +32,7 @@
     {/each}
   </div>
   <div class="labels">
-    <span class="label">Unpleasant<br>Negative/span>
+    <span class="label">Unpleasant<br>Negative</span>
     <span class="label">Neutral</span>
     <span class="label">Pleasant<br>Positive</span>
   </div>
