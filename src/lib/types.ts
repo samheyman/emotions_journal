@@ -16,7 +16,7 @@ export interface EmotionEntry {
   timeOfDay?: TimeOfDay;
 }
 
-export type View = "home" | "checkin" | "trends";
+export type View = "home" | "checkin" | "trends" | "settings";
 
 export type HomeTab = "timeline" | "calendar";
 

@@ -13,6 +13,8 @@ export const contextTags = [
   "rest",
   "fainting",
   "IBS",
+  "kids's demands",
+  "overwhelmed",
 ] as const;
 
 export type ContextTag = (typeof contextTags)[number];

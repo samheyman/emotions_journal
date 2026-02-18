@@ -34,6 +34,13 @@ function createEntriesStore() {
     clear() {
       set([]);
     },
+    importEntries(newEntries: EmotionEntry[]) {
+      update((existing) => {
+        const existingIds = new Set(existing.map((e) => e.id));
+        const unique = newEntries.filter((e) => !existingIds.has(e.id));
+        return [...existing, ...unique];
+      });
+    },
   };
 }
 

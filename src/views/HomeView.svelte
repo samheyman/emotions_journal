@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { HomeTab } from '../lib/types';
   import { entries } from '../lib/stores/entries';
-  import { exportToJSON } from '../lib/utils/export';
+
   import Timeline from '../components/Timeline.svelte';
   import Calendar from '../components/Calendar.svelte';
 
@@ -13,13 +13,6 @@
 <div class="home">
   <header class="home-header">
     <h1 class="title">Lumidian</h1>
-    <button class="export-btn" onclick={() => exportToJSON($entries)} title="Export data">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-        <polyline points="7 10 12 15 17 10"/>
-        <line x1="12" y1="15" x2="12" y2="3"/>
-      </svg>
-    </button>
   </header>
 
   <div class="tabs">
@@ -77,24 +70,7 @@
     color: var(--text-primary);
   }
 
-  .export-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: var(--space-sm);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .export-btn:active {
-    background: var(--bg-subtle);
-    color: var(--text-secondary);
-  }
-
-  .tabs {
+.tabs {
     display: flex;
     padding: 0 var(--space-md);
     gap: var(--space-xs);
