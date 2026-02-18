@@ -126,8 +126,11 @@
   let embeddingReady = $state(isReady());
   onReady(() => embeddingReady = true);
 
-  let rawInferredEmotions = $derived(extractEmotions(note, valence, energy));
+  let extractResult = $derived(extractEmotions(note, valence, energy));
+  let rawInferredEmotions = $derived(extractResult.results);
+  let textMatchedSet = $derived(new Set(extractResult.textMatched));
   let semanticEmotions: string[] = $state([]);
+  let semanticMatchedSet: Set<string> = $state(new Set());
   let dismissedEmotions: string[] = $state([]);
   let manualEmotions: string[] = $state([]);
 
@@ -135,14 +138,16 @@
   $effect(() => {
     if (!embeddingReady || note.trim().length < 3) {
       semanticEmotions = [];
+      semanticMatchedSet = new Set();
       return;
     }
     // Read reactive deps
     const currentNote = note;
     const currentValence = valence;
     const currentEnergy = energy;
-    extractEmotionsSemantic(currentNote, currentValence, currentEnergy).then((results) => {
+    extractEmotionsSemantic(currentNote, currentValence, currentEnergy).then(({ results, semanticMatched }) => {
       semanticEmotions = results;
+      semanticMatchedSet = new Set(semanticMatched);
     });
   });
   let emotionInput = $state('');
@@ -164,6 +169,15 @@
     [...new Set([...inferredEmotions, ...manualEmotions])]
   );
 
+  type EmotionSource = 'manual' | 'keyword' | 'semantic' | 'proximity';
+
+  function getEmotionSource(emotion: string): EmotionSource {
+    if (manualEmotions.includes(emotion)) return 'manual';
+    if (textMatchedSet.has(emotion)) return 'keyword';
+    if (semanticMatchedSet.has(emotion)) return 'semantic';
+    return 'proximity';
+  }
+
   let primaryEmotions = $derived(allEmotions.filter(e => isPrimary(e)));
   let secondaryEmotions = $derived(allEmotions.filter(e => !isPrimary(e)));
 
@@ -183,20 +197,18 @@
     const currentNote = note;
     if (valenceManuallySet || currentNote.trim().length === 0) return;
 
-    // Check if text alone produces matches at current neutral position
-    const atNeutral = extractEmotions(currentNote, 0, 0);
-    // Only text-matched emotions count (proximity fill always returns results)
-    // If we got matches at neutral, keep it
-    if (atNeutral.length > 0) return;
+    // Only auto-adjust based on keyword/synonym matches, not proximity fills
+    const { textMatched } = extractEmotions(currentNote, 0, 0);
+    if (textMatched.length === 0) return;
 
-    // Try valence values outward from neutral to find text matches
-    const tryOrder = [1, -1, 2, -2, 3, -3];
-    for (const tryValence of tryOrder) {
-      if (extractEmotions(currentNote, tryValence, 0).length > 0) {
-        valence = tryValence;
-        return;
-      }
-    }
+    // Snap valence to the average valence of matched emotions
+    const matched = textMatched
+      .map(name => EMOTIONS.find(e => e.name === name))
+      .filter((e): e is NonNullable<typeof e> => e != null);
+    if (matched.length === 0) return;
+
+    const avg = matched.reduce((s, e) => s + e.valence, 0) / matched.length;
+    valence = Math.round(avg);
   });
 
 
@@ -317,16 +329,14 @@
             rows="3"
             maxlength="500"
           ></textarea>
-          {#if note.length > 0}
-            <span class="char-count">{note.length}/500</span>
-          {/if}
+          <span class="char-count" class:visible={note.length > 0}>{note.length}/500</span>
 
           <div class="intensity-section">
-            <p class="intensity-label">Mood (valence)</p>
+            <p class="intensity-label">What's your mood?</p>
             <ValenceSelect bind:valence onuserinput={() => valenceManuallySet = true} />
           </div>
           <div class="intensity-section">
-            <p class="intensity-label">Energy</p>
+            <p class="intensity-label">How activated do you feel?</p>
             <EnergySelect bind:energy onuserinput={() => energyManuallySet = true} />
           </div>
 
@@ -337,7 +347,8 @@
           {#if primaryEmotions.length > 0}
             <div class="emotion-tags">
               {#each primaryEmotions as emotion}
-                <button class="emotion-tag manual primary" onclick={() => removeEmotion(emotion)}>
+                {@const source = getEmotionSource(emotion)}
+                <button class="emotion-tag primary" class:manual={source === 'manual'} class:keyword={source === 'keyword'} class:semantic={source === 'semantic'} class:proximity={source === 'proximity'} onclick={() => removeEmotion(emotion)}>
                   {emotion}
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -352,7 +363,8 @@
           {#if secondaryEmotions.length > 0}
             <div class="emotion-tags">
               {#each secondaryEmotions as emotion}
-                <button class="emotion-tag manual" onclick={() => removeEmotion(emotion)}>
+                {@const source = getEmotionSource(emotion)}
+                <button class="emotion-tag" class:manual={source === 'manual'} class:keyword={source === 'keyword'} class:semantic={source === 'semantic'} class:proximity={source === 'proximity'} onclick={() => removeEmotion(emotion)}>
                   {emotion}
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -634,6 +646,11 @@
     font-size: 0.75rem;
     color: var(--text-muted);
     margin-top: var(--space-xs);
+    visibility: hidden;
+  }
+
+  .char-count.visible {
+    visibility: visible;
   }
 
   .intensity-section {
@@ -680,15 +697,6 @@
     border: 1px solid var(--border);
     color: var(--text-secondary);
     background: var(--bg-card);
-  }
-
-  .emotion-tag.primary {
-    border-color: var(--text-secondary);
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-
-  .emotion-tag.manual {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -697,8 +705,34 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .emotion-tag.manual:active {
+  .emotion-tag:active {
     opacity: 0.7;
+  }
+
+  /* .emotion-tag.primary {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+    font-weight: 500;
+  } */
+
+  .emotion-tag.manual {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .emotion-tag.manual.primary {
+    border-width: 2px;
+  }
+
+  .emotion-tag.semantic {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  .emotion-tag.proximity {
+    background: rgba(173, 85, 85, 0.08);
+    border-color: rgba(0, 0, 0, 0.15);
   }
 
   .emotion-input-wrapper {

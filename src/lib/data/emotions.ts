@@ -217,6 +217,7 @@ const synonyms: Record<string, string> = {
   nervous: "Anxious",
   worry: "Anxious",
   worrying: "Anxious",
+  "cold feet": "Anxious",
   tense: "Stressed",
   pressure: "Stressed",
   pressured: "Stressed",
@@ -246,19 +247,12 @@ const synonyms: Record<string, string> = {
 };
 
 // Build a lookup from lowercase name to EMOTIONS entry for fast matching
-const emotionByName = new Map(
-  EMOTIONS.map((e) => [e.name.toLowerCase(), e])
-);
+const emotionByName = new Map(EMOTIONS.map((e) => [e.name.toLowerCase(), e]));
 
 /**
  * Calculate Euclidean distance between two points
  */
-function distance(
-  v1: number,
-  e1: number,
-  v2: number,
-  e2: number,
-): number {
+function distance(v1: number, e1: number, v2: number, e2: number): number {
   return Math.sqrt((v1 - v2) ** 2 + (e1 - e2) ** 2);
 }
 
@@ -272,46 +266,48 @@ export function extractEmotions(
   text: string,
   valence: number,
   energy: number = 0,
-): string[] {
+): { results: string[]; textMatched: string[] } {
   const lower = text.toLowerCase();
-  const textMatched = new Set<string>();
+  const textMatchedSet = new Set<string>();
 
   // Step 1a: Direct matches against EMOTIONS names
   for (const emotion of EMOTIONS) {
     const regex = new RegExp(`\\b${emotion.name}\\b`, "i");
     if (regex.test(lower)) {
-      textMatched.add(emotion.name);
+      textMatchedSet.add(emotion.name);
     }
   }
 
   // Step 1b: Synonym/phrase matches
   for (const [phrase, emotionName] of Object.entries(synonyms)) {
     if (lower.includes(phrase)) {
-      textMatched.add(emotionName);
+      textMatchedSet.add(emotionName);
     }
   }
 
   // Step 2: Proximity suggestions — fill remaining slots with closest emotions
   const maxTotal = 5;
-  const results = [...textMatched].slice(0, maxTotal);
+  const results = [...textMatchedSet].slice(0, maxTotal);
+  const textMatched = [...textMatchedSet];
 
   if (results.length < maxTotal && (valence !== 0 || energy !== 0)) {
     // Determine sentiment from text matches to filter proximity suggestions
-    const matchedEmotions = [...textMatched]
+    const matchedEmotions = [...textMatchedSet]
       .map((name) => emotionByName.get(name.toLowerCase()))
       .filter(Boolean);
-    const avgMatchedValence = matchedEmotions.length > 0
-      ? matchedEmotions.reduce((s, e) => s + e!.valence, 0) / matchedEmotions.length
-      : 0;
+    const avgMatchedValence =
+      matchedEmotions.length > 0
+        ? matchedEmotions.reduce((s, e) => s + e!.valence, 0) /
+          matchedEmotions.length
+        : 0;
 
-    const ranked = EMOTIONS
-      .filter((e) => {
-        if (textMatched.has(e.name)) return false;
-        // If text matches are clearly positive/negative, don't suggest contradicting emotions
-        if (avgMatchedValence >= 1 && e.valence < 0) return false;
-        if (avgMatchedValence <= -1 && e.valence > 0) return false;
-        return true;
-      })
+    const ranked = EMOTIONS.filter((e) => {
+      if (textMatchedSet.has(e.name)) return false;
+      // If text matches are clearly positive/negative, don't suggest contradicting emotions
+      if (avgMatchedValence >= 1 && e.valence < 0) return false;
+      if (avgMatchedValence <= -1 && e.valence > 0) return false;
+      return true;
+    })
       .map((e) => ({
         name: e.name,
         dist: distance(valence, energy, e.valence, e.energy),
@@ -324,7 +320,7 @@ export function extractEmotions(
     }
   }
 
-  return results;
+  return { results, textMatched };
 }
 
 /**
@@ -335,25 +331,25 @@ export async function extractEmotionsSemantic(
   text: string,
   valence: number,
   energy: number = 0,
-): Promise<string[]> {
+): Promise<{ results: string[]; semanticMatched: string[] }> {
   // Always start with keyword matches
   const keywordResults = extractEmotions(text, valence, energy);
 
   // If model isn't ready or text is too short, return keyword results
   if (!isReady() || text.trim().length < 3) {
-    return keywordResults;
+    return { results: keywordResults.results, semanticMatched: [] };
   }
 
   // Get semantic matches
   const semanticResults = await findSimilarEmotions(text, 5);
 
   // Merge: keyword matches first (trusted), then semantic matches that aren't duplicates
-  const merged = [...keywordResults];
+  const merged = [...keywordResults.results];
   for (const emotion of semanticResults) {
     if (!merged.includes(emotion)) {
       merged.push(emotion);
     }
   }
 
-  return merged.slice(0, 7);
+  return { results: merged.slice(0, 7), semanticMatched: semanticResults };
 }

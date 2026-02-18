@@ -26,15 +26,15 @@
         style="--option-color: {getMoodColor(value)}"
         onclick={() => select(value)}
       >
-        <span class="value-label">{value > 0 ? '+' : ''}{value}</span>
+        <span class="value-label">{value > 0 ? '+' : '-'}{value}</span>
         <span class="dot"></span>
       </button>
     {/each}
   </div>
   <div class="labels">
-    <span class="label">Low</span>
+    <span class="label">Calm/Relaxed</span>
     <span class="label">Neutral</span>
-    <span class="label">High</span>
+    <span class="label">Agitated/Tense</span>
   </div>
 </div>
 

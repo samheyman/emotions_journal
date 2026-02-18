@@ -43,6 +43,10 @@ More cognitive / socially shaped
 Often layered
 e.g. shame (anger turned inward), jealousy (fear + anger), frustration (blocked anger)
 
+Somatic emotions
+Bodily feelings
+e.g. Tired, exhausted
+
 Future coaching prompts like:
 “It looks like you selected several secondary emotions. Would you like help identifying what might be underneath?”
 
@@ -62,6 +66,6 @@ export type Emotion = {
   name: string;
   valence: number; // -3 to +3
   energy: number; // -3 to +3
-  type: "primary" | "secondary";
+  type: "primary" | "secondary" | "somatic";
   embedding: number[]; // 384-dim all-MiniLM-L6-v2
 };
