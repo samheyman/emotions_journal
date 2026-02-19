@@ -21,7 +21,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div class="event-card" onclick={() => expanded = !expanded}>
   <div class="card-main">
-    <div class="emoji-circle">{eventType?.emoji ?? ''}</div>
+    <div class="emoji-circle">{eventType?.emoji || '★'}</div>
     <div class="card-body">
       <span class="event-name">{eventType?.name ?? 'Unknown event'}</span>
       {#if event.note}

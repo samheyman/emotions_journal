@@ -9,10 +9,15 @@ function loadEventTypes(): EventType[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [...DEFAULT_EVENT_TYPES];
     const saved: EventType[] = JSON.parse(raw);
-    // Merge: keep defaults (in order), then append any custom types not in defaults
+    const savedById = new Map(saved.map((t) => [t.id, t]));
     const defaultIds = new Set(DEFAULT_EVENT_TYPES.map((t) => t.id));
+    // Merge defaults (preserving saved emoji/visibility) then append custom types
+    const defaults = DEFAULT_EVENT_TYPES.map((t) => {
+      const s = savedById.get(t.id);
+      return s ? { ...t, emoji: s.emoji ?? t.emoji, visible: s.visible } : t;
+    });
     const custom = saved.filter((t) => !defaultIds.has(t.id));
-    return [...DEFAULT_EVENT_TYPES, ...custom];
+    return [...defaults, ...custom];
   } catch {
     return [...DEFAULT_EVENT_TYPES];
   }
@@ -39,6 +44,9 @@ function createEventTypesStore() {
     },
     setVisibility(id: string, visible: boolean) {
       update((types) => types.map((t) => t.id === id ? { ...t, visible } : t));
+    },
+    setEmoji(id: string, emoji: string) {
+      update((types) => types.map((t) => t.id === id ? { ...t, emoji } : t));
     },
   };
 }

@@ -4,13 +4,14 @@
   import { parseImportFile } from '../lib/utils/import';
   import type { EmotionEntry, EventType } from '../lib/types';
   import { eventTypes } from '../lib/stores/eventTypes';
-  import { DEFAULT_EVENT_TYPES } from '../lib/data/eventTypes';
+  import { DEFAULT_EVENT_TYPES, ICON_OPTIONS } from '../lib/data/eventTypes';
 
   const defaultIds = new Set(DEFAULT_EVENT_TYPES.map(t => t.id));
 
   let newEmoji = $state('');
   let newName = $state('');
   let addError = $state('');
+  let pickerOpenFor = $state<string | null>(null);
 
   function addCustomType() {
     addError = '';
@@ -147,11 +148,12 @@
     <div class="event-type-list">
       {#each $eventTypes as type (type.id)}
         <div class="event-type-row">
-          {#if type.emoji}
-            <span class="event-type-emoji">{type.emoji}</span>
-          {:else}
-            <span class="event-type-emoji-circle"></span>
-          {/if}
+          <button
+            class="event-type-icon-btn"
+            onclick={() => pickerOpenFor = pickerOpenFor === type.id ? null : type.id}
+            aria-label="Change icon for {type.name}"
+            title="Change icon"
+          >{type.emoji || '★'}</button>
           <span class="event-type-name">{type.name}</span>
           <label class="toggle" aria-label="Show {type.name}">
             <input
@@ -173,6 +175,17 @@
             </button>
           {/if}
         </div>
+        {#if pickerOpenFor === type.id}
+          <div class="icon-picker">
+            {#each ICON_OPTIONS as icon}
+              <button
+                class="icon-option"
+                class:active={type.emoji === icon}
+                onclick={() => { eventTypes.setEmoji(type.id, icon); pickerOpenFor = null; }}
+              >{icon}</button>
+            {/each}
+          </div>
+        {/if}
       {/each}
     </div>
 
@@ -180,7 +193,7 @@
       <input
         type="text"
         class="emoji-input"
-        placeholder="😀"
+        placeholder="★"
         bind:value={newEmoji}
         maxlength="4"
       />
@@ -192,6 +205,15 @@
         maxlength="40"
       />
       <button class="btn btn-secondary" onclick={addCustomType}>Add</button>
+    </div>
+    <div class="icon-quick-pick">
+      {#each ICON_OPTIONS.slice(0, 5) as icon}
+        <button
+          class="icon-option"
+          class:active={newEmoji === icon}
+          onclick={() => newEmoji = newEmoji === icon ? '' : icon}
+        >{icon}</button>
+      {/each}
     </div>
     {#if addError}
       <p class="add-error">{addError}</p>
@@ -342,23 +364,64 @@
     border-bottom: 1px solid var(--border);
   }
 
-  .event-type-emoji {
-    font-size: 1.25rem;
+  .event-type-icon-btn {
+    font-size: 1.1rem;
     width: 28px;
     text-align: center;
     flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1;
   }
 
-  .event-type-emoji-circle {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
+  .event-type-icon-btn:active {
+    background: var(--bg-subtle);
+  }
+
+  .icon-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: var(--space-sm) 0;
+    padding-left: 36px;
+  }
+
+  .icon-quick-pick {
+    display: flex;
+    gap: 4px;
+    margin-top: var(--space-xs);
+  }
+
+  .icon-option {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-subtle);
+    border: 1.5px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-primary);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .icon-option.active {
+    border-color: var(--accent);
+    background: rgba(196, 132, 108, 0.08);
+  }
+
+  .icon-option:active {
     background: var(--border);
-    flex-shrink: 0;
-    margin: 0 5px;
   }
 
-  .toggle {
+.toggle {
     position: relative;
     display: inline-block;
     width: 36px;

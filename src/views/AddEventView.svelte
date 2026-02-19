@@ -122,11 +122,7 @@
           class:selected={selectedTypeId === type.id}
           onclick={() => selectedTypeId = type.id}
         >
-          {#if type.emoji}
-            <span class="type-emoji">{type.emoji}</span>
-          {:else}
-            <span class="type-emoji-circle"></span>
-          {/if}
+          <span class="type-emoji">{type.emoji || '★'}</span>
           <span class="type-name">{type.name}</span>
         </button>
       {/each}
@@ -306,13 +302,6 @@
     flex-shrink: 0;
   }
 
-  .type-emoji-circle {
-    width: 1.25rem;
-    height: 1.25rem;
-    border-radius: 50%;
-    background: var(--border);
-    flex-shrink: 0;
-  }
 
   .type-name {
     font-size: 0.8rem;
