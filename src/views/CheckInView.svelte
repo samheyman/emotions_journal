@@ -14,18 +14,24 @@
     return emotionTypeMap.get(name) === 'primary';
   }
 
-  let { onComplete, onCancel }: { onComplete: () => void; onCancel: () => void } = $props();
+  let { onComplete, onCancel, editingEntry = undefined }: {
+    onComplete: () => void;
+    onCancel: () => void;
+    editingEntry?: EmotionEntry;
+  } = $props();
+
+  let isEditing = editingEntry !== undefined;
 
   let step = $state(1);
-  let valence = $state(0);
-  let valenceManuallySet = $state(false);
-  let energy = $state(0);
-  let energyManuallySet = $state(false);
-  let selectedTags: string[] = $state([]);
-  let note = $state('');
-  let selectedDate = $state(new Date());
+  let valence = $state(editingEntry?.valence ?? 0);
+  let valenceManuallySet = $state(isEditing);
+  let energy = $state(editingEntry?.energy ?? 0);
+  let energyManuallySet = $state(isEditing);
+  let selectedTags: string[] = $state(editingEntry?.tags ?? []);
+  let note = $state(editingEntry?.note ?? '');
+  let selectedDate = $state(editingEntry ? new Date(editingEntry.timestamp) : new Date());
   let dateInputEl: HTMLInputElement | undefined = $state();
-  let timeOfDay: TimeOfDay = $state('allday');
+  let timeOfDay: TimeOfDay = $state(editingEntry?.timeOfDay ?? 'allday');
   let timeDropdownOpen = $state(false);
 
   const timeOptions: { value: TimeOfDay; label: string }[] = [
@@ -99,23 +105,37 @@
   }
 
   function save() {
-    const timestamp = isToday ? new Date().toISOString() : selectedDate.toISOString();
-    const entry: EmotionEntry = {
-      id: generateId(),
-      timestamp,
-      valence,
-      energy,
-      emotions: allEmotions,
-      tags: selectedTags,
-      note,
-      timeOfDay,
-    };
-    entries.add(entry);
+    if (isEditing && editingEntry) {
+      const updated: EmotionEntry = {
+        ...editingEntry,
+        valence,
+        energy,
+        emotions: allEmotions,
+        tags: selectedTags,
+        note,
+        timeOfDay,
+        timestamp: isToday ? editingEntry.timestamp : selectedDate.toISOString(),
+      };
+      entries.updateEntry(updated);
+    } else {
+      const timestamp = isToday ? new Date().toISOString() : selectedDate.toISOString();
+      const entry: EmotionEntry = {
+        id: generateId(),
+        timestamp,
+        valence,
+        energy,
+        emotions: allEmotions,
+        tags: selectedTags,
+        note,
+        timeOfDay,
+      };
+      entries.add(entry);
+    }
     onComplete();
   }
 
   let stepTitle = $derived(
-    step === 1 ? (isToday ? "How are you?" : "What was on your mind?") :
+    step === 1 ? (isEditing ? "Edit entry" : (isToday ? "How are you?" : "What was on your mind?")) :
     step === 2 ? 'Emotional landscape' :
     step === 3 ? 'Triggers / Context' :
     'Preview'
@@ -131,8 +151,6 @@
   let textMatchedSet = $derived(new Set(extractResult.textMatched));
   let semanticEmotions: string[] = $state([]);
   let semanticMatchedSet: Set<string> = $state(new Set());
-  let dismissedEmotions: string[] = $state([]);
-  let manualEmotions: string[] = $state([]);
 
   // Run semantic extraction when model is ready or inputs change
   $effect(() => {
@@ -150,6 +168,8 @@
       semanticMatchedSet = new Set(semanticMatched);
     });
   });
+  let dismissedEmotions: string[] = $state([]);
+  let manualEmotions: string[] = $state(editingEntry?.emotions ?? []);
   let emotionInput = $state('');
   let showSuggestions = $state(false);
 
@@ -414,7 +434,7 @@
       class="btn btn-primary full-width"
       onclick={next}
     >
-      {step === totalSteps ? 'Save entry' : 'Next'}
+      {step === totalSteps ? (isEditing ? 'Update entry' : 'Save entry') : 'Next'}
     </button>
   </footer>
 </div>
