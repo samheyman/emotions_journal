@@ -1,26 +1,27 @@
 <script lang="ts">
-  import type { View } from './lib/types';
+  import type { View, EmotionEntry } from './lib/types';
+  import { entries } from './lib/stores/entries';
   import HomeView from './views/HomeView.svelte';
   import CheckInView from './views/CheckInView.svelte';
   import TrendsView from './views/TrendsView.svelte';
   import SettingsView from './views/SettingsView.svelte';
 
   let currentView: View = $state('home');
-
-  //   const views = {
-  //     home: HomeView,
-  //     trend: TrendsView,
-  //     checkin: CheckInView
-  // };
-
-  // // Derived state for the component to render
-  // let ComponentToRender = $derived(views[currentView]);
+  let editingEntry: EmotionEntry | undefined = $state(undefined);
 
   function navigate(view: View) {
-    // console.log(view)
-    // console.log(currentView)
     currentView = view;
     console.log(`Current view: ${currentView}`)
+  }
+
+  function startEdit(id: string) {
+    editingEntry = $entries.find(e => e.id === id);
+    if (editingEntry) navigate('checkin');
+  }
+
+  function finishCheckIn() {
+    editingEntry = undefined;
+    navigate('home');
   }
 
 </script>
@@ -28,9 +29,9 @@
 <div class="app-shell">
   <main class="main-content">
     {#if currentView === 'home'}
-      <HomeView onStartCheckIn={() => navigate('checkin')} />
+      <HomeView onStartCheckIn={() => navigate('checkin')} onEdit={startEdit} />
     {:else if currentView === 'checkin'}
-      <CheckInView onComplete={() => navigate('home')} onCancel={() => navigate('home')} />
+      <CheckInView onComplete={finishCheckIn} onCancel={finishCheckIn} editingEntry={editingEntry} />
     {:else if currentView === 'trends'}
       <TrendsView />
     {:else if currentView === 'settings'}

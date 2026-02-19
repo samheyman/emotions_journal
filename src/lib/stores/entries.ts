@@ -34,6 +34,9 @@ function createEntriesStore() {
     clear() {
       set([]);
     },
+    updateEntry(updated: EmotionEntry) {
+      update((entries) => entries.map((e) => e.id === updated.id ? updated : e));
+    },
     importEntries(newEntries: EmotionEntry[]) {
       update((existing) => {
         const existingIds = new Set(existing.map((e) => e.id));

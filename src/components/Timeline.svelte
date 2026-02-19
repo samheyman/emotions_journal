@@ -3,7 +3,7 @@
   import { isSameDay, formatDate, dateKey } from '../lib/utils/dates';
   import EntryCard from './EntryCard.svelte';
 
-  let { entries, onDelete }: { entries: EmotionEntry[]; onDelete: (id: string) => void } = $props();
+  let { entries, onDelete, onEdit }: { entries: EmotionEntry[]; onDelete: (id: string) => void; onEdit?: (id: string) => void } = $props();
 
   let selectedDate = $state(new Date());
 
@@ -67,7 +67,7 @@
   {:else}
     <div class="entries">
       {#each filteredEntries as entry (entry.id)}
-        <EntryCard {entry} {onDelete} />
+        <EntryCard {entry} {onDelete} {onEdit} />
       {/each}
     </div>
   {/if}

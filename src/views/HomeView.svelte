@@ -5,7 +5,7 @@
   import Timeline from '../components/Timeline.svelte';
   import Calendar from '../components/Calendar.svelte';
 
-  let { onStartCheckIn }: { onStartCheckIn: () => void } = $props();
+  let { onStartCheckIn, onEdit }: { onStartCheckIn: () => void; onEdit: (id: string) => void } = $props();
 
   let activeTab: HomeTab = $state('timeline');
 </script>
@@ -34,9 +34,9 @@
 
   <div class="tab-content">
     {#if activeTab === 'timeline'}
-      <Timeline entries={$entries} onDelete={(id) => entries.remove(id)} />
+      <Timeline entries={$entries} onDelete={(id) => entries.remove(id)} {onEdit} />
     {:else}
-      <Calendar entries={$entries} onDelete={(id) => entries.remove(id)} />
+      <Calendar entries={$entries} onDelete={(id) => entries.remove(id)} {onEdit} />
     {/if}
   </div>
 

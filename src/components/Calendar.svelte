@@ -4,7 +4,7 @@
   import { getMoodColor } from '../lib/data/emotions';
   import EntryCard from './EntryCard.svelte';
 
-  let { entries, onDelete }: { entries: EmotionEntry[]; onDelete: (id: string) => void } = $props();
+  let { entries, onDelete, onEdit }: { entries: EmotionEntry[]; onDelete: (id: string) => void; onEdit?: (id: string) => void } = $props();
 
   let year = $state(new Date().getFullYear());
   let month = $state(new Date().getMonth());
@@ -131,7 +131,7 @@
     <div class="selected-entries">
       <h3 class="selected-date-label">{formatDate(selectedDay + 'T00:00:00')}</h3>
       {#each selectedEntries() as entry (entry.id)}
-        <EntryCard {entry} {onDelete} />
+        <EntryCard {entry} {onDelete} {onEdit} />
       {/each}
     </div>
   {/if}
