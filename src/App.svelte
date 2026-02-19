@@ -1,13 +1,16 @@
 <script lang="ts">
-  import type { View, EmotionEntry } from './lib/types';
+  import type { View, EmotionEntry, LoggedEvent } from './lib/types';
   import { entries } from './lib/stores/entries';
+  import { events } from './lib/stores/events';
   import HomeView from './views/HomeView.svelte';
   import CheckInView from './views/CheckInView.svelte';
+  import AddEventView from './views/AddEventView.svelte';
   import TrendsView from './views/TrendsView.svelte';
   import SettingsView from './views/SettingsView.svelte';
 
   let currentView: View = $state('home');
   let editingEntry: EmotionEntry | undefined = $state(undefined);
+  let editingEvent: LoggedEvent | undefined = $state(undefined);
 
   function navigate(view: View) {
     currentView = view;
@@ -24,14 +27,26 @@
     navigate('home');
   }
 
+  function startEditEvent(id: string) {
+    editingEvent = $events.find(e => e.id === id);
+    if (editingEvent) navigate('addevent');
+  }
+
+  function finishEvent() {
+    editingEvent = undefined;
+    navigate('home');
+  }
+
 </script>
 
 <div class="app-shell">
   <main class="main-content">
     {#if currentView === 'home'}
-      <HomeView onStartCheckIn={() => navigate('checkin')} onEdit={startEdit} />
+      <HomeView onStartCheckIn={() => navigate('checkin')} onStartEvent={() => navigate('addevent')} onEdit={startEdit} onEditEvent={startEditEvent} />
     {:else if currentView === 'checkin'}
       <CheckInView onComplete={finishCheckIn} onCancel={finishCheckIn} editingEntry={editingEntry} />
+    {:else if currentView === 'addevent'}
+      <AddEventView onComplete={finishEvent} onCancel={finishEvent} editingEvent={editingEvent} />
     {:else if currentView === 'trends'}
       <TrendsView />
     {:else if currentView === 'settings'}
@@ -40,7 +55,7 @@
   </main>
 </div>
 
-  {#if currentView !== 'checkin'}
+  {#if currentView !== 'checkin' && currentView !== 'addevent'}
     <nav class="navbar">
       <button
         class="nav-item"

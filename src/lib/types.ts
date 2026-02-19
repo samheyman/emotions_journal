@@ -16,7 +16,23 @@ export interface EmotionEntry {
   timeOfDay?: TimeOfDay;
 }
 
-export type View = "home" | "checkin" | "trends" | "settings";
+export type View = "home" | "checkin" | "addevent" | "trends" | "settings";
+
+export interface EventType {
+  id: string;
+  name: string;
+  emoji: string;
+  isCustom?: boolean;
+  visible?: boolean; // defaults to true when absent
+}
+
+export interface LoggedEvent {
+  id: string;
+  timestamp: string; // ISO 8601
+  typeId: string;    // references EventType.id
+  note?: string;
+  allDay?: boolean;
+}
 
 export type HomeTab = "timeline" | "calendar";
 

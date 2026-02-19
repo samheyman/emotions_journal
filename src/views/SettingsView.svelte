@@ -2,7 +2,27 @@
   import { entries } from '../lib/stores/entries';
   import { exportToJSON } from '../lib/utils/export';
   import { parseImportFile } from '../lib/utils/import';
-  import type { EmotionEntry } from '../lib/types';
+  import type { EmotionEntry, EventType } from '../lib/types';
+  import { eventTypes } from '../lib/stores/eventTypes';
+  import { DEFAULT_EVENT_TYPES } from '../lib/data/eventTypes';
+
+  const defaultIds = new Set(DEFAULT_EVENT_TYPES.map(t => t.id));
+
+  let newEmoji = $state('');
+  let newName = $state('');
+  let addError = $state('');
+
+  function addCustomType() {
+    addError = '';
+    const emoji = newEmoji.trim();
+    const name = newName.trim();
+    if (!name) { addError = 'Name is required.'; return; }
+    if (emoji && [...emoji].length > 2) { addError = 'Use 1–2 emoji characters.'; return; }
+    const id = 'custom-' + Date.now();
+    eventTypes.addEventType({ id, name, emoji, isCustom: true });
+    newEmoji = '';
+    newName = '';
+  }
 
   type ImportState =
     | { step: 'idle' }
@@ -118,6 +138,63 @@
       <div class="import-msg success">
         Successfully added {importState.added} {importState.added === 1 ? 'entry' : 'entries'}.
       </div>
+    {/if}
+  </section>
+
+  <section class="section" style="margin-top: var(--space-xl)">
+    <h2 class="section-title">Event types</h2>
+
+    <div class="event-type-list">
+      {#each $eventTypes as type (type.id)}
+        <div class="event-type-row">
+          {#if type.emoji}
+            <span class="event-type-emoji">{type.emoji}</span>
+          {:else}
+            <span class="event-type-emoji-circle"></span>
+          {/if}
+          <span class="event-type-name">{type.name}</span>
+          <label class="toggle" aria-label="Show {type.name}">
+            <input
+              type="checkbox"
+              checked={type.visible !== false}
+              onchange={(e) => eventTypes.setVisibility(type.id, e.currentTarget.checked)}
+            />
+            <span class="toggle-slider"></span>
+          </label>
+          {#if !defaultIds.has(type.id)}
+            <button
+              class="remove-type-btn"
+              onclick={() => eventTypes.removeEventType(type.id)}
+              aria-label="Remove {type.name}"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          {/if}
+        </div>
+      {/each}
+    </div>
+
+    <div class="add-type-form">
+      <input
+        type="text"
+        class="emoji-input"
+        placeholder="😀"
+        bind:value={newEmoji}
+        maxlength="4"
+      />
+      <input
+        type="text"
+        class="name-input"
+        placeholder="Event name"
+        bind:value={newName}
+        maxlength="40"
+      />
+      <button class="btn btn-secondary" onclick={addCustomType}>Add</button>
+    </div>
+    {#if addError}
+      <p class="add-error">{addError}</p>
     {/if}
   </section>
 </div>
@@ -249,5 +326,149 @@
   .import-msg.success {
     background: rgba(80, 180, 100, 0.1);
     color: #50b464;
+  }
+
+  .event-type-list {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: var(--space-md);
+  }
+
+  .event-type-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .event-type-emoji {
+    font-size: 1.25rem;
+    width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .event-type-emoji-circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+    margin: 0 5px;
+  }
+
+  .toggle {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 20px;
+    transition: background 0.2s ease;
+  }
+
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+
+  .toggle input:checked + .toggle-slider {
+    background: var(--accent);
+  }
+
+  .toggle input:checked + .toggle-slider::before {
+    transform: translateX(16px);
+  }
+
+  .event-type-name {
+    flex: 1;
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+  }
+
+  .remove-type-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: var(--space-xs);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+  }
+
+  .remove-type-btn:active {
+    color: #c44;
+  }
+
+  .add-type-form {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+  }
+
+  .emoji-input {
+    width: 52px;
+    padding: var(--space-sm);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-family: var(--font);
+    font-size: var(--text-base);
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .emoji-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .name-input {
+    flex: 1;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-family: var(--font);
+    font-size: var(--text-sm);
+    min-width: 0;
+  }
+
+  .name-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .add-error {
+    margin-top: var(--space-xs);
+    font-size: 0.75rem;
+    color: #dc5050;
   }
 </style>

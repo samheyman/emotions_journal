@@ -1,17 +1,37 @@
 <script lang="ts">
-  import type { EmotionEntry } from '../lib/types';
+  import type { EmotionEntry, LoggedEvent } from '../lib/types';
   import { isSameDay, formatDate, dateKey } from '../lib/utils/dates';
+  import { eventTypes } from '../lib/stores/eventTypes';
   import EntryCard from './EntryCard.svelte';
+  import EventCard from './EventCard.svelte';
 
-  let { entries, onDelete, onEdit }: { entries: EmotionEntry[]; onDelete: (id: string) => void; onEdit?: (id: string) => void } = $props();
+  let { entries, events, onDelete, onDeleteEvent, onEdit, onEditEvent }: {
+    entries: EmotionEntry[];
+    events: LoggedEvent[];
+    onDelete: (id: string) => void;
+    onDeleteEvent: (id: string) => void;
+    onEdit?: (id: string) => void;
+    onEditEvent?: (id: string) => void;
+  } = $props();
 
   let selectedDate = $state(new Date());
 
-  let filteredEntries = $derived(
-    entries
-      .filter((e) => isSameDay(e.timestamp, selectedDate.toISOString()))
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-  );
+  type TimelineItem =
+    | { kind: 'entry'; data: EmotionEntry }
+    | { kind: 'event'; data: LoggedEvent };
+
+  let filteredItems = $derived((): TimelineItem[] => {
+    const dateStr = selectedDate.toISOString();
+    const filteredEntries: TimelineItem[] = entries
+      .filter((e) => isSameDay(e.timestamp, dateStr))
+      .map((e) => ({ kind: 'entry', data: e }));
+    const filteredEvents: TimelineItem[] = events
+      .filter((e) => isSameDay(e.timestamp, dateStr))
+      .map((e) => ({ kind: 'event', data: e }));
+    return [...filteredEntries, ...filteredEvents].sort(
+      (a, b) => new Date(b.data.timestamp).getTime() - new Date(a.data.timestamp).getTime()
+    );
+  });
 
   let displayDate = $derived(formatDate(selectedDate.toISOString()));
 
@@ -56,7 +76,7 @@
     </button>
   </div>
 
-  {#if filteredEntries.length === 0}
+  {#if filteredItems().length === 0}
     <div class="empty">
       <p class="empty-icon">~</p>
       <p class="empty-text">No entries {isToday() ? 'yet today' : 'this day'}</p>
@@ -66,8 +86,17 @@
     </div>
   {:else}
     <div class="entries">
-      {#each filteredEntries as entry (entry.id)}
-        <EntryCard {entry} {onDelete} {onEdit} />
+      {#each filteredItems() as item (item.data.id)}
+        {#if item.kind === 'entry'}
+          <EntryCard entry={item.data} onDelete={onDelete} {onEdit} />
+        {:else}
+          <EventCard
+            event={item.data}
+            eventType={$eventTypes.find(t => t.id === item.data.typeId)}
+            onDelete={onDeleteEvent}
+            onEdit={onEditEvent}
+          />
+        {/if}
       {/each}
     </div>
   {/if}

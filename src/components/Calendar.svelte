@@ -1,10 +1,19 @@
 <script lang="ts">
-  import type { EmotionEntry } from '../lib/types';
+  import type { EmotionEntry, LoggedEvent } from '../lib/types';
   import { getDaysInMonth, getFirstDayOfMonth, formatMonthYear, dateKey, formatDate } from '../lib/utils/dates';
   import { getMoodColor } from '../lib/data/emotions';
+  import { eventTypes } from '../lib/stores/eventTypes';
   import EntryCard from './EntryCard.svelte';
+  import EventCard from './EventCard.svelte';
 
-  let { entries, onDelete, onEdit }: { entries: EmotionEntry[]; onDelete: (id: string) => void; onEdit?: (id: string) => void } = $props();
+  let { entries, events, onDelete, onDeleteEvent, onEdit, onEditEvent }: {
+    entries: EmotionEntry[];
+    events: LoggedEvent[];
+    onDelete: (id: string) => void;
+    onDeleteEvent: (id: string) => void;
+    onEdit?: (id: string) => void;
+    onEditEvent?: (id: string) => void;
+  } = $props();
 
   let year = $state(new Date().getFullYear());
   let month = $state(new Date().getMonth());
@@ -21,6 +30,17 @@
     return map;
   });
 
+  let eventsByDate = $derived(() => {
+    const map = new Map<string, LoggedEvent[]>();
+    for (const event of events) {
+      const d = new Date(event.timestamp);
+      const key = dateKey(d);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(event);
+    }
+    return map;
+  });
+
   let daysInMonth = $derived(getDaysInMonth(year, month));
   let firstDay = $derived(getFirstDayOfMonth(year, month));
   let monthLabel = $derived(formatMonthYear(year, month));
@@ -33,10 +53,17 @@
     return result;
   });
 
-  let selectedEntries = $derived(() => {
+  type DayItem =
+    | { kind: 'entry'; data: EmotionEntry }
+    | { kind: 'event'; data: LoggedEvent };
+
+  let selectedItems = $derived((): DayItem[] => {
     if (!selectedDay) return [];
-    return (entriesByDate().get(selectedDay) || [])
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    const dayEntries: DayItem[] = (entriesByDate().get(selectedDay) || []).map(e => ({ kind: 'entry', data: e }));
+    const dayEvents: DayItem[] = (eventsByDate().get(selectedDay) || []).map(e => ({ kind: 'event', data: e }));
+    return [...dayEntries, ...dayEvents].sort(
+      (a, b) => new Date(b.data.timestamp).getTime() - new Date(a.data.timestamp).getTime()
+    );
   });
 
   function prevMonth() {
@@ -66,7 +93,22 @@
   }
 
   function getEntryCount(day: number): number {
-    return entriesByDate().get(getDayKey(day))?.length || 0;
+    return (entriesByDate().get(getDayKey(day))?.length || 0) +
+           (eventsByDate().get(getDayKey(day))?.length || 0);
+  }
+
+  function getDayEventEmojis(day: number): { emojis: string[]; extra: number } {
+    const key = getDayKey(day);
+    const dayEvents = eventsByDate().get(key) || [];
+    const emojis = dayEvents.map(e => {
+      const type = $eventTypes.find(t => t.id === e.typeId);
+      return type?.emoji ?? '⚡';
+    });
+    const maxShow = 3;
+    return {
+      emojis: emojis.slice(0, maxShow),
+      extra: Math.max(0, emojis.length - maxShow),
+    };
   }
 
   function selectDay(day: number) {
@@ -107,6 +149,7 @@
         <div class="cell empty-cell"></div>
       {:else}
         {@const colors = getDayColors(day)}
+        {@const { emojis, extra } = getDayEventEmojis(day)}
         <button
           class="cell day-cell"
           class:today={isToday(day)}
@@ -122,16 +165,35 @@
             </div>
           {/if}
           <span class="day-num">{day}</span>
+          {#if emojis.length > 0}
+            <div class="event-emojis">
+              {#each emojis as emoji}
+                <span class="event-emoji">{emoji}</span>
+              {/each}
+              {#if extra > 0}
+                <span class="event-extra">+{extra}</span>
+              {/if}
+            </div>
+          {/if}
         </button>
       {/if}
     {/each}
   </div>
 
-  {#if selectedDay && selectedEntries().length > 0}
+  {#if selectedDay && selectedItems().length > 0}
     <div class="selected-entries">
       <h3 class="selected-date-label">{formatDate(selectedDay + 'T00:00:00')}</h3>
-      {#each selectedEntries() as entry (entry.id)}
-        <EntryCard {entry} {onDelete} {onEdit} />
+      {#each selectedItems() as item (item.data.id)}
+        {#if item.kind === 'entry'}
+          <EntryCard entry={item.data} {onDelete} {onEdit} />
+        {:else}
+          <EventCard
+            event={item.data}
+            eventType={$eventTypes.find(t => t.id === item.data.typeId)}
+            onDelete={onDeleteEvent}
+            onEdit={onEditEvent}
+          />
+        {/if}
       {/each}
     </div>
   {/if}
@@ -240,6 +302,27 @@
     outline-offset: -2px;
   }
 
+  .event-emojis {
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 1px;
+    z-index: 1;
+  }
+
+  .event-emoji {
+    font-size: 0.55rem;
+    line-height: 1;
+  }
+
+  .event-extra {
+    font-size: 0.5rem;
+    color: var(--text-muted);
+    line-height: 1;
+  }
 
   .selected-entries {
     display: flex;

@@ -42,3 +42,4 @@ Most mood trackers use a 1D scale (1-5 stars, happy to sad). This misses a huge 
 - **Show, don't tell.** Use color, position, and visual patterns instead of long forms.
 - **Your data, your device.** Phase 1 keeps everything in localStorage. No accounts, no tracking.
 - **Progressive depth.** Quick check-in is the default. Notes, tags, and labels are optional layers.
+- **Smart and serious** No emojis everywhere and Notion/startup hype stuff. Think Obsidian note taking app.
