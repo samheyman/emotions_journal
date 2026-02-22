@@ -4,6 +4,7 @@ export function exportToJSON(entries: EmotionEntry[]) {
   const entriesAndMetadata = {metadata:{
     exportedAt: new Date().toISOString(),
     appVersion: "0.1.1",
+    "timezone": "Europe/Oslo",
     "valence_scale": "-3 to +3",
     "energy_scale": "-3 to +3"
   },entries:entries};
