@@ -115,6 +115,7 @@
         note,
         timeOfDay,
         timestamp: isToday ? editingEntry.timestamp : selectedDate.toISOString(),
+updatedAt: new Date().toISOString(),
       };
       entries.updateEntry(updated);
     } else {
@@ -128,6 +129,7 @@
         tags: selectedTags,
         note,
         timeOfDay,
+loggedAt: new Date().toISOString(),
       };
       entries.add(entry);
     }
