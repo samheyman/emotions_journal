@@ -22,8 +22,7 @@
   let entriesByDate = $derived(() => {
     const map = new Map<string, EmotionEntry[]>();
     for (const entry of entries) {
-      const d = new Date(entry.timestamp);
-      const key = dateKey(d);
+      const key = entry.experiencedDate;
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(entry);
     }
@@ -33,8 +32,7 @@
   let eventsByDate = $derived(() => {
     const map = new Map<string, LoggedEvent[]>();
     for (const event of events) {
-      const d = new Date(event.timestamp);
-      const key = dateKey(d);
+      const key = event.eventDate;
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(event);
     }
@@ -70,9 +68,15 @@ let days = $derived(() => {
     if (!selectedDay) return [];
     const dayEntries: DayItem[] = (entriesByDate().get(selectedDay) || []).map(e => ({ kind: 'entry', data: e }));
     const dayEvents: DayItem[] = (eventsByDate().get(selectedDay) || []).map(e => ({ kind: 'event', data: e }));
-    return [...dayEntries, ...dayEvents].sort(
-      (a, b) => new Date(b.data.timestamp).getTime() - new Date(a.data.timestamp).getTime()
-    );
+    return [...dayEntries, ...dayEvents].sort((a, b) => {
+      const ta = a.kind === 'entry'
+        ? new Date(a.data.experiencedDate + 'T12:00:00').getTime()
+        : new Date(a.data.eventDate + 'T' + (a.data.eventTime || '12:00')).getTime();
+      const tb = b.kind === 'entry'
+        ? new Date(b.data.experiencedDate + 'T12:00:00').getTime()
+        : new Date(b.data.eventDate + 'T' + (b.data.eventTime || '12:00')).getTime();
+      return tb - ta;
+    });
   });
 
   function prevMonth() {
@@ -92,7 +96,7 @@ let days = $derived(() => {
     const dayEntries = entriesByDate().get(key);
     if (!dayEntries || dayEntries.length === 0) return [];
 
-    const sorted = [...dayEntries].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    const sorted = [...dayEntries];
     const limited = sorted.slice(0, 4);
     return limited.map(e => getMoodColor((e as any).valence ?? ((e as any).mood !== undefined ? (e as any).mood - 4 : 0)));
   }

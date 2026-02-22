@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { EmotionEntry } from '../lib/types';
-  import { formatTime } from '../lib/utils/dates';
+  import { formatDate } from '../lib/utils/dates';
   import { getMoodColor } from '../lib/data/emotions';
 
   let { entry, onDelete, onEdit }: { entry: EmotionEntry; onDelete: (id: string) => void; onEdit?: (id: string) => void } = $props();
@@ -38,7 +38,7 @@
 
   {#if expanded}
     <div class="actions">
-      <span class="time">{formatTime(entry.timestamp)}{#if entry.timeOfDay && entry.timeOfDay !== 'allday'}{' · '}{entry.timeOfDay === 'morning' ? 'Morning' : entry.timeOfDay === 'afternoon' ? 'Afternoon' : entry.timeOfDay === 'evening' ? 'Evening' : 'Night'}{/if}</span>
+      <span class="time">{formatDate(entry.experiencedDate)}{#if entry.experiencedPeriod && entry.experiencedPeriod !== 'allday'}{' · '}{entry.experiencedPeriod === 'morning' ? 'Morning' : entry.experiencedPeriod === 'afternoon' ? 'Afternoon' : entry.experiencedPeriod === 'evening' ? 'Evening' : 'Night'}{/if}</span>
       {#if confirmingDelete}
         <span class="confirm-text">Delete?</span>
         <button class="cancel-btn" onclick={(e) => { e.stopPropagation(); confirmingDelete = false; }}>Cancel</button>
