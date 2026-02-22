@@ -1,4 +1,4 @@
-export type TimeOfDay =
+export type ExperiencedPeriod =
   | "morning"
   | "afternoon"
   | "evening"
@@ -7,13 +7,15 @@ export type TimeOfDay =
 
 export interface EmotionEntry {
   id: string;
-  timestamp: string;
-  valence: number; // -3 to +3: Negative (-3) to Positive (+3)
-  energy: number; // -3 to +3: Low (-3) to High (+3)
+  loggedAt: string;        // ISO 8601 - when the entry was created
+  updatedAt?: string;      // ISO 8601 - when the entry was last updated
+  experiencedDate: string; // YYYY-MM-DD - date the emotion was experienced
+  valence: number;         // -3 to +3: Negative (-3) to Positive (+3)
+  energy: number;          // -3 to +3: Low (-3) to High (+3)
   emotions: string[];
   tags: string[];
   note: string;
-  timeOfDay?: TimeOfDay;
+  experiencedPeriod?: ExperiencedPeriod;
 }
 
 export type View = "home" | "checkin" | "addevent" | "trends" | "settings";
@@ -28,10 +30,12 @@ export interface EventType {
 
 export interface LoggedEvent {
   id: string;
-  timestamp: string; // ISO 8601
-  typeId: string;    // references EventType.id
+  loggedAt: string;    // ISO 8601 - when the event was entered
+  updatedAt?: string;  // ISO 8601 - when the event was last updated
+  eventDate: string;   // YYYY-MM-DD - when the event occurred
+  eventTime?: string;  // HH:MM - absent or empty means all-day
+  typeId: string;      // references EventType.id
   note?: string;
-  allDay?: boolean;
 }
 
 export type HomeTab = "timeline" | "calendar";

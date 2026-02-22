@@ -274,30 +274,7 @@ No backend required for MVP.
 
 ## Data Model
 
-```typescript
-interface EmotionEntry {
-  id: string;          // crypto.randomUUID()
-  timestamp: string;   // ISO 8601
-  valence: number;     // -3 to +3
-  energy: number;      // -3 to +3
-  emotions: string[];  // selected emotion labels
-  tags: string[];      // context tags
-  note: string;        // free text (entered in step 1)
-  timeOfDay?: TimeOfDay;
-}
-
-type Emotion = {
-  name: string;
-  valence: number;     // -3 to +3
-  energy: number;      // -3 to +3
-  type: "primary" | "secondary";
-  embedding: number[]; // 384-dim all-MiniLM-L6-v2 q8
-};
-```
-
-The `Emotion` type defines the vocabulary of 70 emotions used for inference and suggestion. Each emotion carries a pre-computed 384-dimensional embedding vector for semantic matching.
-
-All configuration (labels, categories) is also stored locally.
+See `src/lib/types.ts` for all type definitions. See `docs/DATA_MODEL.md` for storage details.
 
 ---
 

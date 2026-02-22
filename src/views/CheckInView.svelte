@@ -2,12 +2,13 @@
   import TagPicker from '../components/TagPicker.svelte';
   import EntryCard from '../components/EntryCard.svelte';
   import { entries } from '../lib/stores/entries';
-  import type { EmotionEntry, TimeOfDay } from '../lib/types';
+  import type { EmotionEntry, ExperiencedPeriod } from '../lib/types';
   import ValenceSelect from '../components/ValenceSelect.svelte';
   import EnergySelect from '../components/EnergySelect.svelte';
   import { extractEmotions, extractEmotionsSemantic, getAllEmotionWords } from '../lib/data/emotions';
   import { EMOTIONS } from '../lib/data/emotionsWithValenceAndEnergy';
   import { warmup, isReady, onReady } from '../lib/services/embeddingService';
+  import { dateKey } from '../lib/utils/dates';
 
   const emotionTypeMap = new Map(EMOTIONS.map(e => [e.name, e.type]));
   function isPrimary(name: string): boolean {
@@ -29,12 +30,15 @@
   let energyManuallySet = $state(isEditing);
   let selectedTags: string[] = $state(editingEntry?.tags ?? []);
   let note = $state(editingEntry?.note ?? '');
-  let selectedDate = $state(editingEntry ? new Date(editingEntry.timestamp) : new Date());
+  let selectedDate = $state(editingEntry ? (() => {
+    const [y, m, d] = editingEntry.experiencedDate.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  })() : new Date());
   let dateInputEl: HTMLInputElement | undefined = $state();
-  let timeOfDay: TimeOfDay = $state(editingEntry?.timeOfDay ?? 'allday');
+  let experiencedPeriod: ExperiencedPeriod = $state(editingEntry?.experiencedPeriod ?? 'allday');
   let timeDropdownOpen = $state(false);
 
-  const timeOptions: { value: TimeOfDay; label: string }[] = [
+  const timeOptions: { value: ExperiencedPeriod; label: string }[] = [
     { value: 'morning', label: 'Morning' },
     { value: 'afternoon', label: 'Afternoon' },
     { value: 'evening', label: 'Evening' },
@@ -42,7 +46,7 @@
     { value: 'allday', label: 'All day' },
   ];
 
-  let timeLabel = $derived(timeOptions.find(o => o.value === timeOfDay)!.label);
+  let timeLabel = $derived(timeOptions.find(o => o.value === experiencedPeriod)!.label);
 
   let todayStr = new Date().toISOString().slice(0, 10);
 
@@ -108,28 +112,27 @@
     if (isEditing && editingEntry) {
       const updated: EmotionEntry = {
         ...editingEntry,
+        updatedAt: new Date().toISOString(),
+        experiencedDate: dateKey(selectedDate),
         valence,
         energy,
         emotions: allEmotions,
         tags: selectedTags,
         note,
-        timeOfDay,
-        timestamp: isToday ? editingEntry.timestamp : selectedDate.toISOString(),
-updatedAt: new Date().toISOString(),
+        experiencedPeriod,
       };
       entries.updateEntry(updated);
     } else {
-      const timestamp = isToday ? new Date().toISOString() : selectedDate.toISOString();
       const entry: EmotionEntry = {
         id: generateId(),
-        timestamp,
+        loggedAt: new Date().toISOString(),
+        experiencedDate: dateKey(selectedDate),
         valence,
         energy,
         emotions: allEmotions,
         tags: selectedTags,
         note,
-        timeOfDay,
-loggedAt: new Date().toISOString(),
+        experiencedPeriod,
       };
       entries.add(entry);
     }
@@ -205,13 +208,13 @@ loggedAt: new Date().toISOString(),
 
   let previewEntry = $derived<EmotionEntry>({
     id: 'preview',
-    timestamp: isToday ? new Date().toISOString() : selectedDate.toISOString(),
+    experiencedDate: dateKey(selectedDate),
     valence,
     energy,
     emotions: allEmotions,
     tags: selectedTags,
     note,
-    timeOfDay,
+    experiencedPeriod,
   });
 
   // Auto-adjust valence if user hasn't manually set sliders, based on text matches
@@ -330,8 +333,8 @@ loggedAt: new Date().toISOString(),
             {#each timeOptions as option}
               <button
                 class="time-option"
-                class:selected={timeOfDay === option.value}
-                onclick={() => { timeOfDay = option.value; timeDropdownOpen = false; }}
+                class:selected={experiencedPeriod === option.value}
+                onclick={() => { experiencedPeriod = option.value; timeDropdownOpen = false; }}
               >
                 {option.label}
               </button>

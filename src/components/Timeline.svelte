@@ -21,16 +21,22 @@
     | { kind: 'event'; data: LoggedEvent };
 
   let filteredItems = $derived((): TimelineItem[] => {
-    const dateStr = selectedDate.toISOString();
+    const dayKey = dateKey(selectedDate);
     const filteredEntries: TimelineItem[] = entries
-      .filter((e) => isSameDay(e.timestamp, dateStr))
+      .filter((e) => e.experiencedDate === dayKey)
       .map((e) => ({ kind: 'entry', data: e }));
     const filteredEvents: TimelineItem[] = events
-      .filter((e) => isSameDay(e.timestamp, dateStr))
+      .filter((e) => e.eventDate === dayKey)
       .map((e) => ({ kind: 'event', data: e }));
-    return [...filteredEntries, ...filteredEvents].sort(
-      (a, b) => new Date(b.data.timestamp).getTime() - new Date(a.data.timestamp).getTime()
-    );
+    return [...filteredEntries, ...filteredEvents].sort((a, b) => {
+      const ta = a.kind === 'entry'
+        ? new Date(a.data.experiencedDate + 'T12:00:00').getTime()
+        : new Date(a.data.eventDate + 'T' + (a.data.eventTime || '12:00')).getTime();
+      const tb = b.kind === 'entry'
+        ? new Date(b.data.experiencedDate + 'T12:00:00').getTime()
+        : new Date(b.data.eventDate + 'T' + (b.data.eventTime || '12:00')).getTime();
+      return tb - ta;
+    });
   });
 
   let displayDate = $derived(formatDate(selectedDate.toISOString()));

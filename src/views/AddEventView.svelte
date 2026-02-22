@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { LoggedEvent } from '../lib/types';
+  import { dateKey } from '../lib/utils/dates';
   import { eventTypes } from '../lib/stores/eventTypes';
   import { events } from '../lib/stores/events';
 
@@ -13,13 +14,14 @@
 
   let selectedTypeId: string | null = $state(editingEvent?.typeId ?? null);
   let note = $state(editingEvent?.note ?? '');
-  let selectedDate = $state(editingEvent ? new Date(editingEvent.timestamp) : new Date());
+  let selectedDate = $state(editingEvent ? (() => {
+    const [y, m, d] = editingEvent.eventDate.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  })() : new Date());
   let dateInputEl: HTMLInputElement | undefined = $state();
   // hour as '' (all day) or '0'–'23'
   let hourValue = $state(
-    editingEvent && !editingEvent.allDay
-      ? String(new Date(editingEvent.timestamp).getHours())
-      : ''
+    editingEvent?.eventTime ? String(parseInt(editingEvent.eventTime)) : ''
   );
 
   const hours = Array.from({ length: 24 }, (_, i) => ({
@@ -28,12 +30,6 @@
   }));
 
   let todayStr = new Date().toISOString().slice(0, 10);
-
-  function buildTimestamp(date: Date, hour: string): string {
-    const dt = new Date(date);
-    dt.setHours(hour !== '' ? parseInt(hour) : 0, 0, 0, 0);
-    return dt.toISOString();
-  }
 
   let isToday = $derived(
     selectedDate.toISOString().slice(0, 10) === todayStr
@@ -67,12 +63,12 @@
 
   function save() {
     if (!selectedTypeId) return;
-    const timestamp = buildTimestamp(selectedDate, hourValue);
-    const allDay = hourValue === '';
+    const eventDate = dateKey(selectedDate);
+    const eventTime = hourValue !== '' ? `${String(parseInt(hourValue)).padStart(2, '0')}:00` : undefined;
     if (isEditing && editingEvent) {
-      events.updateEvent({ ...editingEvent, typeId: selectedTypeId, timestamp, note: note.trim() || undefined, allDay });
+      events.updateEvent({ ...editingEvent, typeId: selectedTypeId, eventDate, eventTime, note: note.trim() || undefined, updatedAt: new Date().toISOString() });
     } else {
-      events.add({ id: generateId(), timestamp, typeId: selectedTypeId, note: note.trim() || undefined, allDay });
+      events.add({ id: generateId(), loggedAt: new Date().toISOString(), typeId: selectedTypeId, eventDate, eventTime, note: note.trim() || undefined });
     }
     onComplete();
   }

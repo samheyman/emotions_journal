@@ -22,10 +22,7 @@
     for (let i = rangeDays - 1; i >= 0; i--) {
       const date = daysAgo(i);
       const key = dateKey(date);
-      const dayEntries = entries.filter((e) => {
-        const d = new Date(e.timestamp);
-        return dateKey(d) === key;
-      });
+      const dayEntries = entries.filter((e) => e.experiencedDate === key);
 
       let label: string;
       if (range === 'week') {

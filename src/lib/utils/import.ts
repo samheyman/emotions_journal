@@ -6,16 +6,22 @@ export function validateEntry(obj: unknown): EmotionEntry | null {
   const o = obj as Record<string, unknown>;
 
   if (typeof o.id !== 'string' || o.id === '') return null;
-  if (typeof o.timestamp !== 'string' || o.timestamp === '') return null;
+
+  if (typeof o.experiencedDate !== 'string' || o.experiencedDate === '') return null;
+  const experiencedDate = o.experiencedDate.slice(0, 10);
+
   if (typeof o.valence !== 'number') return null;
   if (typeof o.energy !== 'number') return null;
   if (!Array.isArray(o.emotions) || !o.emotions.every((e: unknown) => typeof e === 'string')) return null;
   if (!Array.isArray(o.tags) || !o.tags.every((t: unknown) => typeof t === 'string')) return null;
   if (typeof o.note !== 'string') return null;
 
+  const loggedAt = typeof o.loggedAt === 'string' && o.loggedAt !== '' ? o.loggedAt : new Date().toISOString();
+
   const entry: EmotionEntry = {
     id: o.id,
-    timestamp: o.timestamp,
+    loggedAt,
+    experiencedDate,
     valence: o.valence,
     energy: o.energy,
     emotions: o.emotions,
@@ -23,12 +29,14 @@ export function validateEntry(obj: unknown): EmotionEntry | null {
     note: o.note,
   };
 
-  if (o.timeOfDay !== undefined) {
-    const validTimes = ['morning', 'afternoon', 'evening', 'night', 'allday'];
-    if (typeof o.timeOfDay === 'string' && validTimes.includes(o.timeOfDay)) {
-      entry.timeOfDay = o.timeOfDay as EmotionEntry['timeOfDay'];
-    }
+  if (typeof o.updatedAt === 'string' && o.updatedAt !== '') {
+    entry.updatedAt = o.updatedAt;
   }
+
+  const validPeriods = ['morning', 'afternoon', 'evening', 'night', 'allday'];
+  entry.experiencedPeriod = (typeof o.experiencedPeriod === 'string' && validPeriods.includes(o.experiencedPeriod))
+    ? o.experiencedPeriod as EmotionEntry['experiencedPeriod']
+    : 'allday';
 
   return entry;
 }

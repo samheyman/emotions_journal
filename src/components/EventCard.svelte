@@ -11,10 +11,6 @@
   let expanded = $state(false);
   let confirmingDelete = $state(false);
 
-  function formatHour(timestamp: string): string {
-    const h = new Date(timestamp).getHours();
-    return `${String(h).padStart(2, '0')}:00`;
-  }
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -34,7 +30,7 @@
         </p>
       {/if}
     </div>
-    <span class="time">{event.allDay ? 'All day' : formatHour(event.timestamp)}</span>
+    <span class="time">{event.eventTime || 'All day'}</span>
   </div>
 
   {#if expanded}
