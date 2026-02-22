@@ -34,6 +34,13 @@ function createEventsStore() {
     updateEvent(updated: LoggedEvent) {
       update((events) => events.map((e) => e.id === updated.id ? updated : e));
     },
+    importEvents(newEvents: LoggedEvent[]) {
+      update((existing) => {
+        const existingIds = new Set(existing.map((e) => e.id));
+        const unique = newEvents.filter((e) => !existingIds.has(e.id));
+        return [...existing, ...unique];
+      });
+    },
     clear() {
       set([]);
     },

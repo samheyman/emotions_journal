@@ -48,6 +48,13 @@ function createEventTypesStore() {
     setEmoji(id: string, emoji: string) {
       update((types) => types.map((t) => t.id === id ? { ...t, emoji } : t));
     },
+    importEventTypes(newTypes: EventType[]) {
+      update((existing) => {
+        const existingIds = new Set(existing.map((t) => t.id));
+        const unique = newTypes.filter((t) => t.isCustom && !existingIds.has(t.id));
+        return [...existing, ...unique];
+      });
+    },
   };
 }
 

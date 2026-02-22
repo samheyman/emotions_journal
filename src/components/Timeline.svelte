@@ -20,6 +20,24 @@
     | { kind: 'entry'; data: EmotionEntry }
     | { kind: 'event'; data: LoggedEvent };
 
+  const periodMinutes: Record<string, number> = {
+    morning: 480,    // 08:00
+    afternoon: 780,  // 13:00
+    evening: 1080,   // 18:00
+    night: 1320,     // 22:00
+  };
+
+  function sortKey(item: TimelineItem): number {
+    if (item.kind === 'entry') {
+      const period = item.data.experiencedPeriod ?? 'allday';
+      return periodMinutes[period] ?? -1; // allday → -1 (top)
+    } else {
+      if (!item.data.eventTime) return -1; // all-day event → top
+      const [h, m] = item.data.eventTime.split(':').map(Number);
+      return h * 60 + m;
+    }
+  }
+
   let filteredItems = $derived((): TimelineItem[] => {
     const dayKey = dateKey(selectedDate);
     const filteredEntries: TimelineItem[] = entries
@@ -28,15 +46,7 @@
     const filteredEvents: TimelineItem[] = events
       .filter((e) => e.eventDate === dayKey)
       .map((e) => ({ kind: 'event', data: e }));
-    return [...filteredEntries, ...filteredEvents].sort((a, b) => {
-      const ta = a.kind === 'entry'
-        ? new Date(a.data.experiencedDate + 'T12:00:00').getTime()
-        : new Date(a.data.eventDate + 'T' + (a.data.eventTime || '12:00')).getTime();
-      const tb = b.kind === 'entry'
-        ? new Date(b.data.experiencedDate + 'T12:00:00').getTime()
-        : new Date(b.data.eventDate + 'T' + (b.data.eventTime || '12:00')).getTime();
-      return tb - ta;
-    });
+    return [...filteredEntries, ...filteredEvents].sort((a, b) => sortKey(a) - sortKey(b));
   });
 
   let displayDate = $derived(formatDate(selectedDate.toISOString()));

@@ -3,7 +3,7 @@
   import { events } from '../lib/stores/events';
   import { exportToJSON } from '../lib/utils/export';
   import { parseImportFile } from '../lib/utils/import';
-  import type { EmotionEntry, EventType } from '../lib/types';
+  import type { EmotionEntry, LoggedEvent, EventType } from '../lib/types';
   import { eventTypes } from '../lib/stores/eventTypes';
   import { DEFAULT_EVENT_TYPES, ICON_OPTIONS } from '../lib/data/eventTypes';
 
@@ -28,8 +28,8 @@
 
   type ImportState =
     | { step: 'idle' }
-    | { step: 'confirming'; newEntries: EmotionEntry[]; duplicates: number; discarded: number }
-    | { step: 'done'; added: number };
+    | { step: 'confirming'; newEntries: EmotionEntry[]; newEvents: LoggedEvent[]; newEventTypes: EventType[]; dupEntries: number; dupEvents: number; discardedEntries: number; discardedEvents: number }
+    | { step: 'done'; addedEntries: number; addedEvents: number; addedEventTypes: number };
 
   let importState: ImportState = $state({ step: 'idle' });
   let fileInput: HTMLInputElement | undefined = $state();
@@ -43,38 +43,49 @@
     errorMsg = '';
 
     try {
-      const { valid, discarded } = await parseImportFile(file);
+      const { validEntries, validEvents, validEventTypes, discardedEntries, discardedEvents } = await parseImportFile(file);
 
-      if (valid.length === 0) {
-        errorMsg = discarded > 0
-          ? `No valid entries found (${discarded} discarded).`
-          : 'The file contains no entries.';
+      if (validEntries.length === 0 && validEvents.length === 0) {
+        const totalDiscarded = discardedEntries + discardedEvents;
+        errorMsg = totalDiscarded > 0
+          ? `No valid records found (${totalDiscarded} discarded).`
+          : 'The file contains no entries or events.';
         return;
       }
 
-      const existingIds = new Set($entries.map((e) => e.id));
-      const newEntries = valid.filter((e) => !existingIds.has(e.id));
-      const duplicates = valid.length - newEntries.length;
+      const existingEntryIds = new Set($entries.map((e) => e.id));
+      const newEntries = validEntries.filter((e) => !existingEntryIds.has(e.id));
+      const dupEntries = validEntries.length - newEntries.length;
 
-      if (newEntries.length === 0) {
-        errorMsg = `All ${valid.length} entries are duplicates. Nothing to import.`;
+      const existingEventIds = new Set($events.map((e) => e.id));
+      const newEvents = validEvents.filter((e) => !existingEventIds.has(e.id));
+      const dupEvents = validEvents.length - newEvents.length;
+
+      if (newEntries.length === 0 && newEvents.length === 0) {
+        errorMsg = 'All records are duplicates. Nothing to import.';
         return;
       }
 
-      importState = { step: 'confirming', newEntries, duplicates, discarded };
+      const existingEventTypeIds = new Set($eventTypes.map((t) => t.id));
+      const newEventTypes = validEventTypes.filter((t) => !existingEventTypeIds.has(t.id));
+
+      importState = { step: 'confirming', newEntries, newEvents, newEventTypes, dupEntries, dupEvents, discardedEntries, discardedEvents };
     } catch {
       errorMsg = 'Could not read file. Make sure it is a valid JSON export.';
     } finally {
-      // Reset input so the same file can be re-selected
       input.value = '';
     }
   }
 
   function confirmImport() {
     if (importState.step !== 'confirming') return;
-    const count = importState.newEntries.length;
+    const addedEntries = importState.newEntries.length;
+    const addedEvents = importState.newEvents.length;
+    const addedEventTypes = importState.newEventTypes.length;
     entries.importEntries(importState.newEntries);
-    importState = { step: 'done', added: count };
+    events.importEvents(importState.newEvents);
+    eventTypes.importEventTypes(importState.newEventTypes);
+    importState = { step: 'done', addedEntries, addedEvents, addedEventTypes };
     setTimeout(() => {
       importState = { step: 'idle' };
     }, 2500);
@@ -99,7 +110,7 @@
         <span class="action-label">Export data</span>
         <span class="action-desc">Download all entries as JSON</span>
       </div>
-      <button class="btn btn-secondary" onclick={() => exportToJSON($entries, $events)}>Export</button>
+      <button class="btn btn-secondary" onclick={() => exportToJSON($entries, $events, $eventTypes.filter(t => t.isCustom))}>Export</button>
     </div>
 
     <div class="action-row">
@@ -127,7 +138,7 @@
     {#if importState.step === 'confirming'}
       <div class="confirm-box">
         <p class="confirm-text">
-          <strong>{importState.newEntries.length}</strong> new {importState.newEntries.length === 1 ? 'entry' : 'entries'} will be added{#if importState.duplicates > 0} ({importState.duplicates} {importState.duplicates === 1 ? 'duplicate' : 'duplicates'} skipped){/if}{#if importState.discarded > 0}, {importState.discarded} discarded{/if}. Continue?
+          {#if importState.newEntries.length > 0}<strong>{importState.newEntries.length}</strong> new {importState.newEntries.length === 1 ? 'entry' : 'entries'}{/if}{#if importState.newEntries.length > 0 && importState.newEvents.length > 0} and {/if}{#if importState.newEvents.length > 0}<strong>{importState.newEvents.length}</strong> new {importState.newEvents.length === 1 ? 'event' : 'events'}{/if} will be added. {#if importState.dupEntries + importState.dupEvents > 0} {importState.dupEntries + importState.dupEvents} {importState.dupEntries + importState.dupEvents === 1 ? 'duplicate' : 'duplicates'} skipped.{/if} Continue?
         </p>
         <div class="confirm-actions">
           <button class="btn btn-ghost" onclick={cancelImport}>Cancel</button>
@@ -138,7 +149,7 @@
 
     {#if importState.step === 'done'}
       <div class="import-msg success">
-        Successfully added {importState.added} {importState.added === 1 ? 'entry' : 'entries'}.
+        Successfully added {importState.addedEntries} {importState.addedEntries === 1 ? 'entry' : 'entries'}, {importState.addedEvents} {importState.addedEvents === 1 ? 'event' : 'events'}{importState.addedEventTypes > 0 ? `, and ${importState.addedEventTypes} custom event ${importState.addedEventTypes === 1 ? 'type' : 'types'}` : ''}.
       </div>
     {/if}
   </section>
