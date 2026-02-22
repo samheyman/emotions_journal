@@ -44,14 +44,23 @@
   let daysInMonth = $derived(getDaysInMonth(year, month));
   let firstDay = $derived(getFirstDayOfMonth(year, month));
   let monthLabel = $derived(formatMonthYear(year, month));
-  let dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
+  let dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat','Sun'];
+/*
   let days = $derived(() => {
     const result: (number | null)[] = [];
     for (let i = 0; i < firstDay; i++) result.push(null);
     for (let i = 1; i <= daysInMonth; i++) result.push(i);
     return result;
   });
+*/
+
+let days = $derived(() => {
+  const result: (number | null)[] = [];
+  const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
+  for (let i = 0; i < adjustedFirstDay; i++) result.push(null);
+  for (let i = 1; i <= daysInMonth; i++) result.push(i);
+  return result;
+});
 
   type DayItem =
     | { kind: 'entry'; data: EmotionEntry }
