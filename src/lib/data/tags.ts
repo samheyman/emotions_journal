@@ -1,9 +1,11 @@
 export const contextTags = [
   "exercise",
   "poor sleep",
+  "good sleep",
   "alcohol",
   "conflict",
-  "period",
+  "mess",
+  "jealous",
   "sex/intimacy",
   "social",
   "work",
