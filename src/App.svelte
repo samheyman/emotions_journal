@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import type { View, EmotionEntry, LoggedEvent } from './lib/types';
   import { entries } from './lib/stores/entries';
   import { events } from './lib/stores/events';
@@ -12,9 +13,24 @@
   let editingEntry: EmotionEntry | undefined = $state(undefined);
   let editingEvent: LoggedEvent | undefined = $state(undefined);
 
+  onMount(() => {
+    history.pushState(null, '');
+
+    function handlePopState() {
+      history.pushState(null, ''); // re-push so back never closes the app
+      if (currentView !== 'home') {
+        editingEntry = undefined;
+        editingEvent = undefined;
+        currentView = 'home';
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  });
+
   function navigate(view: View) {
     currentView = view;
-    console.log(`Current view: ${currentView}`)
   }
 
   function startEdit(id: string) {
