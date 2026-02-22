@@ -1,5 +1,6 @@
 <script lang="ts">
   import { entries } from '../lib/stores/entries';
+  import { events } from '../lib/stores/events';
   import { exportToJSON } from '../lib/utils/export';
   import { parseImportFile } from '../lib/utils/import';
   import type { EmotionEntry, EventType } from '../lib/types';
@@ -98,7 +99,7 @@
         <span class="action-label">Export data</span>
         <span class="action-desc">Download all entries as JSON</span>
       </div>
-      <button class="btn btn-secondary" onclick={() => exportToJSON($entries)}>Export</button>
+      <button class="btn btn-secondary" onclick={() => exportToJSON($entries, $events)}>Export</button>
     </div>
 
     <div class="action-row">

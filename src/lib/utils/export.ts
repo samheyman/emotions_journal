@@ -1,13 +1,13 @@
-import type { EmotionEntry } from '../types';
+import type { EmotionEntry, LoggedEvent } from '../types';
 
-export function exportToJSON(entries: EmotionEntry[]) {
+export function exportToJSON(entries: EmotionEntry[], events: LoggedEvent[]) {
   const entriesAndMetadata = {metadata:{
     exportedAt: new Date().toISOString(),
     appVersion: "0.1.1",
     "timezone": "Europe/Oslo",
     "valence_scale": "-3 to +3",
     "energy_scale": "-3 to +3"
-  },entries:entries};
+  }, entries, events};
   const data = JSON.stringify(entriesAndMetadata, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
