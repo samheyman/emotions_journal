@@ -1,5 +1,6 @@
 # Lumidian
 
+[Principles](./PRINCIPLES.md)
 [PRD](./PRD.md)
 [Design doc](./DESIGN.md)
 [Tasks](./TASKS.md)
