@@ -38,7 +38,7 @@
     }
   }
 
-  let filteredItems = $derived((): TimelineItem[] => {
+  let filteredItems = $derived((() => {
     const dayKey = dateKey(selectedDate);
     const filteredEntries: TimelineItem[] = entries
       .filter((e) => e.experiencedDate === dayKey)
@@ -47,16 +47,16 @@
       .filter((e) => e.eventDate === dayKey)
       .map((e) => ({ kind: 'event', data: e }));
     return [...filteredEntries, ...filteredEvents].sort((a, b) => sortKey(a) - sortKey(b));
-  });
+  })());
 
   let displayDate = $derived(formatDate(selectedDate.toISOString()));
 
-  let isToday = $derived(() => {
+  let isToday = $derived((() => {
     const now = new Date();
     return selectedDate.getFullYear() === now.getFullYear() &&
       selectedDate.getMonth() === now.getMonth() &&
       selectedDate.getDate() === now.getDate();
-  });
+  })());
 
   function prevDay() {
     const d = new Date(selectedDate);
@@ -92,17 +92,17 @@
     </button>
   </div>
 
-  {#if filteredItems().length === 0}
+  {#if filteredItems.length === 0}
     <div class="empty">
       <p class="empty-icon">~</p>
-      <p class="empty-text">No entries {isToday() ? 'yet today' : 'this day'}</p>
-      {#if isToday()}
+      <p class="empty-text">No entries {isToday ? 'yet today' : 'this day'}</p>
+      {#if isToday}
         <p class="empty-hint">Tap + to check in</p>
       {/if}
     </div>
   {:else}
     <div class="entries">
-      {#each filteredItems() as item (item.data.id)}
+      {#each filteredItems as item (item.data.id)}
         {#if item.kind === 'entry'}
           <EntryCard entry={item.data} onDelete={onDelete} {onEdit} />
         {:else}

@@ -19,7 +19,7 @@
   let month = $state(new Date().getMonth());
   let selectedDay: string | null = $state(null);
 
-  let entriesByDate = $derived(() => {
+  let entriesByDate = $derived((() => {
     const map = new Map<string, EmotionEntry[]>();
     for (const entry of entries) {
       const key = entry.experiencedDate;
@@ -27,9 +27,9 @@
       map.get(key)!.push(entry);
     }
     return map;
-  });
+  })());
 
-  let eventsByDate = $derived(() => {
+  let eventsByDate = $derived((() => {
     const map = new Map<string, LoggedEvent[]>();
     for (const event of events) {
       const key = event.eventDate;
@@ -37,7 +37,7 @@
       map.get(key)!.push(event);
     }
     return map;
-  });
+  })());
 
   let daysInMonth = $derived(getDaysInMonth(year, month));
   let firstDay = $derived(getFirstDayOfMonth(year, month));
@@ -52,22 +52,22 @@
   });
 */
 
-let days = $derived(() => {
+let days = $derived((() => {
   const result: (number | null)[] = [];
   const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
   for (let i = 0; i < adjustedFirstDay; i++) result.push(null);
   for (let i = 1; i <= daysInMonth; i++) result.push(i);
   return result;
-});
+})());
 
   type DayItem =
     | { kind: 'entry'; data: EmotionEntry }
     | { kind: 'event'; data: LoggedEvent };
 
-  let selectedItems = $derived((): DayItem[] => {
+  let selectedItems = $derived((() => {
     if (!selectedDay) return [];
-    const dayEntries: DayItem[] = (entriesByDate().get(selectedDay) || []).map(e => ({ kind: 'entry', data: e }));
-    const dayEvents: DayItem[] = (eventsByDate().get(selectedDay) || []).map(e => ({ kind: 'event', data: e }));
+    const dayEntries: DayItem[] = (entriesByDate.get(selectedDay) || []).map(e => ({ kind: 'entry', data: e }));
+    const dayEvents: DayItem[] = (eventsByDate.get(selectedDay) || []).map(e => ({ kind: 'event', data: e }));
     return [...dayEntries, ...dayEvents].sort((a, b) => {
       const ta = a.kind === 'entry'
         ? new Date(a.data.experiencedDate + 'T12:00:00').getTime()
@@ -77,7 +77,7 @@ let days = $derived(() => {
         : new Date(b.data.eventDate + 'T' + (b.data.eventTime || '12:00')).getTime();
       return tb - ta;
     });
-  });
+  })());
 
   function prevMonth() {
     if (month === 0) { month = 11; year--; }
@@ -93,7 +93,7 @@ let days = $derived(() => {
 
   function getDayColors(day: number): string[] {
     const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const dayEntries = entriesByDate().get(key);
+    const dayEntries = entriesByDate.get(key);
     if (!dayEntries || dayEntries.length === 0) return [];
 
     const sorted = [...dayEntries];
@@ -106,13 +106,13 @@ let days = $derived(() => {
   }
 
   function getEntryCount(day: number): number {
-    return (entriesByDate().get(getDayKey(day))?.length || 0) +
-           (eventsByDate().get(getDayKey(day))?.length || 0);
+    return (entriesByDate.get(getDayKey(day))?.length || 0) +
+           (eventsByDate.get(getDayKey(day))?.length || 0);
   }
 
   function getDayEventEmojis(day: number): { emojis: string[]; extra: number } {
     const key = getDayKey(day);
-    const dayEvents = eventsByDate().get(key) || [];
+    const dayEvents = eventsByDate.get(key) || [];
     const emojis = dayEvents.map(e => {
       const type = $eventTypes.find(t => t.id === e.typeId);
       return type?.emoji ?? '⚡';
@@ -157,7 +157,7 @@ let days = $derived(() => {
   </div>
 
   <div class="grid">
-    {#each days() as day}
+    {#each days as day}
       {#if day === null}
         <div class="cell empty-cell"></div>
       {:else}
@@ -193,10 +193,10 @@ let days = $derived(() => {
     {/each}
   </div>
 
-  {#if selectedDay && selectedItems().length > 0}
+  {#if selectedDay && selectedItems.length > 0}
     <div class="selected-entries">
       <h3 class="selected-date-label">{formatDate(selectedDay + 'T00:00:00')}</h3>
-      {#each selectedItems() as item (item.data.id)}
+      {#each selectedItems as item (item.data.id)}
         {#if item.kind === 'entry'}
           <EntryCard entry={item.data} {onDelete} {onEdit} />
         {:else}

@@ -178,16 +178,16 @@
   let emotionInput = $state('');
   let showSuggestions = $state(false);
 
-  let mergedInferred = $derived(() => {
+  let mergedInferred = $derived((() => {
     const merged = [...rawInferredEmotions];
     for (const e of semanticEmotions) {
       if (!merged.includes(e)) merged.push(e);
     }
     return merged.slice(0, 7);
-  });
+  })());
 
   let inferredEmotions = $derived(
-    mergedInferred().filter(e => !dismissedEmotions.includes(e))
+    mergedInferred.filter(e => !dismissedEmotions.includes(e))
   );
 
   let allEmotions = $derived(
@@ -240,13 +240,13 @@
 
 
 
-  let suggestions = $derived(() => {
+  let suggestions = $derived((() => {
     if (emotionInput.trim().length === 0) return [];
     const q = emotionInput.toLowerCase();
     return getAllEmotionWords()
       .filter(e => e.toLowerCase().startsWith(q) && !allEmotions.includes(e))
       .slice(0, 5);
-  });
+  })());
 
   function addEmotion(emotion: string) {
     const trimmed = emotion.trim();
@@ -267,7 +267,7 @@
   function onEmotionKeydown(e: KeyboardEvent) {
     if (e.key === 'Enter') {
       e.preventDefault();
-      const suggs = suggestions();
+      const suggs = suggestions;
       if (suggs.length > 0) {
         addEmotion(suggs[0]);
       } else if (emotionInput.trim()) {
@@ -404,9 +404,9 @@
             <span class="empty-emotions">No secondary emotions</span>
           {/if}
           <div class="emotion-input-wrapper">
-            {#if showSuggestions && suggestions().length > 0}
+            {#if showSuggestions && suggestions.length > 0}
               <div class="suggestions">
-                {#each suggestions() as suggestion}
+                {#each suggestions as suggestion}
                   <button class="suggestion" onmousedown={() => addEmotion(suggestion)}>
                     {suggestion}
                   </button>
