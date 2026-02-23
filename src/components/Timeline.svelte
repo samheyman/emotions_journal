@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { EmotionEntry, LoggedEvent } from '../lib/types';
-  import { isSameDay, formatDate, dateKey } from '../lib/utils/dates';
+  import { formatDate, dateKey } from '../lib/utils/dates';
   import { eventTypes } from '../lib/stores/eventTypes';
   import EntryCard from './EntryCard.svelte';
   import EventCard from './EventCard.svelte';
@@ -83,7 +83,7 @@
       </svg>
     </button>
     <button class="date-label" onclick={goToToday}>
-      {isToday() ? 'Today' : displayDate}
+      {isToday ? 'Today' : displayDate}
     </button>
     <button class="nav-btn" onclick={nextDay} aria-label="Next day">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

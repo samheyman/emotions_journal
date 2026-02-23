@@ -1,5 +1,17 @@
 import type { EmotionEntry, EventType, LoggedEvent } from '../types';
 
+/**
+ * Convert a date string to a local YYYY-MM-DD.
+ * Bare date strings (YYYY-MM-DD) are returned as-is.
+ * Full ISO datetime strings are parsed and the LOCAL date is extracted,
+ * avoiding the UTC-midnight-shifts-the-date bug.
+ */
+function toLocalDate(dateStr: string): string {
+  if (!dateStr.includes('T')) return dateStr.slice(0, 10);
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 export function validateEntry(obj: unknown): EmotionEntry | null {
   if (obj === null || typeof obj !== 'object') return null;
 
@@ -8,7 +20,7 @@ export function validateEntry(obj: unknown): EmotionEntry | null {
   if (typeof o.id !== 'string' || o.id === '') return null;
 
   if (typeof o.experiencedDate !== 'string' || o.experiencedDate === '') return null;
-  const experiencedDate = o.experiencedDate.slice(0, 10);
+  const experiencedDate = toLocalDate(o.experiencedDate);
 
   if (typeof o.valence !== 'number') return null;
   if (typeof o.energy !== 'number') return null;
@@ -57,7 +69,7 @@ export function validateEvent(obj: unknown): LoggedEvent | null {
   const event: LoggedEvent = {
     id: o.id,
     loggedAt,
-    eventDate: o.eventDate.slice(0, 10),
+    eventDate: toLocalDate(o.eventDate as string),
     typeId: o.typeId,
   };
 
