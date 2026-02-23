@@ -16,7 +16,7 @@
     90
   );
 
-  let chartData = $derived(() => {
+  let chartData = $derived((() => {
     const days: { key: string; label: string; valence: number | null; }[] = [];
 
     for (let i = rangeDays - 1; i >= 0; i--) {
@@ -51,13 +51,13 @@
     }
 
     return days;
-  });
+  })());
 
   function buildChart() {
     if (!canvasEl || !ChartClass) return;
     if (chart) chart.destroy();
 
-    const data = chartData();
+    const data = chartData;
 
     chart = new ChartClass(canvasEl, {
       type: 'line',
@@ -174,7 +174,7 @@
   $effect(() => {
     if (!ChartClass || !canvasEl) return;
 
-    const data = chartData();   // reactive derived data
+    const data = chartData;   // reactive derived data
     const key = JSON.stringify(data) + range; // compute a key for the data
 
     if (key === lastChartKey) return; // no change → skip rebuild

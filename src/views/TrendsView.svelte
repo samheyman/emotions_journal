@@ -15,14 +15,14 @@
   ];
 
   let totalEntries = $derived($entries.length);
-  let avgMood = $derived(() => {
+  let avgMood = $derived((() => {
     if ($entries.length === 0) return 0;
     return Math.round(($entries.reduce((s, e: any) => {
       if (typeof e.valence === 'number' && !isNaN(e.valence)) return s + e.valence;
       if (typeof e.mood === 'number' && !isNaN(e.mood)) return s + (e.mood - 4);
       return s;
     }, 0) / $entries.length) * 10) / 10;
-  });
+  })());
 
   interface EventStat {
     typeId: string;
@@ -33,7 +33,7 @@
     lastOccurrence: string | null;
   }
 
-  let eventStats = $derived((): EventStat[] => {
+  let eventStats = $derived((() => {
     const stats: EventStat[] = [];
     for (const type of $eventTypes) {
       const typeEvents = $events.filter(e => e.typeId === type.id);
@@ -68,7 +68,7 @@
       });
     }
     return stats.sort((a, b) => b.count - a.count);
-  });
+  })());
 </script>
 
 <div class="trends">
@@ -96,7 +96,7 @@
         <span class="stat-label">entries</span>
       </div>
       <div class="stat">
-        <span class="stat-value" style="color: var(--accent)">{avgMood() > 0 ? '+' : ''}{avgMood()}</span>
+        <span class="stat-value" style="color: var(--accent)">{avgMood > 0 ? '+' : ''}{avgMood}</span>
         <span class="stat-label">avg mood</span>
       </div>
     </div>
@@ -125,13 +125,13 @@
     </div>
   {:else}
     <div class="events-section">
-      {#if eventStats().length === 0}
+      {#if eventStats.length === 0}
         <div class="empty">
           <p class="empty-text">No events logged yet</p>
           <p class="empty-hint">Tap + to log your first event</p>
         </div>
       {:else}
-        {#each eventStats() as stat (stat.typeId)}
+        {#each eventStats as stat (stat.typeId)}
           <div class="event-stat-card">
             <div class="event-stat-left">
               <span class="event-stat-emoji">{stat.emoji}</span>
