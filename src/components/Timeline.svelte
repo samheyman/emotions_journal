@@ -83,7 +83,7 @@
       </svg>
     </button>
     <button class="date-label" onclick={goToToday}>
-      {isToday() ? 'Today' : displayDate}
+      {isToday ? 'Today' : displayDate}
     </button>
     <button class="nav-btn" onclick={nextDay} aria-label="Next day">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
