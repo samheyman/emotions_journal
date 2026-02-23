@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { EmotionEntry, LoggedEvent } from '../lib/types';
-  import { isSameDay, formatDate, dateKey } from '../lib/utils/dates';
+  import { formatDate, dateKey } from '../lib/utils/dates';
   import { eventTypes } from '../lib/stores/eventTypes';
   import EntryCard from './EntryCard.svelte';
   import EventCard from './EventCard.svelte';

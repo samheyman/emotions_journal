@@ -1,13 +1,21 @@
+/** Parse a YYYY-MM-DD string as a local date (noon, to be timezone-safe). */
+export function localDate(ymd: string): Date {
+  const [y, m, d] = ymd.split('-').map(Number);
+  return new Date(y, m - 1, d, 12, 0, 0);
+}
+
 export function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 
 export function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+  const d = iso.length === 10 ? localDate(iso) : new Date(iso);
+  return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 export function formatDateFull(iso: string): string {
-  return new Date(iso).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const d = iso.length === 10 ? localDate(iso) : new Date(iso);
+  return d.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 export function isSameDay(a: string, b: string): boolean {

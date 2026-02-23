@@ -40,14 +40,14 @@
       if (typeEvents.length === 0) continue;
 
       const sorted = [...typeEvents].sort(
-        (a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
+        (a, b) => new Date(a.eventDate + 'T12:00:00').getTime() - new Date(b.eventDate + 'T12:00:00').getTime()
       );
 
       let avgDaysBetween: number | null = null;
       if (sorted.length > 1) {
         let totalMs = 0;
         for (let i = 1; i < sorted.length; i++) {
-          totalMs += new Date(sorted[i].eventDate).getTime() - new Date(sorted[i - 1].eventDate).getTime();
+          totalMs += new Date(sorted[i].eventDate + 'T12:00:00').getTime() - new Date(sorted[i - 1].eventDate + 'T12:00:00').getTime();
         }
         const avgMs = totalMs / (sorted.length - 1);
         avgDaysBetween = Math.round(avgMs / (1000 * 60 * 60 * 24));
