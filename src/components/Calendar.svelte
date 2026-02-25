@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { EmotionEntry, LoggedEvent } from '../lib/types';
   import { getDaysInMonth, getFirstDayOfMonth, formatMonthYear, dateKey, formatDate } from '../lib/utils/dates';
+  import EventIcon from './EventIcon.svelte';
   import { getMoodColor } from '../lib/data/emotions';
   import { eventTypes } from '../lib/stores/eventTypes';
   import EntryCard from './EntryCard.svelte';
@@ -181,7 +182,7 @@ let days = $derived((() => {
           {#if emojis.length > 0}
             <div class="event-emojis">
               {#each emojis as emoji}
-                <span class="event-emoji">{emoji}</span>
+                <span class="event-emoji"><EventIcon name={emoji} size={10} strokeWidth={2} /></span>
               {/each}
               {#if extra > 0}
                 <span class="event-extra">+{extra}</span>

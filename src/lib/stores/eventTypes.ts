@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
 import type { EventType } from '../types';
 import { DEFAULT_EVENT_TYPES } from '../data/eventTypes';
+import { LEGACY_ICON_MAP } from '../data/icons';
 
 const STORAGE_KEY = 'emotions-log-event-types';
 
@@ -14,7 +15,9 @@ function loadEventTypes(): EventType[] {
     // Merge defaults (preserving saved emoji/visibility) then append custom types
     const defaults = DEFAULT_EVENT_TYPES.map((t) => {
       const s = savedById.get(t.id);
-      return s ? { ...t, emoji: s.emoji ?? t.emoji, visible: s.visible } : t;
+      if (!s) return t;
+      const emoji = LEGACY_ICON_MAP[s.emoji] ?? s.emoji ?? t.emoji;
+      return { ...t, emoji, visible: s.visible };
     });
     const custom = saved.filter((t) => !defaultIds.has(t.id));
     return [...defaults, ...custom];

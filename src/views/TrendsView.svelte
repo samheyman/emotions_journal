@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { TrendRange } from '../lib/types';
+  import EventIcon from '../components/EventIcon.svelte';
   import { entries } from '../lib/stores/entries';
   import { events } from '../lib/stores/events';
   import { eventTypes } from '../lib/stores/eventTypes';
@@ -134,7 +135,7 @@
         {#each eventStats as stat (stat.typeId)}
           <div class="event-stat-card">
             <div class="event-stat-left">
-              <span class="event-stat-emoji">{stat.emoji}</span>
+              <span class="event-stat-emoji"><EventIcon name={stat.emoji} size={22} /></span>
               <div class="event-stat-info">
                 <span class="event-stat-name">{stat.name}</span>
                 <div class="event-stat-meta">

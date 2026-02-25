@@ -6,6 +6,7 @@
   import type { EmotionEntry, LoggedEvent, EventType } from '../lib/types';
   import { eventTypes } from '../lib/stores/eventTypes';
   import { DEFAULT_EVENT_TYPES, ICON_OPTIONS } from '../lib/data/eventTypes';
+  import EventIcon from '../components/EventIcon.svelte';
 
   const defaultIds = new Set(DEFAULT_EVENT_TYPES.map(t => t.id));
 
@@ -19,7 +20,6 @@
     const emoji = newEmoji.trim();
     const name = newName.trim();
     if (!name) { addError = 'Name is required.'; return; }
-    if (emoji && [...emoji].length > 2) { addError = 'Use 1–2 emoji characters.'; return; }
     const id = 'custom-' + Date.now();
     eventTypes.addEventType({ id, name, emoji, isCustom: true });
     newEmoji = '';
@@ -165,7 +165,7 @@
             onclick={() => pickerOpenFor = pickerOpenFor === type.id ? null : type.id}
             aria-label="Change icon for {type.name}"
             title="Change icon"
-          >{type.emoji || '★'}</button>
+          ><EventIcon name={type.emoji ?? 'Star'} size={18} /></button>
           <span class="event-type-name">{type.name}</span>
           <label class="toggle" aria-label="Show {type.name}">
             <input
@@ -194,7 +194,7 @@
                 class="icon-option"
                 class:active={type.emoji === icon}
                 onclick={() => { eventTypes.setEmoji(type.id, icon); pickerOpenFor = null; }}
-              >{icon}</button>
+              ><EventIcon name={icon} size={16} /></button>
             {/each}
           </div>
         {/if}
@@ -202,13 +202,18 @@
     </div>
 
     <div class="add-type-form">
-      <input
-        type="text"
-        class="emoji-input"
-        placeholder="★"
-        bind:value={newEmoji}
-        maxlength="4"
-      />
+      <button
+        class="event-type-icon-btn"
+        onclick={() => pickerOpenFor = pickerOpenFor === 'new' ? null : 'new'}
+        aria-label="Pick icon"
+        title="Pick icon"
+      >
+        {#if newEmoji}
+          <EventIcon name={newEmoji} size={18} />
+        {:else}
+          <span class="icon-placeholder">+</span>
+        {/if}
+      </button>
       <input
         type="text"
         class="name-input"
@@ -218,15 +223,17 @@
       />
       <button class="btn btn-secondary" onclick={addCustomType}>Add</button>
     </div>
-    <div class="icon-quick-pick">
-      {#each ICON_OPTIONS.slice(0, 5) as icon}
-        <button
-          class="icon-option"
-          class:active={newEmoji === icon}
-          onclick={() => newEmoji = newEmoji === icon ? '' : icon}
-        >{icon}</button>
-      {/each}
-    </div>
+    {#if pickerOpenFor === 'new'}
+      <div class="icon-picker new-icon-picker">
+        {#each ICON_OPTIONS as icon}
+          <button
+            class="icon-option"
+            class:active={newEmoji === icon}
+            onclick={() => { newEmoji = icon; pickerOpenFor = null; }}
+          ><EventIcon name={icon} size={16} /></button>
+        {/each}
+      </div>
+    {/if}
     {#if addError}
       <p class="add-error">{addError}</p>
     {/if}
@@ -403,12 +410,6 @@
     padding-left: 36px;
   }
 
-  .icon-quick-pick {
-    display: flex;
-    gap: 4px;
-    margin-top: var(--space-xs);
-  }
-
   .icon-option {
     width: 32px;
     height: 32px;
@@ -506,22 +507,14 @@
     align-items: center;
   }
 
-  .emoji-input {
-    width: 52px;
-    padding: var(--space-sm);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    color: var(--text-primary);
-    font-family: var(--font);
-    font-size: var(--text-base);
-    text-align: center;
-    flex-shrink: 0;
+  .icon-placeholder {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1;
   }
 
-  .emoji-input:focus {
-    outline: none;
-    border-color: var(--accent);
+  .new-icon-picker {
+    padding-left: 0;
   }
 
   .name-input {

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { LoggedEvent, EventType } from '../lib/types';
+  import EventIcon from './EventIcon.svelte';
 
   let { event, eventType, onDelete, onEdit }: {
     event: LoggedEvent;
@@ -17,7 +18,9 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div class="event-card" onclick={() => expanded = !expanded}>
   <div class="card-main">
-    <div class="emoji-circle">{eventType?.emoji || '★'}</div>
+    <div class="emoji-circle">
+      <EventIcon name={eventType?.emoji ?? 'Star'} size={18} />
+    </div>
     <div class="card-body">
       <span class="event-name">{eventType?.name ?? 'Unknown event'}</span>
       {#if event.note}
