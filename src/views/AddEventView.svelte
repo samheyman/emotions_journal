@@ -3,6 +3,7 @@
   import { dateKey } from '../lib/utils/dates';
   import { eventTypes } from '../lib/stores/eventTypes';
   import { events } from '../lib/stores/events';
+  import EventIcon from '../components/EventIcon.svelte';
 
   let { onComplete, onCancel, editingEvent = undefined }: {
     onComplete: () => void;
@@ -118,7 +119,7 @@
           class:selected={selectedTypeId === type.id}
           onclick={() => selectedTypeId = type.id}
         >
-          <span class="type-emoji">{type.emoji || '★'}</span>
+          <EventIcon name={type.emoji || 'Star'} size={20} />
           <span class="type-name">{type.name}</span>
         </button>
       {/each}
@@ -292,12 +293,6 @@
     background: rgba(196, 132, 108, 0.08);
     color: var(--accent);
   }
-
-  .type-emoji {
-    font-size: 1.25rem;
-    flex-shrink: 0;
-  }
-
 
   .type-name {
     font-size: 0.8rem;
