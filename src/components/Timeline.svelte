@@ -30,9 +30,9 @@
   function sortKey(item: TimelineItem): number {
     if (item.kind === 'entry') {
       const period = item.data.experiencedPeriod ?? 'allday';
-      return periodMinutes[period] ?? -1; // allday → -1 (top)
+      return periodMinutes[period] ?? Infinity; // allday → Infinity (top)
     } else {
-      if (!item.data.eventTime) return -1; // all-day event → top
+      if (!item.data.eventTime) return Infinity; // all-day event → top
       const [h, m] = item.data.eventTime.split(':').map(Number);
       return h * 60 + m;
     }
@@ -46,7 +46,7 @@
     const filteredEvents: TimelineItem[] = events
       .filter((e) => e.eventDate === dayKey)
       .map((e) => ({ kind: 'event', data: e }));
-    return [...filteredEntries, ...filteredEvents].sort((a, b) => sortKey(a) - sortKey(b));
+    return [...filteredEntries, ...filteredEvents].sort((a, b) => sortKey(b) - sortKey(a));
   })());
 
   let displayDate = $derived(formatDate(selectedDate.toISOString()));
