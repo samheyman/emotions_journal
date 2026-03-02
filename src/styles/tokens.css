@@ -15,8 +15,24 @@
   --accent-alt: #7ca5a0;
 
   /* Mood gradient endpoints */
-  --mood-negative: #9baec2;
-  --mood-positive: #763594;
+  --mood-neutral: #ffffff;
+  --mood-negative: #fd7369;
+  --mood-positive: #4caf50;
+
+  --mood-negative-3: var(--mood-negative); /* full color */
+  --mood-negative-2: color-mix(
+    in oklch,
+    var(--mood-negative) 60%,
+    white
+  ); /* medium tint */
+  --mood-negative-1: color-mix(
+    in oklch,
+    var(--mood-negative) 20%,
+    white
+  ); /* pale tint */
+  --mood-positive-1: color-mix(in oklch, var(--mood-positive) 20%, white);
+  --mood-positive-2: color-mix(in oklch, var(--mood-positive) 60%, white);
+  --mood-positive-3: var(--mood-positive);
 
   /* Borders & shadows */
   --border: #e8e4df;
@@ -70,4 +86,32 @@ body {
 
 #app {
   min-height: 100dvh;
+}
+
+.mood-0 {
+  background: var(--mood-negative-3);
+}
+
+.mood-1 {
+  background: var(--mood-negative-2);
+}
+
+.mood-2 {
+  background: var(--mood-negative-1);
+}
+
+.mood-3 {
+  background: var(--mood-neutral);
+}
+
+.mood-4 {
+  background: var(--mood-positive-1);
+}
+
+.mood-5 {
+  background: var(--mood-positive-2);
+}
+
+.mood-6 {
+  background: var(--mood-positive-3);
 }

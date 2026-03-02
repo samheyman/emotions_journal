@@ -1,244 +1,73 @@
 <script lang="ts">
-  import { entries } from '../lib/stores/entries';
-  import { events } from '../lib/stores/events';
-  import { exportToJSON } from '../lib/utils/export';
-  import { parseImportFile } from '../lib/utils/import';
-  import type { EmotionEntry, LoggedEvent, EventType } from '../lib/types';
-  import { eventTypes } from '../lib/stores/eventTypes';
-  import { DEFAULT_EVENT_TYPES, ICON_OPTIONS } from '../lib/data/eventTypes';
-  import EventIcon from '../components/EventIcon.svelte';
+  import SettingsDataView from './SettingsDataView.svelte';
+  import SettingsMoodColorsView from './SettingsMoodColorsView.svelte';
+  import SettingsEventTypesView from './SettingsEventTypesView.svelte';
 
-  const defaultIds = new Set(DEFAULT_EVENT_TYPES.map(t => t.id));
-
-  let newEmoji = $state('');
-  let newName = $state('');
-  let addError = $state('');
-  let pickerOpenFor = $state<string | null>(null);
-
-  function addCustomType() {
-    addError = '';
-    const emoji = newEmoji.trim();
-    const name = newName.trim();
-    if (!name) { addError = 'Name is required.'; return; }
-    const id = 'custom-' + Date.now();
-    eventTypes.addEventType({ id, name, emoji, isCustom: true });
-    newEmoji = '';
-    newName = '';
-  }
-
-  type ImportState =
-    | { step: 'idle' }
-    | { step: 'confirming'; newEntries: EmotionEntry[]; newEvents: LoggedEvent[]; newEventTypes: EventType[]; dupEntries: number; dupEvents: number; discardedEntries: number; discardedEvents: number }
-    | { step: 'done'; addedEntries: number; addedEvents: number; addedEventTypes: number };
-
-  let importState: ImportState = $state({ step: 'idle' });
-  let fileInput: HTMLInputElement | undefined = $state();
-  let errorMsg: string = $state('');
-
-  async function handleFile(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
-    errorMsg = '';
-
-    try {
-      const { validEntries, validEvents, validEventTypes, discardedEntries, discardedEvents } = await parseImportFile(file);
-
-      if (validEntries.length === 0 && validEvents.length === 0) {
-        const totalDiscarded = discardedEntries + discardedEvents;
-        errorMsg = totalDiscarded > 0
-          ? `No valid records found (${totalDiscarded} discarded).`
-          : 'The file contains no entries or events.';
-        return;
-      }
-
-      const existingEntryIds = new Set($entries.map((e) => e.id));
-      const newEntries = validEntries.filter((e) => !existingEntryIds.has(e.id));
-      const dupEntries = validEntries.length - newEntries.length;
-
-      const existingEventIds = new Set($events.map((e) => e.id));
-      const newEvents = validEvents.filter((e) => !existingEventIds.has(e.id));
-      const dupEvents = validEvents.length - newEvents.length;
-
-      if (newEntries.length === 0 && newEvents.length === 0) {
-        errorMsg = 'All records are duplicates. Nothing to import.';
-        return;
-      }
-
-      const existingEventTypeIds = new Set($eventTypes.map((t) => t.id));
-      const newEventTypes = validEventTypes.filter((t) => !existingEventTypeIds.has(t.id));
-
-      importState = { step: 'confirming', newEntries, newEvents, newEventTypes, dupEntries, dupEvents, discardedEntries, discardedEvents };
-    } catch {
-      errorMsg = 'Could not read file. Make sure it is a valid JSON export.';
-    } finally {
-      input.value = '';
-    }
-  }
-
-  function confirmImport() {
-    if (importState.step !== 'confirming') return;
-    const addedEntries = importState.newEntries.length;
-    const addedEvents = importState.newEvents.length;
-    const addedEventTypes = importState.newEventTypes.length;
-    entries.importEntries(importState.newEntries);
-    events.importEvents(importState.newEvents);
-    eventTypes.importEventTypes(importState.newEventTypes);
-    importState = { step: 'done', addedEntries, addedEvents, addedEventTypes };
-    setTimeout(() => {
-      importState = { step: 'idle' };
-    }, 2500);
-  }
-
-  function cancelImport() {
-    importState = { step: 'idle' };
-    errorMsg = '';
-  }
+  type SettingsPage = 'hub' | 'data' | 'moodColors' | 'eventTypes';
+  let page = $state<SettingsPage>('hub');
 </script>
 
-<div class="settings">
-  <header class="settings-header">
-    <h1 class="title">Settings</h1>
-  </header>
+{#if page === 'data'}
+  <SettingsDataView onBack={() => page = 'hub'} />
+{:else if page === 'moodColors'}
+  <SettingsMoodColorsView onBack={() => page = 'hub'} />
+{:else if page === 'eventTypes'}
+  <SettingsEventTypesView onBack={() => page = 'hub'} />
+{:else}
+  <div class="settings">
+    <header class="settings-header">
+      <h1 class="title">Settings</h1>
+    </header>
 
-  <section class="section">
-    <h2 class="section-title">Data</h2>
-
-    <div class="action-row">
-      <div class="action-info">
-        <span class="action-label">Export data</span>
-        <span class="action-desc">Download all entries as JSON</span>
-      </div>
-      <button class="btn btn-secondary" onclick={() => exportToJSON($entries, $events, $eventTypes.filter(t => t.isCustom))}>Export</button>
-    </div>
-
-    <div class="action-row">
-      <div class="action-info">
-        <span class="action-label">Import data</span>
-        <span class="action-desc">Restore entries from a JSON export</span>
-      </div>
-      {#if importState.step === 'idle'}
-        <button class="btn btn-secondary" onclick={() => fileInput?.click()}>Import</button>
-      {/if}
-    </div>
-
-    <input
-      bind:this={fileInput}
-      type="file"
-      accept=".json"
-      class="hidden-input"
-      onchange={handleFile}
-    />
-
-    {#if errorMsg}
-      <div class="import-msg error">{errorMsg}</div>
-    {/if}
-
-    {#if importState.step === 'confirming'}
-      <div class="confirm-box">
-        <p class="confirm-text">
-          {#if importState.newEntries.length > 0}<strong>{importState.newEntries.length}</strong> new {importState.newEntries.length === 1 ? 'entry' : 'entries'}{/if}{#if importState.newEntries.length > 0 && importState.newEvents.length > 0} and {/if}{#if importState.newEvents.length > 0}<strong>{importState.newEvents.length}</strong> new {importState.newEvents.length === 1 ? 'event' : 'events'}{/if} will be added. {#if importState.dupEntries + importState.dupEvents > 0} {importState.dupEntries + importState.dupEvents} {importState.dupEntries + importState.dupEvents === 1 ? 'duplicate' : 'duplicates'} skipped.{/if} Continue?
-        </p>
-        <div class="confirm-actions">
-          <button class="btn btn-ghost" onclick={cancelImport}>Cancel</button>
-          <button class="btn btn-primary" onclick={confirmImport}>Import</button>
+    <div class="menu">
+      <button class="menu-item" onclick={() => page = 'moodColors'}>
+        <div class="menu-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+          </svg>
         </div>
-      </div>
-    {/if}
-
-    {#if importState.step === 'done'}
-      <div class="import-msg success">
-        Successfully added {importState.addedEntries} {importState.addedEntries === 1 ? 'entry' : 'entries'}, {importState.addedEvents} {importState.addedEvents === 1 ? 'event' : 'events'}{importState.addedEventTypes > 0 ? `, and ${importState.addedEventTypes} custom event ${importState.addedEventTypes === 1 ? 'type' : 'types'}` : ''}.
-      </div>
-    {/if}
-  </section>
-
-  <section class="section" style="margin-top: var(--space-xl)">
-    <h2 class="section-title">Event types</h2>
-
-    <div class="event-type-list">
-      {#each $eventTypes as type (type.id)}
-        <div class="event-type-row">
-          <button
-            class="event-type-icon-btn"
-            onclick={() => pickerOpenFor = pickerOpenFor === type.id ? null : type.id}
-            aria-label="Change icon for {type.name}"
-            title="Change icon"
-          ><EventIcon name={type.emoji ?? 'Star'} size={18} /></button>
-          <span class="event-type-name">{type.name}</span>
-          <label class="toggle" aria-label="Show {type.name}">
-            <input
-              type="checkbox"
-              checked={type.visible !== false}
-              onchange={(e) => eventTypes.setVisibility(type.id, e.currentTarget.checked)}
-            />
-            <span class="toggle-slider"></span>
-          </label>
-          {#if !defaultIds.has(type.id)}
-            <button
-              class="remove-type-btn"
-              onclick={() => eventTypes.removeEventType(type.id)}
-              aria-label="Remove {type.name}"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-            </button>
-          {/if}
+        <div class="menu-text">
+          <span class="menu-label">Mood colors</span>
+          <span class="menu-desc">Customise positive, neutral and negative colors</span>
         </div>
-        {#if pickerOpenFor === type.id}
-          <div class="icon-picker">
-            {#each ICON_OPTIONS as icon}
-              <button
-                class="icon-option"
-                class:active={type.emoji === icon}
-                onclick={() => { eventTypes.setEmoji(type.id, icon); pickerOpenFor = null; }}
-              ><EventIcon name={icon} size={16} /></button>
-            {/each}
-          </div>
-        {/if}
-      {/each}
-    </div>
-
-    <div class="add-type-form">
-      <button
-        class="event-type-icon-btn"
-        onclick={() => pickerOpenFor = pickerOpenFor === 'new' ? null : 'new'}
-        aria-label="Pick icon"
-        title="Pick icon"
-      >
-        {#if newEmoji}
-          <EventIcon name={newEmoji} size={18} />
-        {:else}
-          <span class="icon-placeholder">+</span>
-        {/if}
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
       </button>
-      <input
-        type="text"
-        class="name-input"
-        placeholder="Event name"
-        bind:value={newName}
-        maxlength="40"
-      />
-      <button class="btn btn-secondary" onclick={addCustomType}>Add</button>
+
+      <button class="menu-item" onclick={() => page = 'eventTypes'}>
+        <div class="menu-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+          </svg>
+        </div>
+        <div class="menu-text">
+          <span class="menu-label">Event types</span>
+          <span class="menu-desc">Manage and create custom event types</span>
+        </div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+
+      <button class="menu-item" onclick={() => page = 'data'}>
+        <div class="menu-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </div>
+        <div class="menu-text">
+          <span class="menu-label">Data</span>
+          <span class="menu-desc">Export and import your entries</span>
+        </div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
     </div>
-    {#if pickerOpenFor === 'new'}
-      <div class="icon-picker new-icon-picker">
-        {#each ICON_OPTIONS as icon}
-          <button
-            class="icon-option"
-            class:active={newEmoji === icon}
-            onclick={() => { newEmoji = icon; pickerOpenFor = null; }}
-          ><EventIcon name={icon} size={16} /></button>
-        {/each}
-      </div>
-    {/if}
-    {#if addError}
-      <p class="add-error">{addError}</p>
-    {/if}
-  </section>
-</div>
+  </div>
+{/if}
 
 <style>
   .settings {
@@ -258,285 +87,64 @@
     color: var(--text-primary);
   }
 
-  .section {
+  .menu {
     padding: 0 var(--space-md);
-  }
-
-  .section-title {
-    font-size: var(--text-base);
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: var(--space-md);
-  }
-
-  .action-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-md) 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .action-info {
     display: flex;
     flex-direction: column;
-    gap: 2px;
   }
 
-  .action-label {
-    font-size: var(--text-sm);
-    font-weight: 500;
-    color: var(--text-primary);
-  }
-
-  .action-desc {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-  }
-
-  .btn {
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) 0;
     border: none;
+    background: none;
     cursor: pointer;
     font-family: var(--font);
-    font-size: var(--text-sm);
-    font-weight: 500;
-    border-radius: var(--radius-sm);
-    padding: var(--space-sm) var(--space-md);
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .btn-secondary {
-    background: var(--bg-subtle);
-    color: var(--text-primary);
-  }
-
-  .btn-secondary:active {
-    background: var(--border);
-  }
-
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-  }
-
-  .btn-primary:active {
-    opacity: 0.85;
-  }
-
-  .btn-ghost {
-    background: none;
-    color: var(--text-muted);
-  }
-
-  .hidden-input {
-    display: none;
-  }
-
-  .confirm-box {
-    margin-top: var(--space-md);
-    padding: var(--space-md);
-    background: var(--bg-subtle);
-    border-radius: var(--radius-md);
-  }
-
-  .confirm-text {
-    font-size: var(--text-sm);
-    color: var(--text-primary);
-    margin-bottom: var(--space-md);
-    line-height: 1.5;
-  }
-
-  .confirm-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-sm);
-  }
-
-  .import-msg {
-    margin-top: var(--space-md);
-    padding: var(--space-sm) var(--space-md);
-    border-radius: var(--radius-sm);
-    font-size: var(--text-sm);
-  }
-
-  .import-msg.error {
-    background: rgba(220, 80, 80, 0.1);
-    color: #dc5050;
-  }
-
-  .import-msg.success {
-    background: rgba(80, 180, 100, 0.1);
-    color: #50b464;
-  }
-
-  .event-type-list {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: var(--space-md);
-  }
-
-  .event-type-row {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-sm) 0;
+    text-align: left;
     border-bottom: 1px solid var(--border);
-  }
-
-  .event-type-icon-btn {
-    font-size: 1.1rem;
-    width: 28px;
-    text-align: center;
-    flex-shrink: 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 2px;
-    border-radius: var(--radius-sm);
-    color: var(--text-primary);
     -webkit-tap-highlight-color: transparent;
-    line-height: 1;
+    width: 100%;
   }
 
-  .event-type-icon-btn:active {
+  .menu-item:active .menu-label {
+    opacity: 0.6;
+  }
+
+  .menu-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
     background: var(--bg-subtle);
-  }
-
-  .icon-picker {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: var(--space-sm) 0;
-    padding-left: 36px;
-  }
-
-  .icon-option {
-    width: 32px;
-    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-subtle);
-    border: 1.5px solid transparent;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: 1rem;
-    color: var(--text-primary);
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .icon-option.active {
-    border-color: var(--accent);
-    background: rgba(196, 132, 108, 0.08);
-  }
-
-  .icon-option:active {
-    background: var(--border);
-  }
-
-.toggle {
-    position: relative;
-    display: inline-block;
-    width: 36px;
-    height: 20px;
-    flex-shrink: 0;
-    cursor: pointer;
-  }
-
-  .toggle input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-    position: absolute;
-  }
-
-  .toggle-slider {
-    position: absolute;
-    inset: 0;
-    background: var(--border);
-    border-radius: 20px;
-    transition: background 0.2s ease;
-  }
-
-  .toggle-slider::before {
-    content: '';
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    left: 3px;
-    top: 3px;
-    background: white;
-    border-radius: 50%;
-    transition: transform 0.2s ease;
-  }
-
-  .toggle input:checked + .toggle-slider {
-    background: var(--accent);
-  }
-
-  .toggle input:checked + .toggle-slider::before {
-    transform: translateX(16px);
-  }
-
-  .event-type-name {
-    flex: 1;
-    font-size: var(--text-sm);
-    color: var(--text-primary);
-  }
-
-  .remove-type-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: var(--space-xs);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    -webkit-tap-highlight-color: transparent;
+    color: var(--text-secondary);
     flex-shrink: 0;
   }
 
-  .remove-type-btn:active {
-    color: #c44;
-  }
-
-  .add-type-form {
-    display: flex;
-    gap: var(--space-sm);
-    align-items: center;
-  }
-
-  .icon-placeholder {
-    font-size: 1rem;
-    color: var(--text-muted);
-    line-height: 1;
-  }
-
-  .new-icon-picker {
-    padding-left: 0;
-  }
-
-  .name-input {
+  .menu-text {
     flex: 1;
-    padding: var(--space-sm) var(--space-md);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    color: var(--text-primary);
-    font-family: var(--font);
-    font-size: var(--text-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     min-width: 0;
   }
 
-  .name-input:focus {
-    outline: none;
-    border-color: var(--accent);
+  .menu-label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-primary);
   }
 
-  .add-error {
-    margin-top: var(--space-xs);
+  .menu-desc {
     font-size: 0.75rem;
-    color: #dc5050;
+    color: var(--text-muted);
+  }
+
+  .chevron {
+    color: var(--text-muted);
+    flex-shrink: 0;
   }
 </style>

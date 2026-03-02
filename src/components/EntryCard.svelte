@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { EmotionEntry } from '../lib/types';
   import { formatDate } from '../lib/utils/dates';
-  import { getMoodColor } from '../lib/data/emotions';
 
   let { entry, onDelete, onEdit }: { entry: EmotionEntry; onDelete: (id: string) => void; onEdit?: (id: string) => void } = $props();
 
@@ -11,7 +10,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
-<div class="entry-card" style="background: {getMoodColor(entry.valence)}" onclick={() => expanded = !expanded}>
+<div class="entry-card mood-{entry.valence + 3}" onclick={() => expanded = !expanded}>
   {#if entry.note}
     {#if expanded}
       <p class="note-text">{entry.note}</p>

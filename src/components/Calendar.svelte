@@ -92,14 +92,17 @@ let days = $derived((() => {
     selectedDay = null;
   }
 
-  function getDayColors(day: number): string[] {
+  function getDayColors(day: number): number[] {
     const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const dayEntries = entriesByDate.get(key);
     if (!dayEntries || dayEntries.length === 0) return [];
 
     const sorted = [...dayEntries];
     const limited = sorted.slice(0, 4);
-    return limited.map(e => getMoodColor((e as any).valence ?? ((e as any).mood !== undefined ? (e as any).mood - 4 : 0)));
+    const result = limited.map(e => (e.valence ?? (e.mood !== undefined ? e.mood - 4 : 0)));
+    console.log(`day ${day} values:`, result);
+    // return limited.map(e => getMoodColor((e as any).valence ?? ((e as any).mood !== undefined ? (e as any).mood - 4 : 0)));
+    return result;
   }
 
   function getDayKey(day: number): string {
@@ -174,11 +177,11 @@ let days = $derived((() => {
           {#if colors.length > 0}
             <div class="day-strips">
               {#each colors as color}
-                <div class="day-strip" style="background: {color}"></div>
+                <div class={`day-strip mood-${color+3}`}></div>
               {/each}
             </div>
           {/if}
-          <span class="day-num">{day}</span>
+          <span class="day-num">{day}</span>  
           {#if emojis.length > 0}
             <div class="event-emojis">
               {#each emojis as emoji}
