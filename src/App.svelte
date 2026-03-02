@@ -3,6 +3,7 @@
   import type { View, EmotionEntry, LoggedEvent } from './lib/types';
   import { entries } from './lib/stores/entries';
   import { events } from './lib/stores/events';
+  import './lib/stores/moodColors'; // initialises CSS vars from persisted colors
   import HomeView from './views/HomeView.svelte';
   import CheckInView from './views/CheckInView.svelte';
   import AddEventView from './views/AddEventView.svelte';
