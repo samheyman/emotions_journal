@@ -48,11 +48,9 @@
 
   let timeLabel = $derived(timeOptions.find(o => o.value === experiencedPeriod)!.label);
 
-  let todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = dateKey(new Date());
 
-  let isToday = $derived(
-    selectedDate.toISOString().slice(0, 10) === todayStr
-  );
+  let isToday = $derived(dateKey(selectedDate) === todayStr);
 
   let dateLabel = $derived(
     isToday ? 'Today' : selectedDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
@@ -88,16 +86,6 @@
     }
   }
 
-  function generateId(): string {
-    try {
-      return crypto.randomUUID();
-    } catch {
-      return Array.from(crypto.getRandomValues(new Uint8Array(16)))
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('');
-    }
-  }
-
   function save() {
     if (isEditing && editingEntry) {
       const updated: EmotionEntry = {
@@ -114,7 +102,7 @@
       entries.updateEntry(updated);
     } else {
       const entry: EmotionEntry = {
-        id: generateId(),
+        id: crypto.randomUUID(),
         loggedAt: new Date().toISOString(),
         experiencedDate: dateKey(selectedDate),
         valence,
@@ -198,6 +186,7 @@
 
   let previewEntry = $derived<EmotionEntry>({
     id: 'preview',
+    loggedAt: editingEntry?.loggedAt ?? new Date().toISOString(),
     experiencedDate: dateKey(selectedDate),
     valence,
     energy,
@@ -225,9 +214,6 @@
     const avg = matched.reduce((s, e) => s + e.valence, 0) / matched.length;
     valence = Math.round(avg);
   });
-
-
-
 
 
   let suggestions = $derived((() => {
@@ -302,7 +288,7 @@
         type="date"
         class="date-input-hidden"
         max={todayStr}
-        value={selectedDate.toISOString().slice(0, 10)}
+        value={dateKey(selectedDate)}
         onchange={onDateChange}
       />
       <div class="time-dropdown-wrapper">
@@ -337,15 +323,15 @@
     <div class="step-body">
       {#if step === 1}
         <div class="discharge-step">
-<div class="intensity-section">
+          <div class="intensity-section">
             <p class="intensity-label">How activated or calm do you feel?</p>
             <EnergySelect bind:energy onuserinput={() => energyManuallySet = true} />
           </div>
-<div class="intensity-section">
+          <div class="intensity-section">
             <p class="intensity-label">What's your mood?</p>
             <ValenceSelect bind:valence onuserinput={() => valenceManuallySet = true} />
           </div>
-<p class="intensity-label">What's on your mind?</p>
+          <p class="intensity-label">What's on your mind?</p>
           <textarea
             bind:value={note}
             placeholder="I am tired and am snapping at everyone..."
@@ -353,10 +339,6 @@
             maxlength="500"
           ></textarea>
           <span class="char-count" class:visible={note.length > 0}>{note.length}/500</span>
-
-          
-          
-
         </div>
       {:else if step === 2}
         <div class="emotions-section">
@@ -685,12 +667,6 @@
     align-items: baseline;
   }
 
-  .intensity-value {
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--text-muted);
-  }
-
   .emotions-section {
     margin-top: var(--space-sm);
   }
@@ -725,12 +701,6 @@
   .emotion-tag:active {
     opacity: 0.7;
   }
-
-  /* .emotion-tag.primary {
-    border-color: var(--text-secondary);
-    color: var(--text-primary);
-    font-weight: 500;
-  } */
 
   .emotion-tag.manual {
     border-color: var(--text-secondary);
@@ -852,14 +822,7 @@
   }
 
   .btn-primary:hover {
-    background: #b8785f;
-  }
-
-  .btn-secondary {
-    background: var(--bg-subtle);
-    color: var(--text-secondary);
-    flex: 0;
-    white-space: nowrap;
+    background: var(--accent-soft);
   }
 
   .btn.full-width {
