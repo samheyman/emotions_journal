@@ -23,7 +23,7 @@
 **Key files:**
 - `src/lib/services/embeddingService.ts` -- model loading, embedding, similarity
 - `src/lib/data/emotionsWithValenceAndEnergy.ts` -- 70 emotions with pre-computed q8 embeddings
-- `src/lib/emotions.ts` -- extractEmotions (sync), extractEmotionsSemantic (async)
+- `src/lib/data/emotions.ts` -- extractEmotions (sync), extractEmotionsSemantic (async)
 - `src/lib/types.ts` -- Emotion type with embedding field
 - `scripts/generate-embeddings.mjs` -- embedding generation script
 

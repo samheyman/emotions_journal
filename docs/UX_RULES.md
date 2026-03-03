@@ -14,4 +14,4 @@ Four steps, navigated with Next/Back buttons:
 3. **Triggers / Context** -- pick 0+ context tags
 4. **Preview** -- see full entry card, then Save
 
-Each step is a section within `CheckInView.svelte`. The view manages a `step` variable (0-3) and renders the appropriate component.
+Each step is a section within `CheckInView.svelte`. The view manages a `step` variable (1-4) and renders the appropriate UI inline.

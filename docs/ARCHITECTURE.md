@@ -14,32 +14,6 @@
 | PWA        | manifest.json + service worker | Installable, offline-capable                                         |
 | Embeddings | @huggingface/transformers      | Runs ONNX models via WebAssembly in-browser, no server needed        |
 
-## Component Architecture
-
-```
-App.svelte (root -- manages current view, renders NavBar)
-|
-+-- NavBar.svelte
-|
-+-- Views
-|   +-- HomeView.svelte
-|   |   +-- Timeline.svelte
-|   |   |   +-- EntryCard.svelte
-|   |   +-- Calendar.svelte
-|   |
-|   +-- CheckInView.svelte
-|   |   +-- Step 1: NoteInput + ValenceSelect + EnergySelect
-|   |   +-- Step 2: EmotionPicker (primary/secondary groups)
-|   |   +-- Step 3: TagPicker
-|   |   +-- Step 4: EntryCard (preview) + Save
-|   |
-|   +-- TrendsView.svelte
-|       +-- MoodChart.svelte
-|
-+-- Services
-    +-- embeddingService.ts (model loading, warmup, embedText, findSimilarEmotions)
-```
-
 ## File Structure
 
 ```
@@ -57,35 +31,116 @@ emotions-log/
 +-- scripts/
 |   +-- generate-embeddings.mjs  (Node.js script to regenerate emotion embeddings)
 +-- src/
-    +-- main.ts
-    +-- app.css                  (design tokens + global resets)
-    +-- App.svelte
+    +-- main.ts                  (app entry point, PWA service worker registration)
+    +-- App.svelte               (root: view routing, bottom nav bar)
+    +-- styles/
+    |   +-- global.css           (design tokens: colors, spacing, typography, mood CSS vars)
     +-- lib/
-    |   +-- types.ts             (EmotionEntry, Emotion interfaces)
-    |   +-- store.ts             (localStorage CRUD + reactive state)
+    |   +-- types.ts             (all TypeScript interfaces: EmotionEntry, LoggedEvent, EventType, etc.)
     |   +-- data/
-    |   |   +-- emotionsWithValenceAndEnergy.ts  (70 emotions with pre-computed q8 embeddings)
-    |   +-- emotions.ts          (extractEmotions sync keyword+proximity, extractEmotionsSemantic async)
-    |   +-- tags.ts              (predefined tag list)
-    |   +-- export.ts            (JSON export utility)
+    |   |   +-- emotions.ts      (extractEmotions sync, extractEmotionsSemantic async, moodOptions, synonyms)
+    |   |   +-- emotionsWithValenceAndEnergy.ts  (70 emotions with valence/energy coords + 384-dim embeddings)
+    |   |   +-- eventTypes.ts    (default event type definitions)
+    |   |   +-- icons.ts         (Lucide icon name mappings)
+    |   |   +-- tags.ts          (predefined context tag list)
+    |   +-- stores/
+    |   |   +-- entries.ts       (EmotionEntry CRUD, localStorage-backed Svelte store)
+    |   |   +-- events.ts        (LoggedEvent CRUD, localStorage-backed Svelte store)
+    |   |   +-- eventTypes.ts    (EventType CRUD + visibility, localStorage-backed Svelte store)
+    |   |   +-- moodColors.ts    (mood color customization, persists to localStorage, applies CSS vars)
     |   +-- services/
-    |       +-- embeddingService.ts  (model loading, warmup, embedText, findSimilarEmotions, cosineSimilarity)
-    +-- components/
-    |   +-- NavBar.svelte
-    |   +-- ValenceSelect.svelte
-    |   +-- EnergySelect.svelte
-    |   +-- EmotionPicker.svelte
-    |   +-- TagPicker.svelte
-    |   +-- NoteInput.svelte
-    |   +-- EntryCard.svelte
-    |   +-- Timeline.svelte
-    |   +-- Calendar.svelte
-    |   +-- MoodChart.svelte
-    +-- views/
-        +-- HomeView.svelte
-        +-- CheckInView.svelte
-        +-- TrendsView.svelte
+    |   |   +-- embeddingService.ts  (ONNX model loading, warmup, embedText, findSimilarEmotions)
+    |   +-- utils/
+    |       +-- dates.ts         (date parsing, formatting, dateKey, localDate helpers)
+    |       +-- export.ts        (JSON export to file)
+    |       +-- import.ts        (JSON import + validation)
+    +-- components/              (reusable UI components)
+    |   +-- Calendar.svelte      (monthly calendar grid with mood-colored day cells)
+    |   +-- EnergySelect.svelte  (energy level selector, -3 to +3)
+    |   +-- EntryCard.svelte     (displays a single emotion entry)
+    |   +-- EventCard.svelte     (displays a single logged event)
+    |   +-- EventIcon.svelte     (renders a Lucide icon or emoji by name)
+    |   +-- MoodChart.svelte     (Chart.js mood trend line chart)
+    |   +-- NoteInput.svelte     (textarea with char count)
+    |   +-- TagPicker.svelte     (context tag multi-select)
+    |   +-- Timeline.svelte      (day-level entry/event list with day navigation)
+    |   +-- ValenceSelect.svelte (valence selector, -3 to +3)
+    +-- views/                   (page-level components, one per screen)
+        +-- HomeView.svelte           (monthly journal feed, grouped by day, FAB)
+        +-- CheckInView.svelte        (4-step emotion check-in form)
+        +-- AddEventView.svelte       (log a life event)
+        +-- TrendsView.svelte         (mood chart + event frequency stats)
+        +-- SettingsView.svelte       (settings hub, navigates to sub-pages)
+        +-- SettingsDataView.svelte   (export / import JSON)
+        +-- SettingsMoodColorsView.svelte  (customize positive/neutral/negative colors)
+        +-- SettingsEventTypesView.svelte  (create and manage custom event types)
 ```
+
+## Component Architecture
+
+```
+App.svelte  (root -- manages currentView state, renders bottom nav inline)
+|
++-- Views (mutually exclusive, driven by currentView)
+|   +-- HomeView.svelte          (default -- "Journal" tab)
+|   |   +-- EntryCard.svelte
+|   |   +-- EventCard.svelte
+|   |       +-- EventIcon.svelte
+|   |
+|   +-- Calendar.svelte          ("Calendar" tab)
+|   |   +-- EntryCard.svelte
+|   |   +-- EventCard.svelte
+|   |
+|   +-- TrendsView.svelte        ("Trends" tab)
+|   |   +-- MoodChart.svelte
+|   |
+|   +-- SettingsView.svelte      ("Settings" tab, internal page state: hub | data | moodColors | eventTypes)
+|   |   +-- SettingsDataView.svelte
+|   |   +-- SettingsMoodColorsView.svelte
+|   |   +-- SettingsEventTypesView.svelte
+|   |
+|   +-- CheckInView.svelte       (full-screen form, no nav bar)
+|   |   +-- ValenceSelect.svelte
+|   |   +-- EnergySelect.svelte
+|   |   +-- TagPicker.svelte
+|   |   +-- EntryCard.svelte     (step 4 preview)
+|   |
+|   +-- AddEventView.svelte      (full-screen form, no nav bar)
+|       +-- EventIcon.svelte
+|
++-- Timeline.svelte              (used standalone in Calendar view for day detail)
+    +-- EntryCard.svelte
+    +-- EventCard.svelte
+```
+
+**Navigation note:** `CheckInView` and `AddEventView` hide the bottom nav bar while active. All other views show it. The browser back button is intercepted to return to `home` rather than exit the app.
+
+**Settings note:** `SettingsView` manages its own internal `page` state (`'hub' | 'data' | 'moodColors' | 'eventTypes'`) rather than adding sub-routes to the top-level `View` type. Sub-pages are rendered in-place with a back button.
+
+## Stores
+
+Each store is a Svelte 4 `writable` with a custom interface. All stores auto-persist to localStorage on every update.
+
+| Store | localStorage key | Interface |
+|-------|-----------------|-----------|
+| `entries` | `emotions-log-entries` | `add`, `remove`, `updateEntry`, `importEntries`, `clear` |
+| `events` | `emotions-log-events` | `add`, `remove`, `updateEvent`, `importEvents`, `clear` |
+| `eventTypes` | `emotions-log-event-types` | `addEventType`, `removeEventType`, `setVisibility`, `setEmoji` |
+| `moodColors` | `emotions-log-mood-colors` | `setPositive`, `setNeutral`, `setNegative` |
+
+**Important:** `moodColors` has a side effect on import -- it reads the persisted colors and sets `--mood-positive`, `--mood-neutral`, `--mood-negative` CSS variables on `document.documentElement`. This is why `App.svelte` imports it explicitly (`import './lib/stores/moodColors'`) even though no store value is used directly there. Do not remove that import.
+
+## Mood Color System
+
+Mood colors are applied via CSS classes on entry cards (`mood-0` through `mood-6`, where 0 = valence -3 and 6 = valence +3). The classes are defined in `tokens.css` and reference the three base CSS variables:
+
+```css
+--mood-negative  (valence -3, default #fd7369)
+--mood-neutral   (valence  0, default #ffffff)
+--mood-positive  (valence +3, default #4caf50)
+```
+
+Intermediate steps use `color-mix(in oklch, var(--mood-X) N%, white)` to produce tints. The `moodColors` store overrides the base variables at runtime when the user changes their color preferences in Settings.
 
 ## Embedding / Semantic Matching Architecture
 
@@ -137,14 +192,17 @@ User types text + selects valence/energy
 
 - `warmup()` -- begins lazy-loading the quantized model in background when check-in view opens
 - `embedText(text)` -- computes a 384-dim embedding for arbitrary text
-- `findSimilarEmotions(text, emotions, topK)` -- returns the top-K emotions by cosine similarity to the input text
+- `findSimilarEmotions(text, topK)` -- returns the top-K emotions by cosine similarity to the input text
 - `cosineSimilarity(a, b)` -- dot product of two normalized vectors
-- `embeddingReady` -- reactive state that indicates when the model is loaded and semantic matching is available
+- `isReady()` -- returns true if the model is loaded and semantic matching is available
+- `onReady(cb)` -- registers a callback to run when the model finishes loading
 
-### Key Data Module: `emotions.ts`
+### Key Data Module: `lib/data/emotions.ts`
 
 - `extractEmotions(text, valence, energy)` -- synchronous keyword + proximity matching (Tier 1 + 2)
 - `extractEmotionsSemantic(text, valence, energy)` -- async wrapper that includes semantic matching (Tier 3) when the model is ready
+- `getMoodColor(value)` -- returns the HSL color for a valence value -3..+3 (used by ValenceSelect, EnergySelect)
+- `getMoodOption(value)` -- returns the full `MoodOption` object for a valence value
 
 ## PWA Setup
 
