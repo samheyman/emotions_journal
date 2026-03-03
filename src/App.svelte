@@ -9,6 +9,7 @@
   import AddEventView from './views/AddEventView.svelte';
   import TrendsView from './views/TrendsView.svelte';
   import SettingsView from './views/SettingsView.svelte';
+  import Calendar from './components/Calendar.svelte';
 
   let currentView: View = $state('home');
   let editingEntry: EmotionEntry | undefined = $state(undefined);
@@ -64,6 +65,8 @@
       <CheckInView onComplete={finishCheckIn} onCancel={finishCheckIn} editingEntry={editingEntry} />
     {:else if currentView === 'addevent'}
       <AddEventView onComplete={finishEvent} onCancel={finishEvent} editingEvent={editingEvent} />
+    {:else if currentView === 'calendar'}
+      <Calendar entries={$entries} events={$events} onDelete={(id) => entries.remove(id)} onDeleteEvent={(id) => events.remove(id)} onEdit={startEdit} onEditEvent={startEditEvent} />
     {:else if currentView === 'trends'}
       <TrendsView />
     {:else if currentView === 'settings'}
@@ -84,6 +87,17 @@
           <path d="M9 19v-6h6v6"/>
         </svg>
         <span>Journal</span>
+      </button>
+
+      <button
+        class="nav-item"
+        class:active={currentView === 'calendar'}
+        onclick={() => navigate('calendar')}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span>Calendar</span>
       </button>
 
       <button

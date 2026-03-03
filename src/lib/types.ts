@@ -18,7 +18,7 @@ export interface EmotionEntry {
   experiencedPeriod?: ExperiencedPeriod;
 }
 
-export type View = "home" | "checkin" | "addevent" | "trends" | "settings";
+export type View = "home" | "checkin" | "addevent" | "trends" | "settings" | "calendar";
 
 export interface EventType {
   id: string;

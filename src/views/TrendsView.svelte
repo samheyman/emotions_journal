@@ -15,14 +15,24 @@
     { value: '3month', label: '3 months' },
   ];
 
-  let totalEntries = $derived($entries.length);
+  let cutoffDate = $derived((() => {
+    const days = range === 'week' ? 7 : range === 'month' ? 30 : 90;
+    const d = new Date();
+    d.setDate(d.getDate() - days);
+    return d.toISOString().slice(0, 10);
+  })());
+
+  let rangedEntries = $derived($entries.filter(e => e.experiencedDate >= cutoffDate));
+  let rangedEvents = $derived($events.filter(e => e.eventDate >= cutoffDate));
+
+  let totalEntries = $derived(rangedEntries.length);
   let avgMood = $derived((() => {
-    if ($entries.length === 0) return 0;
-    return Math.round(($entries.reduce((s, e: any) => {
+    if (rangedEntries.length === 0) return 0;
+    return Math.round((rangedEntries.reduce((s, e: any) => {
       if (typeof e.valence === 'number' && !isNaN(e.valence)) return s + e.valence;
       if (typeof e.mood === 'number' && !isNaN(e.mood)) return s + (e.mood - 4);
       return s;
-    }, 0) / $entries.length) * 10) / 10;
+    }, 0) / rangedEntries.length) * 10) / 10;
   })());
 
   interface EventStat {
@@ -37,7 +47,7 @@
   let eventStats = $derived((() => {
     const stats: EventStat[] = [];
     for (const type of $eventTypes) {
-      const typeEvents = $events.filter(e => e.typeId === type.id);
+      const typeEvents = rangedEvents.filter(e => e.typeId === type.id);
       if (typeEvents.length === 0) continue;
 
       const sorted = [...typeEvents].sort(
@@ -77,6 +87,18 @@
     <h1 class="title">Trends</h1>
   </header>
 
+  <div class="range-toggle">
+    {#each ranges as r}
+      <button
+        class="range-btn"
+        class:active={range === r.value}
+        onclick={() => range = r.value}
+      >
+        {r.label}
+      </button>
+    {/each}
+  </div>
+
   <div class="trends-tabs">
     <button
       class="trends-tab"
@@ -100,18 +122,6 @@
         <span class="stat-value" style="color: var(--accent)">{avgMood > 0 ? '+' : ''}{avgMood}</span>
         <span class="stat-label">avg mood</span>
       </div>
-    </div>
-
-    <div class="range-toggle">
-      {#each ranges as r}
-        <button
-          class="range-btn"
-          class:active={range === r.value}
-          onclick={() => range = r.value}
-        >
-          {r.label}
-        </button>
-      {/each}
     </div>
 
     <div class="chart-section">
