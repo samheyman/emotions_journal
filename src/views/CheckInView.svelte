@@ -130,14 +130,14 @@
   onReady(() => embeddingReady = true);
 
   let extractResult = $derived(extractEmotions(note, valence, energy));
-  let rawInferredEmotions = $derived(extractResult.results);
-  let textMatchedSet = $derived(new Set(extractResult.textMatched));
+  let rawInferredEmotions = $derived(isEditing ? [] : extractResult.results);
+  let textMatchedSet = $derived(isEditing ? new Set<string>() : new Set(extractResult.textMatched));
   let semanticEmotions: string[] = $state([]);
   let semanticMatchedSet: Set<string> = $state(new Set());
 
-  // Run semantic extraction when model is ready or inputs change
+  // Run semantic extraction when model is ready or inputs change (new entries only)
   $effect(() => {
-    if (!embeddingReady || note.trim().length < 3) {
+    if (isEditing || !embeddingReady || note.trim().length < 3) {
       semanticEmotions = [];
       semanticMatchedSet = new Set();
       return;
