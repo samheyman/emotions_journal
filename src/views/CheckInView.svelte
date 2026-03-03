@@ -72,8 +72,6 @@
 
   const totalSteps = 4;
 
-  let canProceed = $derived(true);
-
   function next() {
     if (step < totalSteps) {
       step++;
@@ -87,14 +85,6 @@
       step--;
     } else {
       onCancel();
-    }
-  }
-
-  function skip() {
-    if (step < totalSteps) {
-      step++;
-    } else {
-      save();
     }
   }
 
@@ -276,7 +266,6 @@
     }
   }
 
-  let isOptionalStep = $derived(false);
 </script>
 
 <div class="checkin">

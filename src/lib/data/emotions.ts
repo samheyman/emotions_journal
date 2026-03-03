@@ -44,9 +44,6 @@ export function getMoodOption(value: number): MoodOption {
   return moodOptions.find((m) => m.value === value) ?? moodOptions[3];
 }
 
-export function getMoodLabel(value: number): string {
-  return getMoodOption(value).label;
-}
 
 export function getMoodColor(value: number): string {
   return getMoodOption(value).color;

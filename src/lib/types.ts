@@ -38,8 +38,6 @@ export interface LoggedEvent {
   note?: string;
 }
 
-export type HomeTab = "timeline" | "calendar";
-
 export type TrendRange = "week" | "month" | "3month";
 
 export interface MoodOption {
