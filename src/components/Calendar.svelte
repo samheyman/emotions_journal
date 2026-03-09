@@ -2,7 +2,6 @@
   import type { EmotionEntry, LoggedEvent } from '../lib/types';
   import { getDaysInMonth, getFirstDayOfMonth, formatMonthYear, dateKey, formatDate } from '../lib/utils/dates';
   import EventIcon from './EventIcon.svelte';
-  import { getMoodColor } from '../lib/data/emotions';
   import { eventTypes } from '../lib/stores/eventTypes';
   import EntryCard from './EntryCard.svelte';
   import EventCard from './EventCard.svelte';
@@ -99,9 +98,13 @@ let days = $derived((() => {
 
     const sorted = [...dayEntries];
     const limited = sorted.slice(0, 4);
-    const result = limited.map(e => (e.valence ?? (e.mood !== undefined ? e.mood - 4 : 0)));
-    console.log(`day ${day} values:`, result);
-    // return limited.map(e => getMoodColor((e as any).valence ?? ((e as any).mood !== undefined ? (e as any).mood - 4 : 0)));
+    // New entries: energy 0..6. Old: valence -3..+3 → +3. Very old: mood 1..7 → -1.
+    const result = limited.map((e: any) => {
+      if (typeof e.energy === 'number') return e.energy;
+      if (typeof e.valence === 'number') return e.valence + 3;
+      if (typeof e.mood === 'number') return e.mood - 1;
+      return 3;
+    });
     return result;
   }
 
@@ -177,7 +180,7 @@ let days = $derived((() => {
           {#if colors.length > 0}
             <div class="day-strips">
               {#each colors as color}
-                <div class={`day-strip mood-${color+3}`}></div>
+                <div class={`day-strip energy-${color}`}></div>
               {/each}
             </div>
           {/if}

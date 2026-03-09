@@ -1,52 +1,51 @@
-import type { MoodOption } from "../types";
+import type { EnergyOption } from "../types";
 import { EMOTIONS } from "./emotionsWithValenceAndEnergy";
 import { findSimilarEmotions, isReady } from "../services/embeddingService";
 
-export const moodOptions: MoodOption[] = [
+export const energyOptions: EnergyOption[] = [
   {
-    value: 3,
-    label: "Amazing / Buzzing",
+    value: 6,
+    label: "Strong / Energetic",
     color: "hsl(145, 45%, 72%)",
   },
   {
-    value: 2,
-    label: "Happy Energetic",
+    value: 5,
+    label: "Good",
     color: "hsl(135, 40%, 78%)",
   },
   {
-    value: 1,
-    label: "Calm / Pleasant",
+    value: 4,
+    label: "Slightly energised",
     color: "hsl(125, 30%, 84%)",
   },
   {
-    value: 0,
-    label: "So-so / Neutral",
+    value: 3,
+    label: "OK / Neutral",
     color: "hsl(0, 0%, 95%)",
   },
   {
-    value: -1,
-    label: "Down / Unsettled",
+    value: 2,
+    label: "Sluggish",
     color: "hsl(20, 35%, 84%)",
   },
   {
-    value: -2,
-    label: "Bad / Low",
+    value: 1,
+    label: "Tired",
     color: "hsl(15, 40%, 78%)",
   },
   {
-    value: -3,
-    label: "Very low / Depressed",
+    value: 0,
+    label: "Completely drained",
     color: "hsl(10, 45%, 72%)",
   },
 ];
 
-export function getMoodOption(value: number): MoodOption {
-  return moodOptions.find((m) => m.value === value) ?? moodOptions[3];
+export function getEnergyOption(value: number): EnergyOption {
+  return energyOptions.find((m) => m.value === value) ?? energyOptions[3];
 }
 
-
-export function getMoodColor(value: number): string {
-  return getMoodOption(value).color;
+export function getEnergyColor(value: number): string {
+  return getEnergyOption(value).color;
 }
 
 // All emotion names from the EMOTIONS list (for autocomplete)
@@ -243,31 +242,17 @@ const synonyms: Record<string, string> = {
   hollow: "Empty",
 };
 
-// Build a lookup from lowercase name to EMOTIONS entry for fast matching
-const emotionByName = new Map(EMOTIONS.map((e) => [e.name.toLowerCase(), e]));
-
 /**
- * Calculate Euclidean distance between two points
- */
-function distance(v1: number, e1: number, v2: number, e2: number): number {
-  return Math.sqrt((v1 - v2) ** 2 + (e1 - e2) ** 2);
-}
-
-/**
- * Extract emotions from free text + valence/energy position (sync, instant).
- *
- * 1. Text match: scan for emotion names and synonyms
- * 2. Proximity fill: suggest closest emotions to (valence, energy) that weren't text-matched
+ * Extract emotions from free text (sync, instant).
+ * Scans for emotion names and synonyms.
  */
 export function extractEmotions(
   text: string,
-  valence: number,
-  energy: number = 0,
 ): { results: string[]; textMatched: string[] } {
   const lower = text.toLowerCase();
   const textMatchedSet = new Set<string>();
 
-  // Step 1a: Direct matches against EMOTIONS names
+  // Direct matches against EMOTIONS names
   for (const emotion of EMOTIONS) {
     const regex = new RegExp(`\\b${emotion.name}\\b`, "i");
     if (regex.test(lower)) {
@@ -275,47 +260,15 @@ export function extractEmotions(
     }
   }
 
-  // Step 1b: Synonym/phrase matches
+  // Synonym/phrase matches
   for (const [phrase, emotionName] of Object.entries(synonyms)) {
     if (lower.includes(phrase)) {
       textMatchedSet.add(emotionName);
     }
   }
 
-  // Step 2: Proximity suggestions — fill remaining slots with closest emotions
-  const maxTotal = 5;
-  const results = [...textMatchedSet].slice(0, maxTotal);
+  const results = [...textMatchedSet].slice(0, 5);
   const textMatched = [...textMatchedSet];
-
-  if (results.length < maxTotal && (valence !== 0 || energy !== 0)) {
-    // Determine sentiment from text matches to filter proximity suggestions
-    const matchedEmotions = [...textMatchedSet]
-      .map((name) => emotionByName.get(name.toLowerCase()))
-      .filter(Boolean);
-    const avgMatchedValence =
-      matchedEmotions.length > 0
-        ? matchedEmotions.reduce((s, e) => s + e!.valence, 0) /
-          matchedEmotions.length
-        : 0;
-
-    const ranked = EMOTIONS.filter((e) => {
-      if (textMatchedSet.has(e.name)) return false;
-      // If text matches are clearly positive/negative, don't suggest contradicting emotions
-      if (avgMatchedValence >= 1 && e.valence < 0) return false;
-      if (avgMatchedValence <= -1 && e.valence > 0) return false;
-      return true;
-    })
-      .map((e) => ({
-        name: e.name,
-        dist: distance(valence, energy, e.valence, e.energy),
-      }))
-      .sort((a, b) => a.dist - b.dist);
-
-    for (const r of ranked) {
-      if (results.length >= maxTotal) break;
-      results.push(r.name);
-    }
-  }
 
   return { results, textMatched };
 }
@@ -326,11 +279,9 @@ export function extractEmotions(
  */
 export async function extractEmotionsSemantic(
   text: string,
-  valence: number,
-  energy: number = 0,
 ): Promise<{ results: string[]; semanticMatched: string[] }> {
   // Always start with keyword matches
-  const keywordResults = extractEmotions(text, valence, energy);
+  const keywordResults = extractEmotions(text);
 
   // If model isn't ready or text is too short, return keyword results
   if (!isReady() || text.trim().length < 3) {

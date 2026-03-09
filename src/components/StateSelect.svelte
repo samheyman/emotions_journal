@@ -2,17 +2,17 @@
   import { getEnergyColor } from '../lib/data/emotions';
 
   let {
-    energy = $bindable(3),
+    nsState = $bindable(0),
     onuserinput,
   }: {
-    energy: number;
+    nsState: number;
     onuserinput?: () => void;
   } = $props();
 
-  let trackColor = $derived(getEnergyColor(energy));
+  let trackColor = $derived(getEnergyColor(nsState));
 
   function oninput(e: Event) {
-    energy = Number((e.target as HTMLInputElement).value);
+    nsState = Number((e.target as HTMLInputElement).value);
     onuserinput?.();
   }
 </script>
@@ -23,16 +23,16 @@
     min="0"
     max="6"
     step="1"
-    value={energy}
+    value={nsState}
     {oninput}
     style="--thumb-color: {trackColor}"
   />
   <div class="labels">
-    <span class="label">Drained</span>
-    <span class="label">Sluggish</span>
-    <span class="label">OK</span>
-    <span class="label">Good</span>
-    <span class="label">Energetic</span>
+    <span class="label">Shutdown</span>
+    <span class="label">Calm</span>
+    <span class="label">Tense</span>
+    <span class="label">Agitated</span>
+    <span class="label">Explosive</span>
   </div>
 </div>
 

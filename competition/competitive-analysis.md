@@ -17,6 +17,7 @@ The emotions and mood tracking market is mature and competitive, with five major
 - **Moodistry**: Privacy-focused, Apple-exclusive minimalist tracker
 - **Bearable**: Chronic illness management with comprehensive symptom tracking
 - **Apple Mental Health**: Mainstream wellness integrated into iOS ecosystem
+- **Neurofit**: the only app that goes into nervous system state, window of tolerance, somatic awareness — $300 and positioned as a practitioner tool.
 
 ---
 

@@ -3,8 +3,8 @@
   import EntryCard from '../components/EntryCard.svelte';
   import { entries } from '../lib/stores/entries';
   import type { EmotionEntry, ExperiencedPeriod } from '../lib/types';
-  import ValenceSelect from '../components/ValenceSelect.svelte';
   import EnergySelect from '../components/EnergySelect.svelte';
+  import StateSelect from '../components/StateSelect.svelte';
   import { extractEmotions, extractEmotionsSemantic, getAllEmotionWords } from '../lib/data/emotions';
   import { EMOTIONS } from '../lib/data/emotionsWithValenceAndEnergy';
   import { warmup, isReady, onReady } from '../lib/services/embeddingService';
@@ -24,10 +24,10 @@
   let isEditing = editingEntry !== undefined;
 
   let step = $state(1);
-  let valence = $state(editingEntry?.valence ?? 0);
-  let valenceManuallySet = $state(isEditing);
   let energy = $state(editingEntry?.energy ?? 0);
   let energyManuallySet = $state(isEditing);
+  let nsState = $state(editingEntry?.nsState ?? 0);
+  let nsStateManuallySet = $state(isEditing);
   let selectedTags: string[] = $state(editingEntry?.tags ?? []);
   let note = $state(editingEntry?.note ?? '');
   let selectedDate = $state(editingEntry ? (() => {
@@ -92,8 +92,8 @@
         ...editingEntry,
         updatedAt: new Date().toISOString(),
         experiencedDate: dateKey(selectedDate),
-        valence,
         energy,
+        nsState,
         emotions: allEmotions,
         tags: selectedTags,
         note,
@@ -105,8 +105,8 @@
         id: crypto.randomUUID(),
         loggedAt: new Date().toISOString(),
         experiencedDate: dateKey(selectedDate),
-        valence,
         energy,
+        nsState,
         emotions: allEmotions,
         tags: selectedTags,
         note,
@@ -118,7 +118,7 @@
   }
 
   let stepTitle = $derived(
-    step === 1 ? (isEditing ? "Edit entry" : (isToday ? "How are you?" : "What was on your mind?")) :
+    step === 1 ? (isEditing ? "Edit entry" : (isToday ? "Checkin" : "What was on your mind?")) :
     step === 2 ? 'Emotional landscape' :
     step === 3 ? 'Triggers / Context' :
     'Preview'
@@ -129,7 +129,7 @@
   let embeddingReady = $state(isReady());
   onReady(() => embeddingReady = true);
 
-  let extractResult = $derived(extractEmotions(note, valence, energy));
+  let extractResult = $derived(extractEmotions(note));
   let rawInferredEmotions = $derived(isEditing ? [] : extractResult.results);
   let textMatchedSet = $derived(isEditing ? new Set<string>() : new Set(extractResult.textMatched));
   let semanticEmotions: string[] = $state([]);
@@ -142,11 +142,8 @@
       semanticMatchedSet = new Set();
       return;
     }
-    // Read reactive deps
     const currentNote = note;
-    const currentValence = valence;
-    const currentEnergy = energy;
-    extractEmotionsSemantic(currentNote, currentValence, currentEnergy).then(({ results, semanticMatched }) => {
+    extractEmotionsSemantic(currentNote).then(({ results, semanticMatched }) => {
       semanticEmotions = results;
       semanticMatchedSet = new Set(semanticMatched);
     });
@@ -188,31 +185,31 @@
     id: 'preview',
     loggedAt: editingEntry?.loggedAt ?? new Date().toISOString(),
     experiencedDate: dateKey(selectedDate),
-    valence,
     energy,
+    nsState,
     emotions: allEmotions,
     tags: selectedTags,
     note,
     experiencedPeriod,
   });
 
-  // Auto-adjust valence if user hasn't manually set sliders, based on text matches
+  // Auto-adjust body energy if user hasn't manually set it, based on text matches
   $effect(() => {
     const currentNote = note;
-    if (valenceManuallySet || currentNote.trim().length === 0) return;
+    if (energyManuallySet || currentNote.trim().length === 0) return;
 
     // Only auto-adjust based on keyword/synonym matches, not proximity fills
-    const { textMatched } = extractEmotions(currentNote, 0, 0);
+    const { textMatched } = extractEmotions(currentNote);
     if (textMatched.length === 0) return;
 
-    // Snap valence to the average valence of matched emotions
+    // Snap energy to the average valence of matched emotions (shifted to 0..6)
     const matched = textMatched
       .map(name => EMOTIONS.find(e => e.name === name))
       .filter((e): e is NonNullable<typeof e> => e != null);
     if (matched.length === 0) return;
 
     const avg = matched.reduce((s, e) => s + e.valence, 0) / matched.length;
-    valence = Math.round(avg);
+    energy = Math.max(0, Math.min(6, Math.round(avg) + 3));
   });
 
 
@@ -276,7 +273,11 @@
   </header>
 
   <div class="step-content">
-    <div class="date-row">
+  <h2 class="step-title">{stepTitle}</h2>
+    
+    <div class="step-body">
+      {#if step === 1}
+      <div class="date-row">
       <button class="date-chip" class:past={!isToday} onclick={openDatePicker}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
@@ -317,20 +318,17 @@
           </div>
         {/if}
       </div>
-    </div>
-    <h2 class="step-title">{stepTitle}</h2>
-
-    <div class="step-body">
-      {#if step === 1}
+    </div>  
         <div class="discharge-step">
-          <div class="intensity-section">
-            <p class="intensity-label">How activated or calm do you feel?</p>
+         <div class="intensity-section">
+            <p class="intensity-label">Energy level</p>
             <EnergySelect bind:energy onuserinput={() => energyManuallySet = true} />
           </div>
           <div class="intensity-section">
-            <p class="intensity-label">What's your mood?</p>
-            <ValenceSelect bind:valence onuserinput={() => valenceManuallySet = true} />
+            <p class="intensity-label">Nervous system</p>
+            <StateSelect bind:nsState onuserinput={() => nsStateManuallySet = true} />
           </div>
+         
           <p class="intensity-label">What's on your mind?</p>
           <textarea
             bind:value={note}
@@ -490,7 +488,8 @@
     justify-content: space-between;
     align-items: center;
     gap: var(--space-sm);
-    margin-bottom: var(--space-sm);
+    margin-top: var(--space-md);
+    /* margin-bottom: var(--space-xl); */
   }
 
   .date-chip {
@@ -653,8 +652,8 @@
   }
 
   .intensity-section {
-    margin-top: var(--space-xl);
-    margin-bottom: var(--space-xl);
+    margin-top: var(--space-2xl);
+    margin-bottom: var(--space-2xl);
   }
 
   .intensity-label {

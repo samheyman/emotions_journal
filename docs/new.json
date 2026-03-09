@@ -1,0 +1,1142 @@
+{
+  "metadata": {
+    "exportedAt": "2026-03-07T11:45:25.021Z",
+    "appVersion": "0.1.1",
+    "timezone": "Europe/Oslo",
+    "valence_scale": "-3 to +3",
+    "energy_scale": "-3 to +3"
+  },
+  "entries": [
+    {
+      "id": "58f542a1-c8cf-4e9f-a254-338c11fef784",
+      "loggedAt": "2026-03-07T06:26:30.062Z",
+      "experiencedDate": "2026-03-07",
+      "energy": 2,
+      "nsState": 0,
+      "emotions": [
+        "Drained",
+        "Exhausted",
+        "Numb",
+        "Tired",
+        "Flat",
+        "Empty",
+        "Restless"
+      ],
+      "tags": [
+        "kids's demands",
+        "family",
+        "overwhelmed",
+        "poor sleep",
+        "conflict"
+      ],
+      "note": "Woke up feeling drained and with no energy.",
+      "experiencedPeriod": "morning",
+      "updatedAt": "2026-03-07T06:39:06.666Z"
+    },
+    {
+      "id": "9454c460-2f22-4355-b812-64796c3dbc5c",
+      "loggedAt": "2026-03-06T12:25:55.021Z",
+      "experiencedDate": "2026-03-06",
+      "energy": 3,
+      "nsState": 2,
+      "emotions": ["Warm", "Calm", "Uncertain", "Empty"],
+      "tags": [],
+      "note": "Simple check in ",
+      "experiencedPeriod": "morning",
+      "updatedAt": "2026-03-06T12:26:04.074Z"
+    },
+    {
+      "id": "e6e435fd-caa6-4103-a44c-a2019989fcfb",
+      "loggedAt": "2026-03-05T19:33:02.921Z",
+      "experiencedDate": "2026-03-05",
+      "energy": 0,
+      "nsState": 5,
+      "emotions": ["Irritated", "Frustrated", "Furious", "Overwhelmed"],
+      "tags": ["kids's demands", "sex/intimacy"],
+      "note": "Snapped at Scott and pushed him aside hurting his forehead. Angry when going to bed because Eline just worked and then got up and went to bed.",
+      "experiencedPeriod": "allday",
+      "updatedAt": "2026-03-06T12:27:38.951Z"
+    },
+    {
+      "id": "1f817add-b515-4e76-ac56-f961e4c8c172",
+      "loggedAt": "2026-03-04T22:04:46.774Z",
+      "experiencedDate": "2026-03-04",
+      "energy": 2,
+      "nsState": 4,
+      "emotions": ["Calm", "Cheerful", "Confident", "Relaxed"],
+      "tags": ["outdoors", "family"],
+      "note": "Felt reasonably calm all day, read Mme Bovary, spoke to Jamie and papa. Had coffee with Mariia, went to collect Aila with Eline and Scott ",
+      "experiencedPeriod": "morning",
+      "updatedAt": "2026-03-04T22:05:05.152Z"
+    },
+    {
+      "id": "4f408fbf-6e34-4d0f-bc68-8b3fe33400c7",
+      "loggedAt": "2026-03-04T22:02:43.012Z",
+      "experiencedDate": "2026-03-04",
+      "energy": 2,
+      "nsState": 5,
+      "emotions": ["Tired", "Anxious", "Restless"],
+      "tags": ["kids's demands"],
+      "note": "Feeling tired and agitated, heart palpitations, head ringing, feeling dizzy, had a nap after dinner, feeling tired all evening.",
+      "experiencedPeriod": "evening"
+    },
+    {
+      "id": "f384e56d-143a-48fe-bb52-16674e0d177d",
+      "loggedAt": "2026-03-03T21:00:35.673Z",
+      "experiencedDate": "2026-03-03",
+      "energy": 1,
+      "nsState": 1,
+      "emotions": ["Exhausted", "Frustrated", "Tired", "Overwhelmed", "Sad"],
+      "tags": ["sex/intimacy", "family", "kids's demands", "overwhelmed"],
+      "note": "Feeling exhausted and frustrated. I suck as a dad failing to get the kids to bed. Eline got back at 21h and the kids were still awake. Sat in the kitchen half asleep. Went to bed at 22h.",
+      "experiencedPeriod": "night"
+    },
+    {
+      "id": "eae006b0-c18d-4b2d-b812-9828332b59f1",
+      "loggedAt": "2026-03-03T16:02:05.081Z",
+      "experiencedDate": "2026-03-03",
+      "energy": 2,
+      "nsState": 5,
+      "emotions": ["Angry", "Irritated", "Frustrated", "Stressed", "Tired"],
+      "tags": ["kids's demands"],
+      "note": "Back home with Scott. Feeling tense and angry. He's going around damaging everything he gets his hands on. Can't leave him a second. Went shopping with him on the way home and that was exhausting.",
+      "experiencedPeriod": "afternoon"
+    },
+    {
+      "id": "d2f2b129-6e34-4aac-9e06-2e39531d1925",
+      "loggedAt": "2026-03-02T23:15:14.507Z",
+      "experiencedDate": "2026-03-02",
+      "energy": 4,
+      "nsState": 4,
+      "emotions": ["Happy", "Optimistic", "Inspired", "Motivated", "Energised"],
+      "tags": [],
+      "note": "Feeling good, went to bed quite late after watching YouTube videos about Iran, books, krakov and signing up to brilliant ",
+      "experiencedPeriod": "evening",
+      "updatedAt": "2026-03-03T07:43:46.138Z"
+    },
+    {
+      "id": "0abb8e0d-2e55-4fcd-95f7-37770e52cbb9",
+      "loggedAt": "2026-03-02T10:45:22.098Z",
+      "experiencedDate": "2026-03-02",
+      "energy": 3,
+      "nsState": 2,
+      "emotions": ["Mellow", "Reflective"],
+      "tags": [],
+      "note": "Simple check in ",
+      "experiencedPeriod": "morning",
+      "updatedAt": "2026-03-02T18:57:41.691Z"
+    },
+    {
+      "id": "e493314d-6751-4bd1-8980-0a84f0373643",
+      "loggedAt": "2026-03-01T21:49:18.729Z",
+      "experiencedDate": "2026-03-01",
+      "energy": 5,
+      "nsState": 3,
+      "emotions": ["Happy", "Connected", "Grateful", "Social", "Relaxed"],
+      "tags": ["exercise", "family", "outdoors"],
+      "note": "Felt good after the gym and cooked dinner ",
+      "experiencedPeriod": "evening",
+      "updatedAt": "2026-03-02T12:00:16.346Z"
+    },
+    {
+      "id": "f5d9b81b-eae8-4a52-b14f-5aa858558224",
+      "loggedAt": "2026-02-28T22:55:57.858Z",
+      "experiencedDate": "2026-02-27",
+      "energy": 5,
+      "nsState": 4,
+      "emotions": [
+        "Happy",
+        "Pleased",
+        "Amused",
+        "Cheerful",
+        "Confident",
+        "Grateful",
+        "Warm"
+      ],
+      "tags": ["exercise", "social", "family"],
+      "note": "Felt good after skiing, had a nice dinner.",
+      "experiencedPeriod": "evening",
+      "updatedAt": "2026-02-28T22:56:42.231Z"
+    },
+    {
+      "id": "aa17e641-d82c-4cd1-adb6-bcd1f2e92876",
+      "loggedAt": "2026-02-28T22:54:27.341Z",
+      "experiencedDate": "2026-02-28",
+      "energy": 1,
+      "nsState": 1,
+      "emotions": ["Tired", "Broken", "Crushed", "Exhausted", "Depressed"],
+      "tags": ["family", "jealous"],
+      "note": "Very tired, slept all morning and again in the afternoon. Feeling very down. ",
+      "experiencedPeriod": "allday"
+    },
+    {
+      "id": "6d430c68-1eb2-4e6d-b0b1-078ddee138ea",
+      "loggedAt": "2026-02-27T16:16:37.351Z",
+      "experiencedDate": "2026-02-26",
+      "energy": 1,
+      "nsState": 1,
+      "emotions": [
+        "Irritated",
+        "Tearful",
+        "Broken",
+        "Crushed",
+        "Drained",
+        "Tired",
+        "Energised",
+        "Frustrated",
+        "Angry"
+      ],
+      "tags": ["kids's demands", "family"],
+      "note": "Got annoyed when the kids wouldn't go to sleep after Eline's yoga. Went to bed in a sulk at 21h",
+      "experiencedPeriod": "evening",
+      "updatedAt": "2026-02-27T16:18:17.208Z"
+    },
+    {
+      "id": "d299d84e-b260-439d-8fc1-cf797426c0a7",
+      "loggedAt": "2026-02-27T16:15:29.269Z",
+      "experiencedDate": "2026-02-27",
+      "energy": 2,
+      "nsState": 1,
+      "emotions": [
+        "Tired",
+        "Relieved",
+        "Upset",
+        "Disappointed",
+        "Flat",
+        "Exhausted",
+        "Broken"
+      ],
+      "tags": ["family", "kids's demands"],
+      "note": "Difficult morning, very tired and struggled at breakfast. Slowly got better after Eline took the kids to school ",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "f835407a-61a2-40c3-95eb-3e4b4dd39412",
+      "loggedAt": "2026-02-25T10:21:09.192Z",
+      "experiencedDate": "2026-02-25",
+      "energy": 2,
+      "nsState": 2,
+      "emotions": [
+        "Tired",
+        "Disappointed",
+        "Indifferent",
+        "Lonely",
+        "Lost",
+        "Exhausted",
+        "Restless",
+        "Depressed",
+        "Flat",
+        "Numb"
+      ],
+      "tags": ["family", "work"],
+      "note": "Very tired and sleepy. Difficult at breakfast. Sleepy all morning.",
+      "experiencedPeriod": "morning",
+      "updatedAt": "2026-03-05T19:37:23.194Z"
+    },
+    {
+      "id": "265ed5e0-4416-48c7-820a-02a94301b89f",
+      "loggedAt": "2026-02-24T17:33:17.661Z",
+      "experiencedDate": "2026-02-24",
+      "energy": 2,
+      "nsState": 5,
+      "emotions": ["Reflective", "Irritated", "Frustrated", "Jealous"],
+      "tags": ["jealous"],
+      "note": "Triggered by house sale near Lauritz' house. 8 million. Crazy. Overthinking.",
+      "experiencedPeriod": "afternoon"
+    },
+    {
+      "id": "5e31724f-7743-4a72-9cd4-cc7d98d8206f",
+      "loggedAt": "2026-02-24T17:30:59.546Z",
+      "experiencedDate": "2026-02-24",
+      "energy": 3,
+      "nsState": 4,
+      "emotions": ["Restless", "Exhausted", "Tired"],
+      "tags": ["work"],
+      "note": "Watching youtube, not much energy but managed to go to the hairdresser's. Falling asleep all the time in front of computer and had to lie down twice.",
+      "experiencedPeriod": "allday"
+    },
+    {
+      "id": "9fd83b94-f957-43b3-ac17-d856b62dc120",
+      "loggedAt": "2026-02-23T19:49:42.954Z",
+      "experiencedDate": "2026-01-04",
+      "energy": 4,
+      "nsState": 3,
+      "emotions": ["Connected", "Happy", "Relaxed", "Calm"],
+      "tags": ["family", "sex/intimacy"],
+      "note": "",
+      "experiencedPeriod": "allday"
+    },
+    {
+      "id": "6d773135-dec6-43ba-96d7-aea06a88c8d9",
+      "loggedAt": "2026-02-23T19:47:30.208Z",
+      "experiencedDate": "2026-01-06",
+      "energy": 1,
+      "nsState": 1,
+      "emotions": ["Tired", "Upset", "Irritated"],
+      "tags": ["work"],
+      "note": "Tired and upset ",
+      "experiencedPeriod": "afternoon"
+    },
+    {
+      "id": "34dab8c0-9ebc-4030-a58e-ff7355e6aa22",
+      "loggedAt": "2026-02-23T18:51:47.815Z",
+      "experiencedDate": "2026-02-23",
+      "energy": 2,
+      "nsState": 5,
+      "emotions": [
+        "Stressed",
+        "Reflective",
+        "Anxious",
+        "Frustrated",
+        "Pensive",
+        "Uncertain"
+      ],
+      "tags": [],
+      "note": "Stressed and thinking about finances, house price and mortgage, car options etc. mind racing during yoga class. Heart racing.",
+      "experiencedPeriod": "evening"
+    },
+    {
+      "id": "44a9309b-36f5-4800-b84f-cfdbf2f61ac9",
+      "loggedAt": "2026-02-23T06:06:58.528Z",
+      "experiencedDate": "2026-02-23",
+      "energy": 4,
+      "nsState": 4,
+      "emotions": ["Okay", "Restless"],
+      "tags": [],
+      "note": "Stayed up late and then took a while tø fall asleep ",
+      "experiencedPeriod": "night"
+    },
+    {
+      "id": "bede1930-4529-4f91-8b94-9db840da2ab5",
+      "loggedAt": "2026-02-22T17:16:33.455Z",
+      "experiencedDate": "2026-02-22",
+      "energy": 2,
+      "nsState": 5,
+      "emotions": [
+        "Joyful",
+        "Pleased",
+        "Irritated",
+        "Restless",
+        "Overwhelmed",
+        "Elated"
+      ],
+      "tags": ["kids's demands", "family", "work"],
+      "note": "Enjoyed coding Lumidian for a couple of hours but then ran into problems. Scott and Aila then started to get agitated and I had to go and cook dinner. Very activated and quick to snap.",
+      "experiencedPeriod": "afternoon"
+    },
+    {
+      "id": "80cfe51e-8057-49fc-bc33-de258e765ec8",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-22",
+      "energy": 4,
+      "nsState": 4,
+      "emotions": ["Calm", "Steady", "Motivated", "Relaxed", "Serene"],
+      "tags": ["good sleep", "family"],
+      "note": "Calm morning, stayed steady. Baking and cleaning kitchen kept me focused and grounded.",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "28017f00-ab75-4ed4-bf54-c1dca69aaed0",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-21",
+      "energy": 4,
+      "nsState": 3,
+      "emotions": ["Happy", "Connected", "Relaxed", "Calm"],
+      "tags": ["social", "family", "good sleep"],
+      "note": "Good day out in Drammen, lunch with Anders og Becca, and skating. Feeling normal with reasonable energy ",
+      "experiencedPeriod": "afternoon"
+    },
+    {
+      "id": "d3f6f992-0c56-41e5-8380-c433fcbe5a70",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-21",
+      "energy": 2,
+      "nsState": 0,
+      "emotions": ["Tired", "Numb", "Drained", "Exhausted", "Restless"],
+      "tags": ["overwhelmed", "kids's demands", "mess"],
+      "note": "Feeling very sluggish and tired mentally. Been looking into exercise and how I need to do more. But intense exercise could worsen things when in shutdown.",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "74e6f501-e130-4a08-8f9c-b89b36aecca5",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-19",
+      "energy": 3,
+      "nsState": 5,
+      "emotions": ["Sad", "Restless", "Irritated", "Jealous", "Upset"],
+      "tags": ["jealous", "alcohol", "social"],
+      "note": "Bjørnar talking about money, gold, shares, wealthy investors like Trym, sad for Mariia who doesn't have any of that and is so impacted by the war. Crazy world of contrasts. Very triggered.",
+      "experiencedPeriod": "evening"
+    },
+    {
+      "id": "e0e823c4-93d7-4968-bd50-c85ac9b24b9b",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-21",
+      "energy": 3,
+      "nsState": 3,
+      "emotions": ["Exhausted", "Flat", "Tired"],
+      "tags": ["rest"],
+      "note": "Went to bed at 21h and slept until 7h30. Woke at 23h and 4h50.",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "90e5615e-2be5-42d2-be7d-2614d670a538",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-20",
+      "energy": 2,
+      "nsState": 5,
+      "emotions": [
+        "Angry",
+        "Reflective",
+        "Irritated",
+        "Frustrated",
+        "Distracted",
+        "Restless"
+      ],
+      "tags": ["work", "kids's demands", "family"],
+      "note": "I'm getting angry with things so activated but at the same time falling asleep. Thinking about how to represent and integrate this into the app.",
+      "experiencedPeriod": "evening"
+    },
+    {
+      "id": "e5b04b47-d7e6-4e01-9c73-ecd01a804fea",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-03",
+      "energy": 1,
+      "nsState": 4,
+      "emotions": ["Angry", "Frustrated", "Upset"],
+      "tags": ["sex/intimacy", "rest"],
+      "note": "Just angry and frustrated with things, including the Farrisbad disappointment the day before ",
+      "experiencedPeriod": "allday"
+    },
+    {
+      "id": "d778214f-34fc-43b2-b357-750615335e44",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-01",
+      "energy": 3,
+      "nsState": 2,
+      "emotions": ["Tired", "Mellow", "Pensive", "Drained"],
+      "tags": [],
+      "note": "Tired and low energy ",
+      "experiencedPeriod": "allday"
+    },
+    {
+      "id": "f1af8e0f-24b8-4169-a049-fafa80541cb9",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-20",
+      "energy": 4,
+      "nsState": 2,
+      "emotions": [
+        "Tired",
+        "Pleased",
+        "Relieved",
+        "Warm",
+        "Calm",
+        "Exhausted",
+        "Drained",
+        "Empty",
+        "Frustrated"
+      ],
+      "tags": [],
+      "note": "A bit tired after night out and the usual mess and chaos. Had lunch with Eline at Holes which was nice.",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "2fb32992-08c6-42e5-8ae7-6151620e1fe9",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-20",
+      "energy": 1,
+      "nsState": 5,
+      "emotions": ["Angry", "Frustrated", "Overwhelmed", "Disappointed"],
+      "tags": ["kids's demands", "family"],
+      "note": "Picking Aila up was draining. She was demanding and disagreeable. Got angry in the car taking all the things in and hurt my hand with my nail. Luckily Eline was in a good mood to take over.",
+      "experiencedPeriod": "afternoon"
+    },
+    {
+      "id": "6c09d35c-7d8e-4f0c-bc7e-eab44c1a650e",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-19",
+      "energy": 2,
+      "nsState": 2,
+      "emotions": ["Exhausted", "Tired"],
+      "tags": ["kids's demands", "poor sleep"],
+      "note": "Scott woke at 5h45 and wanted to go downstairs. Tough to have to start so early.",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "50e445ab-8760-4fbf-89df-11ae2dbadd07",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-19",
+      "energy": 5,
+      "nsState": 3,
+      "emotions": ["Happy", "Inspired", "Motivated", "Confident"],
+      "tags": ["work"],
+      "note": "Good day at work, working with AI, watching a video about AI in software and building Lumidian ",
+      "experiencedPeriod": "allday"
+    },
+    {
+      "id": "a955cb62-f163-4206-982a-c5a5001a56f6",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-18",
+      "energy": 2,
+      "nsState": 1,
+      "emotions": ["Steady", "Tired", "Flat", "Quiet"],
+      "tags": ["rest", "family", "kids's demands"],
+      "note": "Not easy finding the energy to get the kids to bed but stayed steady ",
+      "experiencedPeriod": "allday"
+    },
+    {
+      "id": "664ff94b-3ff5-4f96-a3b7-b5f3995e2914",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-18",
+      "energy": 4,
+      "nsState": 4,
+      "emotions": ["Steady", "Okay", "Tired"],
+      "tags": ["kids's demands", "work", "family"],
+      "note": "Rushed to go shopping, pick up Aila, then Scott. Quite intense but managed to keep steady. Got home and keen to have some time to recover.",
+      "experiencedPeriod": "allday"
+    },
+    {
+      "id": "907554ba-09de-4be1-8411-f5cdcae8e08d",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-18",
+      "energy": 2,
+      "nsState": 2,
+      "emotions": ["Tired", "Anxious", "Stressed"],
+      "tags": ["poor sleep", "work", "family"],
+      "note": "Intense breakfast with Scott having meltdowns. Then Aila decided she wanted to stay home with Eline. Feeling tired and a bit fed up. Eline never gets alone time. Can't be asked to get dressed and go to work. Worrying about salary difference of new job.",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "6a6d7a1d-0579-48ae-b196-684fc98c56db",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-18",
+      "energy": 3,
+      "nsState": 2,
+      "emotions": ["Tired", "Okay", "Uncertain", "Mellow"],
+      "tags": ["rest"],
+      "note": "Woke up quite tired from an interrupted night. Dreamt that we were with Jamie and Elinor in a big fine house. Lots of successful guys around, sailing theme. I was trying to do AI courses but was a bit unsure. ",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "20209296-3de3-4c30-b6a4-e8b91f0a283b",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-17",
+      "energy": 5,
+      "nsState": 4,
+      "emotions": ["Confident", "Connected", "Energised", "Warm"],
+      "tags": ["sex/intimacy"],
+      "note": "Eline and I gave each other massages.",
+      "experiencedPeriod": "allday"
+    },
+    {
+      "id": "386bb574-47e3-4765-96f4-5bbe4e53626e",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-17",
+      "energy": 4,
+      "nsState": 3,
+      "emotions": ["Calm", "Connected", "Okay"],
+      "tags": ["family"],
+      "note": "Usual dinner but was able to stay calm and grounded. Scott had a meltdown but it passed eventually. Bed routine was calm and no major meltdowns.",
+      "experiencedPeriod": "evening"
+    },
+    {
+      "id": "d1ae6556-6108-456b-bfa4-6c0ebedf7e52",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-17",
+      "energy": 4,
+      "nsState": 4,
+      "emotions": ["Inspired", "Happy", "Optimistic", "Grateful"],
+      "tags": ["work", "alone time"],
+      "note": "Good day at work building Lumidian. I felt in the flow and time flew past. Time to go home and cook dinner.",
+      "experiencedPeriod": "allday"
+    },
+    {
+      "id": "13c7589b-5abd-442c-ab54-c09e28c097ab",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-16",
+      "energy": 3,
+      "nsState": 2,
+      "emotions": ["relieved", "connected"],
+      "tags": [],
+      "note": "After a breathwork lesson we felt better and went to bed and fell asleep together.",
+      "experiencedPeriod": "evening"
+    },
+    {
+      "id": "9e0a6989-af33-49a1-90f7-a566a28c3a52",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-16",
+      "energy": 2,
+      "nsState": 1,
+      "emotions": ["tired", "drained"],
+      "tags": [],
+      "note": "Sitting with Eline after the kids went to bed. Feeling tired and drained. Eline confirmed how my condition is affecting her and how she needs support in case she can no longer manage. She's seeing Olai tomorrow. It was not easy to be reminded.",
+      "experiencedPeriod": "evening"
+    },
+    {
+      "id": "c5a89db0-5140-4669-95e1-7819ff72863c",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-17",
+      "energy": 4,
+      "nsState": 4,
+      "emotions": ["calm", "relaxed", "hopeful"],
+      "tags": ["rest"],
+      "note": "Woke up quite easily, feeling calm and rested. ",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "bbb88953-1a84-444f-9225-afdb4e93316d",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-16",
+      "energy": 1,
+      "nsState": 4,
+      "emotions": ["angry", "irritated", "frustrated"],
+      "tags": [],
+      "note": "Feeling angry and bitter, annoyed by the house state, others having more, missed opportunities, mediocrity...",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "582bc4e4-a145-4eb5-ad0f-57c77517cb89",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-12",
+      "energy": 5,
+      "nsState": 4,
+      "emotions": ["pleased", "relaxed", "content"],
+      "tags": ["creative"],
+      "note": "Simple check in ",
+      "experiencedPeriod": "evening",
+      "updatedAt": "2026-03-02T19:02:09.418Z"
+    },
+    {
+      "id": "96b990cc-00be-43c8-8850-c8a2138da8ee",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-16",
+      "energy": 2,
+      "nsState": 2,
+      "emotions": ["drained", "tired", "overwhelmed"],
+      "tags": ["family"],
+      "note": "Sitting at the table after breakfast drained and no energy, just want to sleep.",
+      "experiencedPeriod": "allday"
+    },
+    {
+      "id": "400d65e8-f7fd-4849-aa6b-00ded4f6a079",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-16",
+      "energy": 3,
+      "nsState": 2,
+      "emotions": ["okay", "quiet", "flat"],
+      "tags": ["rest"],
+      "note": "Woke with a slight sore throat. Clemence sent me a message about Pierre's wife's mum dying. Seriously? 😑",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "f7620d3c-57f7-4153-849a-6853cd674764",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-03",
+      "energy": 2,
+      "nsState": 4,
+      "emotions": ["drained", "frustrated", "disappointed"],
+      "tags": [],
+      "note": "Simple check in ",
+      "experiencedPeriod": "allday",
+      "updatedAt": "2026-03-02T19:00:17.750Z"
+    },
+    {
+      "id": "15ab498f-5b78-439e-9b22-3c3a5b882021",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-02",
+      "energy": 2,
+      "nsState": 4,
+      "emotions": ["disappointed", "frustrated"],
+      "tags": [],
+      "note": "Felt a bit better after Farrisbad. Went to the office rather than yoga. Did a good anger release exercise.",
+      "experiencedPeriod": "evening"
+    },
+    {
+      "id": "2a647ca1-4105-465e-8b41-bbe8317cc4f5",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-02",
+      "energy": 1,
+      "nsState": 4,
+      "emotions": ["angry", "frustrated"],
+      "tags": [],
+      "note": "Went to Farrisbad. Got very angry when we missed eachother coming out of the changing rooms.",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "7162e6bb-2ea5-4048-bf02-76d1915b6e9f",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-05",
+      "energy": 2,
+      "nsState": 2,
+      "emotions": ["drained", "numb"],
+      "tags": ["work"],
+      "note": "Simple check in ",
+      "experiencedPeriod": "allday",
+      "updatedAt": "2026-03-02T19:00:40.437Z"
+    },
+    {
+      "id": "af9a3c5a-c9bd-4f68-91df-f98d783500ef",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-08",
+      "energy": 4,
+      "nsState": 4,
+      "emotions": ["happy", "cheerful", "content"],
+      "tags": ["weekend", "family"],
+      "note": "Simple check in ",
+      "experiencedPeriod": "allday",
+      "updatedAt": "2026-03-02T19:01:23.490Z"
+    },
+    {
+      "id": "c5dfa4a5-8877-419d-8e21-81bdc1eb6ecb",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-11",
+      "energy": 1,
+      "nsState": 2,
+      "emotions": ["drained", "hopeless"],
+      "tags": ["work"],
+      "note": "Simple check in ",
+      "experiencedPeriod": "allday",
+      "updatedAt": "2026-03-02T18:59:50.857Z"
+    },
+    {
+      "id": "ede70212-6111-4c9b-8533-35ad0e1a9e00",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-15",
+      "energy": 4,
+      "nsState": 4,
+      "emotions": ["peaceful", "comfortable", "steady"],
+      "tags": ["family", "weekend"],
+      "note": "Spent the afternoon at Liten og Glad. Came home and had dinner, all went well.",
+      "experiencedPeriod": "allday"
+    },
+    {
+      "id": "bdb92347-3fd6-40be-aaa4-6eb406d7fd4d",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-15",
+      "energy": 3,
+      "nsState": 3,
+      "emotions": ["flat", "sad", "pensive"],
+      "tags": ["weekend", "family", "morning"],
+      "note": "Feeling sad. Thinking about France, renovations, time passing...",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "5c15683d-34e0-4796-9b86-44eab79d9a87",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-14",
+      "energy": 4,
+      "nsState": 5,
+      "emotions": ["calm", "okay"],
+      "tags": ["exercise", "family", "weekend", "morning"],
+      "note": "Going skiing today ",
+      "experiencedPeriod": "morning"
+    },
+    {
+      "id": "7f4de1da-b41d-45ca-bcf7-528130508038",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-13",
+      "energy": 2,
+      "nsState": 2,
+      "emotions": ["irritated"],
+      "tags": [],
+      "note": "Simple check in ",
+      "experiencedPeriod": "allday",
+      "updatedAt": "2026-03-02T19:03:19.551Z"
+    },
+    {
+      "id": "ab3b3d92-e906-4162-b8f8-bc771a6b95ba",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-13",
+      "energy": 4,
+      "nsState": 4,
+      "emotions": ["peaceful", "okay", "calm"],
+      "tags": ["evening", "family", "weekend"],
+      "note": "Simple check in ",
+      "experiencedPeriod": "evening",
+      "updatedAt": "2026-03-02T19:03:52.413Z"
+    },
+    {
+      "id": "2a336949-fa73-4e53-8629-716c4814e3e0",
+      "loggedAt": "2026-02-22T19:48:54.145Z",
+      "experiencedDate": "2026-02-13",
+      "energy": 1,
+      "nsState": 5,
+      "emotions": ["angry"],
+      "tags": [],
+      "note": "Simple check in ",
+      "experiencedPeriod": "allday",
+      "updatedAt": "2026-03-02T18:59:16.955Z"
+    }
+  ],
+  "events": [
+    {
+      "id": "895a31f9-f411-41b7-8f3b-56fe03fabe67",
+      "loggedAt": "2026-03-07T06:35:42.979Z",
+      "typeId": "custom-1771601240305",
+      "eventDate": "2026-01-29"
+    },
+    {
+      "id": "b1943d5c-0493-4e3d-847a-5181aabb70f8",
+      "loggedAt": "2026-03-07T06:35:25.321Z",
+      "typeId": "sex",
+      "eventDate": "2026-01-26",
+      "eventTime": "21:00"
+    },
+    {
+      "id": "7f532085-09db-456f-bb1e-a5e65fb04888",
+      "loggedAt": "2026-03-07T06:34:54.568Z",
+      "typeId": "sex",
+      "eventDate": "2026-01-23",
+      "eventTime": "21:00"
+    },
+    {
+      "id": "909fbed7-ee48-4ccb-b60a-eda7ee24dbb6",
+      "loggedAt": "2026-03-07T06:34:29.563Z",
+      "typeId": "custom-1771601240305",
+      "eventDate": "2026-01-19"
+    },
+    {
+      "id": "fcf0403d-44c9-4a1e-89c2-833ed6e93f80",
+      "loggedAt": "2026-03-07T06:33:59.113Z",
+      "typeId": "sex",
+      "eventDate": "2026-01-15",
+      "eventTime": "21:00"
+    },
+    {
+      "id": "9d75b68b-b7f9-4c31-8866-6d4aadb7030e",
+      "loggedAt": "2026-03-07T06:33:26.966Z",
+      "typeId": "custom-1771601240305",
+      "eventDate": "2026-01-13"
+    },
+    {
+      "id": "86b907f5-3d4d-488d-9c22-9182cf52136b",
+      "loggedAt": "2026-03-07T06:28:21.182Z",
+      "typeId": "period",
+      "eventDate": "2026-03-05"
+    },
+    {
+      "id": "caf88db6-89c9-4459-ad7e-a1af66dfb7ca",
+      "loggedAt": "2026-03-06T12:24:17.204Z",
+      "typeId": "custom-1771601240305",
+      "eventDate": "2026-03-06",
+      "eventTime": "11:00",
+      "note": "Café in Tønsberg"
+    },
+    {
+      "id": "f44383d7-f5e3-4eb1-9ef3-3921cb5f303a",
+      "loggedAt": "2026-03-05T19:34:22.804Z",
+      "typeId": "exercise",
+      "eventDate": "2026-03-05",
+      "eventTime": "15:00",
+      "note": "Went to the gym"
+    },
+    {
+      "id": "0ae786a2-e885-41ae-9d64-eefdaf305512",
+      "loggedAt": "2026-03-05T07:00:29.944Z",
+      "typeId": "custom-1772560258909",
+      "eventDate": "2026-03-05",
+      "eventTime": "08:00",
+      "note": "Got angry with Scott when he was playing with the bins. Pushed him away and he hit his forehead on a chair. Huge overreaction. Possibly linked to new crown and mouth out of shape."
+    },
+    {
+      "id": "7a87bae7-6648-479d-ae79-132f0bc11a02",
+      "loggedAt": "2026-03-04T21:59:24.769Z",
+      "typeId": "custom-1772560258909",
+      "eventDate": "2026-03-04",
+      "eventTime": "08:00",
+      "note": "Got angry with my jacket when leaving with Aila. Maybe linked to youtube and internet videos yesterday.",
+      "updatedAt": "2026-03-04T22:05:43.928Z"
+    },
+    {
+      "id": "8d74a60e-d9ba-478e-8fa6-64677c1c7c81",
+      "loggedAt": "2026-03-03T17:55:25.658Z",
+      "typeId": "custom-1772560258909",
+      "eventDate": "2026-02-20",
+      "eventTime": "16:00",
+      "note": "Got angry carrying shopping from the car.",
+      "updatedAt": "2026-03-03T17:56:15.979Z"
+    },
+    {
+      "id": "a3b99de5-9b87-45ad-9f85-1dbd2d107f50",
+      "loggedAt": "2026-03-03T17:53:20.871Z",
+      "typeId": "custom-1772560258909",
+      "eventDate": "2026-02-02",
+      "eventTime": "17:00",
+      "note": "Screamed in the car when heading to yoga. So much anger in me."
+    },
+    {
+      "id": "6a79a682-7fba-4703-9604-0ff4fe5fc139",
+      "loggedAt": "2026-03-03T17:52:05.994Z",
+      "typeId": "custom-1772560258909",
+      "eventDate": "2026-03-03",
+      "eventTime": "17:00",
+      "note": "Got angry in the kitchen while preparing dinner. Dropping and spilling things. Squeezed the kitchen towel to release."
+    },
+    {
+      "id": "fc77f925-5bdd-43a5-a564-320c092ddec8",
+      "loggedAt": "2026-03-02T19:09:50.784Z",
+      "typeId": "exercise",
+      "eventDate": "2026-01-26",
+      "eventTime": "17:00",
+      "note": "Yoga"
+    },
+    {
+      "id": "8499b053-c6a7-47f9-8ee5-8e6fab9baca9",
+      "loggedAt": "2026-03-02T18:35:18.668Z",
+      "typeId": "exercise",
+      "eventDate": "2026-02-09",
+      "eventTime": "17:00",
+      "note": "Yoga",
+      "updatedAt": "2026-03-02T18:35:46.465Z"
+    },
+    {
+      "id": "e991d195-e9ec-4f57-a74b-f0ef8afd5318",
+      "loggedAt": "2026-03-02T18:29:30.787Z",
+      "typeId": "exercise",
+      "eventDate": "2026-03-02",
+      "eventTime": "17:00",
+      "note": "Yoga"
+    },
+    {
+      "id": "bc42f67c-4291-49fe-8e5c-8b24929d77b4",
+      "loggedAt": "2026-03-01T22:21:51.690Z",
+      "typeId": "fainted",
+      "eventDate": "2025-05-03",
+      "eventTime": "17:00",
+      "note": "In Meny after picking up Aila. Put Aila and Scott in the trolley and then bent down. Didn't faint."
+    },
+    {
+      "id": "f38580ea-063e-4c3e-8f0f-aae4ee810f86",
+      "loggedAt": "2026-03-01T22:20:50.620Z",
+      "typeId": "fainted",
+      "eventDate": "2025-06-14",
+      "note": "Morning in the shower. Knelt down and it passed. Not sure of date"
+    },
+    {
+      "id": "8f6eb61e-7b7f-41aa-a567-b92f6ca9377f",
+      "loggedAt": "2026-03-01T22:19:14.936Z",
+      "typeId": "fainted",
+      "eventDate": "2025-09-25",
+      "eventTime": "13:00",
+      "note": "Sitting at my desk talking to Bjornar. Felt it coming and then Bjornar woke me from my chair.\nFelt like I had been dreaming for a while. Lay down on the floor for a while to recover. Been having stiff neck and headaches since Monday so maybe related?"
+    },
+    {
+      "id": "497208f4-3a15-451b-ad18-0bfbcc4f2460",
+      "loggedAt": "2026-03-01T22:18:28.527Z",
+      "typeId": "fainted",
+      "eventDate": "2025-12-02",
+      "eventTime": "08:00",
+      "note": "Driving kids to school, dropped off Aila first, realised I forgot her bag so drove to drop Scott off first. Leaving Lillas I felt it come so drove home slowly and pulled into our driveway. Fainted and woke up. 3-4mins total. Drove Scott to barnehage afterwoods and then dropped AIla's bag off before"
+    },
+    {
+      "id": "b039407a-e1dc-41e5-be4a-fc4a684e08ef",
+      "loggedAt": "2026-03-01T22:17:34.291Z",
+      "typeId": "fainted",
+      "eventDate": "2025-12-22",
+      "eventTime": "10:00",
+      "note": "While cleaning the house before Jamie and Elinor arrived. Morning shower, felt it coming. Knelt down on the floor and it passed"
+    },
+    {
+      "id": "08ba88cf-584e-48b8-b0af-eb324184ce47",
+      "loggedAt": "2026-03-01T22:01:06.354Z",
+      "typeId": "custom-1771601240305",
+      "eventDate": "2026-03-01",
+      "eventTime": "23:00"
+    },
+    {
+      "id": "309ae796-c4e2-4e22-b526-874e9cc533e6",
+      "loggedAt": "2026-03-01T17:45:13.740Z",
+      "typeId": "exercise",
+      "eventDate": "2026-03-01",
+      "eventTime": "15:00",
+      "note": "Went to the gym",
+      "updatedAt": "2026-03-01T17:45:25.366Z"
+    },
+    {
+      "id": "6f399eb2-06eb-4104-8226-7d8f78cbfbea",
+      "loggedAt": "2026-02-28T22:57:50.672Z",
+      "typeId": "custom-1771617162538",
+      "eventDate": "2026-02-28",
+      "eventTime": "08:00",
+      "note": "Difficult breakfast. Scott being difficult. Had to get up and leave."
+    },
+    {
+      "id": "f0e3e8f1-c775-40f9-b47f-c7eb036dd9b7",
+      "loggedAt": "2026-02-27T16:13:42.638Z",
+      "typeId": "exercise",
+      "eventDate": "2026-02-27",
+      "note": "Went skiing with Vissim"
+    },
+    {
+      "id": "2cb81b4c-5a81-46da-801f-1908f6c72b3a",
+      "loggedAt": "2026-02-27T16:13:10.852Z",
+      "typeId": "fainted",
+      "eventDate": "2026-02-27",
+      "eventTime": "11:00",
+      "note": "Fainted on the chairlift. On the chairlift with veggard and Mariia. Tired squeezing my legs and hands but passed out. Woke just as we arrived at the top of the chairlift. Managed to ski down straight away fast and easily."
+    },
+    {
+      "id": "499edbdf-f6b1-458f-810d-31fd2bdd68e0",
+      "loggedAt": "2026-02-24T17:34:24.590Z",
+      "typeId": "custom-1771617162538",
+      "eventDate": "2026-02-24",
+      "note": "Slight shutdown and overwhelm during dinner. Had to manage Scott while Aila dancing. Scott then drank domestos."
+    },
+    {
+      "id": "bf7a0d73-c487-46fa-a301-f46bb43d4e3d",
+      "loggedAt": "2026-02-23T19:48:32.909Z",
+      "typeId": "custom-1771601240305",
+      "eventDate": "2026-01-01",
+      "eventTime": "15:00"
+    },
+    {
+      "id": "0429cf23-041a-4fbf-a884-ecc2a57c9ae3",
+      "loggedAt": "2026-02-23T19:48:04.890Z",
+      "typeId": "sex",
+      "eventDate": "2026-01-04",
+      "eventTime": "22:00"
+    },
+    {
+      "id": "0acf4a23-ee8c-484a-9d70-d8f05fb2efe3",
+      "loggedAt": "2026-02-23T19:46:11.455Z",
+      "typeId": "custom-1771601240305",
+      "eventDate": "2026-01-07",
+      "eventTime": "16:00",
+      "updatedAt": "2026-02-23T19:46:27.857Z"
+    },
+    {
+      "id": "0df5b1ea-877b-4ead-ba97-76d69e635d3b",
+      "loggedAt": "2026-02-23T19:40:24.601Z",
+      "typeId": "period",
+      "eventDate": "2026-01-08",
+      "eventTime": "08:00",
+      "updatedAt": "2026-02-23T19:40:35.590Z"
+    },
+    {
+      "id": "e497d77b-80e3-4cd2-8be6-166aaa7d1c67",
+      "loggedAt": "2026-02-23T18:52:46.842Z",
+      "typeId": "custom-1771601240305",
+      "eventDate": "2026-02-23",
+      "eventTime": "11:00"
+    },
+    {
+      "id": "9a4cbdad-7085-4b07-883b-d1e10559dc11",
+      "loggedAt": "2026-02-23T18:47:40.189Z",
+      "typeId": "exercise",
+      "eventDate": "2026-02-23",
+      "eventTime": "17:00",
+      "note": "Yoga class",
+      "updatedAt": "2026-02-23T18:47:49.831Z"
+    },
+    {
+      "id": "12d57793-6dc6-4fce-b7f4-7d42b3572af0",
+      "loggedAt": "2026-02-22T17:35:08.662Z",
+      "eventDate": "2026-02-22",
+      "typeId": "custom-1771617162538",
+      "eventTime": "18:00",
+      "note": "Dinner and after dinner all a bit much. Body shutting down and falling asleep."
+    },
+    {
+      "id": "c77d8167-2eda-4305-b727-3398dcc34e6c",
+      "loggedAt": "2026-02-21T09:00:00.000Z",
+      "eventDate": "2026-02-21",
+      "typeId": "custom-1771617162538",
+      "eventTime": "09:00"
+    },
+    {
+      "id": "b93f7803-1203-4dd1-9f38-31db0160c7ff",
+      "loggedAt": "2026-02-20T08:00:00.000Z",
+      "eventDate": "2026-02-20",
+      "typeId": "custom-1771617162538",
+      "note": "Super tired all day and collapsing in the evening"
+    },
+    {
+      "id": "1e21e04a-ac73-45b8-8c61-395963accb16",
+      "loggedAt": "2026-02-02T15:00:00.000Z",
+      "eventDate": "2026-02-02",
+      "typeId": "custom-1771601240305",
+      "eventTime": "15:00"
+    },
+    {
+      "id": "068a9494-9633-4c1f-98ac-bd84a76f6e7b",
+      "loggedAt": "2026-02-05T15:00:00.000Z",
+      "eventDate": "2026-02-05",
+      "typeId": "custom-1771601240305",
+      "eventTime": "15:00"
+    },
+    {
+      "id": "301f6a44-8906-4f4c-ae40-eda06d227b9f",
+      "loggedAt": "2026-02-03T08:00:00.000Z",
+      "eventDate": "2026-02-03",
+      "typeId": "period"
+    },
+    {
+      "id": "fb317e24-e373-40a3-b9da-09400bb21be3",
+      "loggedAt": "2026-02-19T16:00:00.000Z",
+      "eventDate": "2026-02-19",
+      "typeId": "alcohol",
+      "eventTime": "17:00",
+      "note": "Dinner out with Vissim"
+    },
+    {
+      "id": "1c68310e-ce8a-4ca4-ba3b-96080ca6b86d",
+      "loggedAt": "2026-02-14T08:00:00.000Z",
+      "eventDate": "2026-02-14",
+      "typeId": "exercise",
+      "note": "Went skiing"
+    },
+    {
+      "id": "9446c5e1-ba6b-4fa5-8e4d-674cde85332f",
+      "loggedAt": "2026-02-17T08:00:00.000Z",
+      "eventDate": "2026-02-17",
+      "typeId": "sex",
+      "eventTime": "21:00",
+      "note": "Gave each other a massage first"
+    },
+    {
+      "id": "788efb25-c157-4bd2-bad0-6f02ae66b9fc",
+      "loggedAt": "2026-02-12T21:00:00.000Z",
+      "eventDate": "2026-02-12",
+      "typeId": "sex",
+      "eventTime": "21:00"
+    },
+    {
+      "id": "a890ec3d-240c-4eac-b21e-1baca34cfd60",
+      "loggedAt": "2026-01-08T14:00:00.000Z",
+      "eventDate": "2026-01-08",
+      "typeId": "fainted",
+      "eventTime": "14:00",
+      "note": "In the kitchen when Eline went to collect Aila with Scott. I knelt down and didn't faint, but had strange dreams I think. Dream memories returned to me but not sure if they were from the previous nights or during the episode. During the day I was brainstorming projects and ideas. Slight high after t"
+    },
+    {
+      "id": "15d1242a-d8bd-4e06-800f-bbbb0d3e3b98",
+      "loggedAt": "2026-02-07T08:00:00.000Z",
+      "eventDate": "2026-02-07",
+      "typeId": "fainted",
+      "eventTime": "08:00",
+      "note": "At breakfast on Saturday morning. Felt it coming so knelt down on the floor and it passed despite clear usual strong feeling associated with the fainting. Returned to normal quite quickly and finished my coffee. Eline was there beside me."
+    }
+  ],
+  "customEventTypes": [
+    {
+      "id": "custom-1771601240305",
+      "name": "Relief",
+      "emoji": "Thermometer",
+      "isCustom": true,
+      "visible": true
+    },
+    {
+      "id": "custom-1771617162538",
+      "name": "Shutdown",
+      "emoji": "◆",
+      "isCustom": true,
+      "visible": true
+    },
+    {
+      "id": "custom-1772560258909",
+      "name": "Anger outburst",
+      "emoji": "Zap",
+      "isCustom": true
+    }
+  ]
+}

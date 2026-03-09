@@ -1,12 +1,31 @@
-import { writable } from 'svelte/store';
-import type { EmotionEntry } from '../types';
+import { writable } from "svelte/store";
+import type { EmotionEntry } from "../types";
 
-const STORAGE_KEY = 'emotions-log-entries';
+const STORAGE_KEY = "emotions-log-entries";
+
+// Migrate entries from old schemas to new (energy 0..6, nsState 0..6).
+function migrateEntry(e: any): EmotionEntry {
+  if ("nsState" in e) return e as EmotionEntry;
+  if ("activation" in e) {
+    // Intermediate schema: had energy 0..6 + activation 0..6
+    const { activation, ...rest } = e;
+    return { ...rest, nsState: activation } as EmotionEntry;
+  }
+  // Old schema: valence -3..+3 + energy -3..+3
+  const oldEnergy = e.energy ?? 0;
+  const { valence, energy: _oldEnergy, ...rest } = e;
+  return {
+    ...rest,
+    energy: typeof valence === "number" ? valence + 3 : 3,
+    nsState: typeof oldEnergy === "number" ? oldEnergy + 3 : 2,
+  } as EmotionEntry;
+}
 
 function loadEntries(): EmotionEntry[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    return (JSON.parse(raw) as any[]).map(migrateEntry);
   } catch {
     return [];
   }
@@ -35,7 +54,9 @@ function createEntriesStore() {
       set([]);
     },
     updateEntry(updated: EmotionEntry) {
-      update((entries) => entries.map((e) => e.id === updated.id ? updated : e));
+      update((entries) =>
+        entries.map((e) => (e.id === updated.id ? updated : e)),
+      );
     },
     importEntries(newEntries: EmotionEntry[]) {
       update((existing) => {
