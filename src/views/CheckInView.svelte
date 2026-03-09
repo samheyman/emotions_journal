@@ -118,7 +118,7 @@
   }
 
   let stepTitle = $derived(
-    step === 1 ? (isEditing ? "Edit entry" : (isToday ? "Checkin" : "What was on your mind?")) :
+    step === 1 ? (isEditing ? "Edit entry" : (isToday ? "Check-in" : "What was on your mind?")) :
     step === 2 ? 'Emotional landscape' :
     step === 3 ? 'Triggers / Context' :
     'Preview'
