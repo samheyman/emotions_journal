@@ -17,7 +17,7 @@
   );
 
   let chartData = $derived((() => {
-    const days: { key: string; label: string; valence: number | null; }[] = [];
+    const days: { key: string; label: string; energy: number | null; }[] = [];
 
     for (let i = rangeDays - 1; i >= 0; i--) {
       const date = daysAgo(i);
@@ -34,19 +34,18 @@
       }
 
       if (dayEntries.length > 0) {
-        const avgValence = dayEntries.reduce((sum, e: any) => {
-          // Support old entries with "mood" (1-7) and new entries with "valence" (-3 to +3)
-          if (typeof e.mood === 'number' && !isNaN(e.mood)) {
-            return sum + (e.mood - 4); // convert 1-7 to -3 to +3
-          }
-          if (typeof e.valence === 'number' && !isNaN(e.valence)) {
-            return sum + e.valence;
-          }
+        const avgEnergy = dayEntries.reduce((sum, e: any) => {
+          // New format: energy 0..6
+          if (typeof e.energy === 'number' && !isNaN(e.energy)) return sum + e.energy;
+          // Old format: valence -3..+3 → shift to 0..6
+          if (typeof e.valence === 'number' && !isNaN(e.valence)) return sum + (e.valence + 3);
+          // Legacy format: mood 1..7 → shift to 0..6
+          if (typeof e.mood === 'number' && !isNaN(e.mood)) return sum + (e.mood - 1);
           return sum;
         }, 0) / dayEntries.length;
-        days.push({ key, label, valence: Math.round(avgValence * 10) / 10 });
+        days.push({ key, label, energy: Math.round(avgEnergy * 10) / 10 });
       } else {
-        days.push({ key, label, valence: null});
+        days.push({ key, label, energy: null });
       }
     }
 
@@ -66,7 +65,7 @@
         datasets: [
           {
             label: '',
-            data: data.map((d) => d.valence),
+            data: data.map((d) => d.energy),
             borderColor: '#55187e',
             backgroundColor: 'rgba(196, 132, 108, 0.1)',
             fill: true,
@@ -107,23 +106,13 @@
         },
         scales: {
           y: {
-            min: -3,
-            max: 3,
+            min: 0,
+            max: 6,
             ticks: {
               stepSize: 1,
               font: { family: "'Inter', system-ui, sans-serif", size: 11 },
               color: '#B5AFAA',
-              callback: (value: string | number) => {
-                const num = Number(value);
-                if (num === 3) return '+3';
-                if (num === 2) return '+2';
-                if (num === 1) return '+1';
-                if (num === 0) return '0';
-                if (num === -1) return '-1';
-                if (num === -2) return '-2';
-                if (num === -3) return '-3';
-                return '';
-              },
+              callback: (value: string | number) => String(Number(value)),
             },
             grid: {
               color: 'rgba(232, 228, 223, 0.5)',

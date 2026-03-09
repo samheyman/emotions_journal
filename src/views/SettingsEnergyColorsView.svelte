@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { moodColors, MOOD_COLOR_DEFAULTS } from '../lib/stores/moodColors';
+  import { energyColors, ENERGY_COLOR_DEFAULTS } from '../lib/stores/energyColors';
 
   let { onBack }: { onBack: () => void } = $props();
 
@@ -39,9 +39,9 @@
   }
 
   let isCustomised = $derived(
-    $moodColors.positive !== MOOD_COLOR_DEFAULTS.positive ||
-    $moodColors.neutral !== MOOD_COLOR_DEFAULTS.neutral ||
-    $moodColors.negative !== MOOD_COLOR_DEFAULTS.negative
+    $energyColors.positive !== ENERGY_COLOR_DEFAULTS.positive ||
+    $energyColors.neutral !== ENERGY_COLOR_DEFAULTS.neutral ||
+    $energyColors.negative !== ENERGY_COLOR_DEFAULTS.negative
   );
 </script>
 
@@ -52,14 +52,14 @@
         <polyline points="15 18 9 12 15 6"/>
       </svg>
     </button>
-    <h1 class="title">Mood colors</h1>
+    <h1 class="title">Energy colors</h1>
   </header>
 
   <div class="content">
     {#each [
-      { label: 'Positive', color: $moodColors.positive, set: (c: string) => moodColors.setPositive(c) },
-      { label: 'Neutral',  color: $moodColors.neutral,  set: (c: string) => moodColors.setNeutral(c) },
-      { label: 'Negative', color: $moodColors.negative, set: (c: string) => moodColors.setNegative(c) },
+      { label: 'Positive', color: $energyColors.positive, set: (c: string) => energyColors.setPositive(c) },
+      { label: 'Neutral',  color: $energyColors.neutral,  set: (c: string) => energyColors.setNeutral(c) },
+      { label: 'Negative', color: $energyColors.negative, set: (c: string) => energyColors.setNegative(c) },
     ] as row}
       <div class="color-row">
         <div class="color-row-header">
@@ -73,13 +73,13 @@
           max="359"
           value={hexToHue(row.color)}
           oninput={(e) => row.set(hueToHex(Number(e.currentTarget.value)))}
-          aria-label="{row.label} mood color hue"
+          aria-label="{row.label} energy color hue"
         />
       </div>
     {/each}
 
     {#if isCustomised}
-      <button class="reset-btn" onclick={() => moodColors.reset()}>Reset to defaults</button>
+      <button class="reset-btn" onclick={() => energyColors.reset()}>Reset to defaults</button>
     {/if}
   </div>
 </div>

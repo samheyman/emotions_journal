@@ -1,16 +1,16 @@
 <script lang="ts">
   import SettingsDataView from './SettingsDataView.svelte';
-  import SettingsMoodColorsView from './SettingsMoodColorsView.svelte';
+  import SettingsEnergyColorsView from './SettingsEnergyColorsView.svelte';
   import SettingsEventTypesView from './SettingsEventTypesView.svelte';
 
-  type SettingsPage = 'hub' | 'data' | 'moodColors' | 'eventTypes';
+  type SettingsPage = 'hub' | 'data' | 'energyColors' | 'eventTypes';
   let page = $state<SettingsPage>('hub');
 </script>
 
 {#if page === 'data'}
   <SettingsDataView onBack={() => page = 'hub'} />
-{:else if page === 'moodColors'}
-  <SettingsMoodColorsView onBack={() => page = 'hub'} />
+{:else if page === 'energyColors'}
+  <SettingsEnergyColorsView onBack={() => page = 'hub'} />
 {:else if page === 'eventTypes'}
   <SettingsEventTypesView onBack={() => page = 'hub'} />
 {:else}
@@ -20,7 +20,7 @@
     </header>
 
     <div class="menu">
-      <button class="menu-item" onclick={() => page = 'moodColors'}>
+      <button class="menu-item" onclick={() => page = 'energyColors'}>
         <div class="menu-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
@@ -28,7 +28,7 @@
           </svg>
         </div>
         <div class="menu-text">
-          <span class="menu-label">Mood colors</span>
+          <span class="menu-label">Energy colors</span>
           <span class="menu-desc">Customise positive, neutral and negative colors</span>
         </div>
         <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

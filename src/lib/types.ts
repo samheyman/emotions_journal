@@ -7,18 +7,24 @@ export type ExperiencedPeriod =
 
 export interface EmotionEntry {
   id: string;
-  loggedAt: string;        // ISO 8601 - when the entry was created
-  updatedAt?: string;      // ISO 8601 - when the entry was last updated
+  loggedAt: string; // ISO 8601 - when the entry was created
+  updatedAt?: string; // ISO 8601 - when the entry was last updated
   experiencedDate: string; // YYYY-MM-DD - date the emotion was experienced
-  valence: number;         // -3 to +3: Negative (-3) to Positive (+3)
-  energy: number;          // -3 to +3: Low (-3) to High (+3)
+  energy: number; // 0 to 6: Body battery (0=drained, 3=ok, 6=energetic)
+  nsState: number; // 0 to 6: Nervous system state (0=shutdown, 2=calm, 6=explosive)
   emotions: string[];
   tags: string[];
   note: string;
   experiencedPeriod?: ExperiencedPeriod;
 }
 
-export type View = "home" | "checkin" | "addevent" | "trends" | "settings" | "calendar";
+export type View =
+  | "home"
+  | "checkin"
+  | "addevent"
+  | "trends"
+  | "settings"
+  | "calendar";
 
 export interface EventType {
   id: string;
@@ -30,17 +36,17 @@ export interface EventType {
 
 export interface LoggedEvent {
   id: string;
-  loggedAt: string;    // ISO 8601 - when the event was entered
-  updatedAt?: string;  // ISO 8601 - when the event was last updated
-  eventDate: string;   // YYYY-MM-DD - when the event occurred
-  eventTime?: string;  // HH:MM - absent or empty means all-day
-  typeId: string;      // references EventType.id
+  loggedAt: string; // ISO 8601 - when the event was entered
+  updatedAt?: string; // ISO 8601 - when the event was last updated
+  eventDate: string; // YYYY-MM-DD - when the event occurred
+  eventTime?: string; // HH:MM - absent or empty means all-day
+  typeId: string; // references EventType.id
   note?: string;
 }
 
 export type TrendRange = "week" | "month" | "3month";
 
-export interface MoodOption {
+export interface EnergyOption {
   value: number;
   label: string;
   color: string;

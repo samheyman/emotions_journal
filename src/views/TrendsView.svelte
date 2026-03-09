@@ -4,10 +4,10 @@
   import { entries } from '../lib/stores/entries';
   import { events } from '../lib/stores/events';
   import { eventTypes } from '../lib/stores/eventTypes';
-  import MoodChart from '../components/MoodChart.svelte';
+  import EnergyChart from '../components/EnergyChart.svelte';
 
   let range: TrendRange = $state('week');
-  let trendsTab: 'mood' | 'events' = $state('mood');
+  let trendsTab: 'energy' | 'events' = $state('energy');
 
   const ranges: { value: TrendRange; label: string }[] = [
     { value: 'week', label: '7 days' },
@@ -26,11 +26,12 @@
   let rangedEvents = $derived($events.filter(e => e.eventDate >= cutoffDate));
 
   let totalEntries = $derived(rangedEntries.length);
-  let avgMood = $derived((() => {
-    if (rangedEntries.length === 0) return 0;
+  let avgEnergy = $derived((() => {
+    if (rangedEntries.length === 0) return 3;
     return Math.round((rangedEntries.reduce((s, e: any) => {
-      if (typeof e.valence === 'number' && !isNaN(e.valence)) return s + e.valence;
-      if (typeof e.mood === 'number' && !isNaN(e.mood)) return s + (e.mood - 4);
+      if (typeof e.energy === 'number' && !isNaN(e.energy)) return s + e.energy;
+      if (typeof e.valence === 'number' && !isNaN(e.valence)) return s + (e.valence + 3);
+      if (typeof e.mood === 'number' && !isNaN(e.mood)) return s + (e.mood - 1);
       return s;
     }, 0) / rangedEntries.length) * 10) / 10;
   })());
@@ -102,9 +103,9 @@
   <div class="trends-tabs">
     <button
       class="trends-tab"
-      class:active={trendsTab === 'mood'}
-      onclick={() => trendsTab = 'mood'}
-    >Mood</button>
+      class:active={trendsTab === 'energy'}
+      onclick={() => trendsTab = 'energy'}
+    >Energy</button>
     <button
       class="trends-tab"
       class:active={trendsTab === 'events'}
@@ -112,15 +113,15 @@
     >Events</button>
   </div>
 
-  {#if trendsTab === 'mood'}
+  {#if trendsTab === 'energy'}
     <div class="stats-row">
       <div class="stat">
         <span class="stat-value">{totalEntries}</span>
         <span class="stat-label">entries</span>
       </div>
       <div class="stat">
-        <span class="stat-value" style="color: var(--accent)">{avgMood > 0 ? '+' : ''}{avgMood}</span>
-        <span class="stat-label">avg mood</span>
+        <span class="stat-value" style="color: var(--accent)">{avgEnergy}</span>
+        <span class="stat-label">avg energy</span>
       </div>
     </div>
 
@@ -131,7 +132,7 @@
           <p class="empty-hint">Complete some check-ins to see your trends</p>
         </div>
       {:else}
-        <MoodChart entries={$entries} {range} />
+        <EnergyChart entries={$entries} {range} />
       {/if}
     </div>
   {:else}

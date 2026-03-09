@@ -107,7 +107,7 @@
     {#if importState.step === 'confirming'}
       <div class="confirm-box">
         <p class="confirm-text">
-          {#if importState.newEntries.length > 0}<strong>{importState.newEntries.length}</strong> new {importState.newEntries.length === 1 ? 'entry' : 'entries'}{/if}{#if importState.newEntries.length > 0 && importState.newEvents.length > 0} and {/if}{#if importState.newEvents.length > 0}<strong>{importState.newEvents.length}</strong> new {importState.newEvents.length === 1 ? 'event' : 'events'}{/if} will be added.{#if importState.dupEntries + importState.dupEvents > 0} {importState.dupEntries + importState.dupEvents} {importState.dupEntries + importState.dupEvents === 1 ? 'duplicate' : 'duplicates'} skipped.{/if} Continue?
+          {#if importState.newEntries.length > 0}<strong>{importState.newEntries.length}</strong> new {importState.newEntries.length === 1 ? 'entry' : 'entries'}{/if}{#if importState.newEntries.length > 0 && importState.newEvents.length > 0} and {/if}{#if importState.newEvents.length > 0}<strong>{importState.newEvents.length}</strong> new {importState.newEvents.length === 1 ? 'event' : 'events'}{/if} will be added. {#if importState.dupEntries + importState.dupEvents > 0} {importState.dupEntries + importState.dupEvents} {importState.dupEntries + importState.dupEvents === 1 ? 'duplicate' : 'duplicates'} skipped.{/if} Continue?
         </p>
         <div class="confirm-actions">
           <button class="btn btn-ghost" onclick={cancelImport}>Cancel</button>

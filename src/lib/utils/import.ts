@@ -1,4 +1,4 @@
-import type { EmotionEntry, EventType, LoggedEvent } from '../types';
+import type { EmotionEntry, EventType, LoggedEvent } from "../types";
 
 /**
  * Convert a date string to a local YYYY-MM-DD.
@@ -7,64 +7,94 @@ import type { EmotionEntry, EventType, LoggedEvent } from '../types';
  * avoiding the UTC-midnight-shifts-the-date bug.
  */
 function toLocalDate(dateStr: string): string {
-  if (!dateStr.includes('T')) return dateStr.slice(0, 10);
+  if (!dateStr.includes("T")) return dateStr.slice(0, 10);
   const d = new Date(dateStr);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export function validateEntry(obj: unknown): EmotionEntry | null {
-  if (obj === null || typeof obj !== 'object') return null;
+  if (obj === null || typeof obj !== "object") return null;
 
   const o = obj as Record<string, unknown>;
 
-  if (typeof o.id !== 'string' || o.id === '') return null;
+  if (typeof o.id !== "string" || o.id === "") return null;
 
-  if (typeof o.experiencedDate !== 'string' || o.experiencedDate === '') return null;
+  if (typeof o.experiencedDate !== "string" || o.experiencedDate === "")
+    return null;
   const experiencedDate = toLocalDate(o.experiencedDate);
 
-  if (typeof o.valence !== 'number') return null;
-  if (typeof o.energy !== 'number') return null;
-  if (!Array.isArray(o.emotions) || !o.emotions.every((e: unknown) => typeof e === 'string')) return null;
-  const tags: string[] = Array.isArray(o.tags) && o.tags.every((t: unknown) => typeof t === 'string')
-    ? o.tags as string[]
-    : [];
-  if (typeof o.note !== 'string') return null;
+  // Support new format (energy + nsState, 0..6), intermediate (energy + activation), and old (valence + energy, -3..+3)
+  let energy: number;
+  let nsState: number;
+  if (typeof o.nsState === "number") {
+    if (typeof o.energy !== "number") return null;
+    energy = o.energy;
+    nsState = o.nsState;
+  } else if (typeof o.activation === "number") {
+    if (typeof o.energy !== "number") return null;
+    energy = o.energy;
+    nsState = o.activation;
+  } else if (typeof o.valence === "number") {
+    energy = o.valence + 3;
+    nsState = (typeof o.energy === "number" ? o.energy : 0) + 3;
+  } else {
+    return null;
+  }
 
-  const loggedAt = typeof o.loggedAt === 'string' && o.loggedAt !== '' ? o.loggedAt : new Date().toISOString();
+  if (
+    !Array.isArray(o.emotions) ||
+    !o.emotions.every((e: unknown) => typeof e === "string")
+  )
+    return null;
+  const tags: string[] =
+    Array.isArray(o.tags) && o.tags.every((t: unknown) => typeof t === "string")
+      ? (o.tags as string[])
+      : [];
+  if (typeof o.note !== "string") return null;
+
+  const loggedAt =
+    typeof o.loggedAt === "string" && o.loggedAt !== ""
+      ? o.loggedAt
+      : new Date().toISOString();
 
   const entry: EmotionEntry = {
     id: o.id,
     loggedAt,
     experiencedDate,
-    valence: o.valence as number,
-    energy: o.energy as number,
+    energy,
+    nsState,
     emotions: o.emotions as string[],
     tags,
     note: o.note as string,
   };
 
-  if (typeof o.updatedAt === 'string' && o.updatedAt !== '') {
+  if (typeof o.updatedAt === "string" && o.updatedAt !== "") {
     entry.updatedAt = o.updatedAt;
   }
 
-  const validPeriods = ['morning', 'afternoon', 'evening', 'night', 'allday'];
-  entry.experiencedPeriod = (typeof o.experiencedPeriod === 'string' && validPeriods.includes(o.experiencedPeriod))
-    ? o.experiencedPeriod as EmotionEntry['experiencedPeriod']
-    : 'allday';
+  const validPeriods = ["morning", "afternoon", "evening", "night", "allday"];
+  entry.experiencedPeriod =
+    typeof o.experiencedPeriod === "string" &&
+    validPeriods.includes(o.experiencedPeriod)
+      ? (o.experiencedPeriod as EmotionEntry["experiencedPeriod"])
+      : "allday";
 
   return entry;
 }
 
 export function validateEvent(obj: unknown): LoggedEvent | null {
-  if (obj === null || typeof obj !== 'object') return null;
+  if (obj === null || typeof obj !== "object") return null;
 
   const o = obj as Record<string, unknown>;
 
-  if (typeof o.id !== 'string' || o.id === '') return null;
-  if (typeof o.typeId !== 'string' || o.typeId === '') return null;
-  if (typeof o.eventDate !== 'string' || o.eventDate === '') return null;
+  if (typeof o.id !== "string" || o.id === "") return null;
+  if (typeof o.typeId !== "string" || o.typeId === "") return null;
+  if (typeof o.eventDate !== "string" || o.eventDate === "") return null;
 
-  const loggedAt = typeof o.loggedAt === 'string' && o.loggedAt !== '' ? o.loggedAt : new Date().toISOString();
+  const loggedAt =
+    typeof o.loggedAt === "string" && o.loggedAt !== ""
+      ? o.loggedAt
+      : new Date().toISOString();
 
   const event: LoggedEvent = {
     id: o.id,
@@ -73,13 +103,13 @@ export function validateEvent(obj: unknown): LoggedEvent | null {
     typeId: o.typeId,
   };
 
-  if (typeof o.updatedAt === 'string' && o.updatedAt !== '') {
+  if (typeof o.updatedAt === "string" && o.updatedAt !== "") {
     event.updatedAt = o.updatedAt;
   }
-  if (typeof o.eventTime === 'string' && o.eventTime !== '') {
+  if (typeof o.eventTime === "string" && o.eventTime !== "") {
     event.eventTime = o.eventTime;
   }
-  if (typeof o.note === 'string' && o.note !== '') {
+  if (typeof o.note === "string" && o.note !== "") {
     event.note = o.note;
   }
 
@@ -87,13 +117,13 @@ export function validateEvent(obj: unknown): LoggedEvent | null {
 }
 
 export function validateEventType(obj: unknown): EventType | null {
-  if (obj === null || typeof obj !== 'object') return null;
+  if (obj === null || typeof obj !== "object") return null;
 
   const o = obj as Record<string, unknown>;
 
-  if (typeof o.id !== 'string' || o.id === '') return null;
-  if (typeof o.name !== 'string' || o.name === '') return null;
-  if (typeof o.emoji !== 'string') return null;
+  if (typeof o.id !== "string" || o.id === "") return null;
+  if (typeof o.name !== "string" || o.name === "") return null;
+  if (typeof o.emoji !== "string") return null;
 
   return {
     id: o.id,
@@ -117,9 +147,13 @@ export async function parseImportFile(file: File): Promise<{
   // Accept both the export format { metadata, entries, events } and a raw entries array
   const rawEntries: unknown[] = Array.isArray(parsed)
     ? parsed
-    : Array.isArray(parsed?.entries) ? parsed.entries : [];
+    : Array.isArray(parsed?.entries)
+      ? parsed.entries
+      : [];
 
-  const rawEvents: unknown[] = Array.isArray(parsed?.events) ? parsed.events : [];
+  const rawEvents: unknown[] = Array.isArray(parsed?.events)
+    ? parsed.events
+    : [];
 
   const validEntries: EmotionEntry[] = [];
   let discardedEntries = 0;
@@ -137,11 +171,19 @@ export async function parseImportFile(file: File): Promise<{
     else discardedEvents++;
   }
 
-  const rawEventTypes: unknown[] = Array.isArray(parsed?.customEventTypes) ? parsed.customEventTypes : [];
+  const rawEventTypes: unknown[] = Array.isArray(parsed?.customEventTypes)
+    ? parsed.customEventTypes
+    : [];
   const validEventTypes: EventType[] = rawEventTypes.flatMap((item) => {
     const t = validateEventType(item);
     return t ? [t] : [];
   });
 
-  return { validEntries, validEvents, validEventTypes, discardedEntries, discardedEvents };
+  return {
+    validEntries,
+    validEvents,
+    validEventTypes,
+    discardedEntries,
+    discardedEvents,
+  };
 }
