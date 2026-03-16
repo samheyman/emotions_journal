@@ -45,6 +45,8 @@
     lastOccurrence: string | null;
   }
 
+  let rangeDays = $derived(range === 'week' ? 7 : range === 'month' ? 30 : 90);
+
   let eventStats = $derived((() => {
     const stats: EventStat[] = [];
     for (const type of $eventTypes) {
@@ -55,15 +57,10 @@
         (a, b) => new Date(a.eventDate + 'T12:00:00').getTime() - new Date(b.eventDate + 'T12:00:00').getTime()
       );
 
-      let avgDaysBetween: number | null = null;
-      if (sorted.length > 1) {
-        let totalMs = 0;
-        for (let i = 1; i < sorted.length; i++) {
-          totalMs += new Date(sorted[i].eventDate + 'T12:00:00').getTime() - new Date(sorted[i - 1].eventDate + 'T12:00:00').getTime();
-        }
-        const avgMs = totalMs / (sorted.length - 1);
-        avgDaysBetween = Math.round(avgMs / (1000 * 60 * 60 * 24));
-      }
+      // Rate-based: how many days per occurrence over the selected period
+      const avgDaysBetween: number | null = sorted.length > 1
+        ? Math.round(rangeDays / sorted.length)
+        : null;
 
       const last = sorted[sorted.length - 1];
       const lastDate = new Date(last.eventDate + 'T12:00:00').toLocaleDateString([], {
