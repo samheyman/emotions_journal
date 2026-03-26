@@ -89,7 +89,22 @@
   </header>
 
   <div class="content">
-    <div class="date-row">
+   
+
+    <div class="types-grid">
+      {#each $eventTypes.filter(t => t.visible !== false) as type (type.id)}
+        <button
+          class="type-btn"
+          class:selected={selectedTypeId === type.id}
+          onclick={() => selectedTypeId = type.id}
+        >
+          <EventIcon name={type.emoji || 'Star'} size={20} />
+          <span class="type-name">{type.name}</span>
+        </button>
+      {/each}
+    </div>
+
+     <div class="date-row">
       <button class="date-chip" class:past={!isToday} onclick={openDatePicker}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
@@ -112,27 +127,14 @@
       </select>
     </div>
 
-    <div class="types-grid">
-      {#each $eventTypes.filter(t => t.visible !== false) as type (type.id)}
-        <button
-          class="type-btn"
-          class:selected={selectedTypeId === type.id}
-          onclick={() => selectedTypeId = type.id}
-        >
-          <EventIcon name={type.emoji || 'Star'} size={20} />
-          <span class="type-name">{type.name}</span>
-        </button>
-      {/each}
-    </div>
-
     <div class="note-section">
       <textarea
         bind:value={note}
-        placeholder="Add a note (optional)..."
+        placeholder="What were you feeling/thinking? Any context you want to remember?"
         rows="3"
-        maxlength="300"
+        maxlength="500"
       ></textarea>
-      <span class="char-count" class:visible={note.length > 0}>{note.length}/300</span>
+      <span class="char-count" class:visible={note.length > 0}>{note.length}/500</span>
     </div>
   </div>
 

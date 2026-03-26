@@ -321,7 +321,7 @@
     </div>  
         <div class="discharge-step">
          <div class="intensity-section">
-            <p class="intensity-label">Energy level</p>
+            <p class="intensity-label">Mood/energy</p>
             <EnergySelect bind:energy onuserinput={() => energyManuallySet = true} />
           </div>
           <div class="intensity-section">

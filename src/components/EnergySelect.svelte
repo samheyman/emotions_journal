@@ -29,11 +29,13 @@
     style="--thumb-color: {thumbColor}; --fill-pct: {fillPct}"
   />
   <div class="labels">
-    <span class="label">Drained</span>
-    <span class="label">Sluggish</span>
+    <span class="label">Bad</span>
+    <span class="label"></span>
+    <span class="label"></span>
     <span class="label">OK</span>
-    <span class="label">Good</span>
-    <span class="label">Energetic</span>
+    <span class="label"></span>
+    <span class="label"></span>
+    <span class="label">Amazing</span>
   </div>
 </div>
 

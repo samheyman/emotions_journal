@@ -30,9 +30,11 @@
   />
   <div class="labels">
     <span class="label">Shutdown</span>
+    <span class="label"></span>
+    <span class="label"></span>
     <span class="label">Calm</span>
-    <span class="label">Tense</span>
-    <span class="label">Agitated</span>
+    <span class="label"></span>
+    <span class="label"></span>
     <span class="label">Explosive</span>
   </div>
 </div>

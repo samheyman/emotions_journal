@@ -102,12 +102,12 @@
       class="trends-tab"
       class:active={trendsTab === 'energy'}
       onclick={() => trendsTab = 'energy'}
-    >Energy</button>
+    >Mood/energy</button>
     <button
       class="trends-tab"
       class:active={trendsTab === 'events'}
       onclick={() => trendsTab = 'events'}
-    >Events</button>
+    >Behaviours</button>
   </div>
 
   {#if trendsTab === 'energy'}
